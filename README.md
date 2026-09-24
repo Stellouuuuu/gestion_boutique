@@ -52,6 +52,23 @@ Cela crée le dossier `dist/` (export Expo + service worker Workbox). Les en-tê
 
 Sur le web, Safari peut effacer les données locales : la synchro Supabase reste obligatoire ; l’indicateur d’accueil est le même que sur Android.
 
+## APK Android (installation manuelle)
+
+Profil EAS `preview` → fichier **.apk** (pas le Play Store) :
+
+```bash
+npx eas-cli@latest build -p android --profile preview
+```
+
+Quand le build est prêt, EAS affiche un lien de téléchargement. Sur le Samsung :
+
+1. Ouvrir le lien (ou partager le fichier `.apk`)
+2. Autoriser l’installation depuis des sources inconnues si Android le demande
+3. Installer et ouvrir **Boutique de Maman**
+4. Se connecter avec le numéro et le mot de passe
+
+Les variables `EXPO_PUBLIC_SUPABASE_*` sont définies dans EAS (environnement `preview`). Les régénérer / mettre à jour avec `eas env:set` si besoin.
+
 ## Compte test
 
 - Téléphone : `00 00 00 01`

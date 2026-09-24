@@ -43,7 +43,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "build:web": "expo export -p web && npx workbox-cli generateSW workbox-config.js"
+    "build:web": "expo export -p web && npx workbox-cli generateSW workbox-config.js",
+    "build:android": "npx eas-cli@latest build -p android --profile preview"
   },
   "private": true
 }

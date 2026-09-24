@@ -2,6 +2,7 @@
   "expo": {
     "name": "Boutique de Maman",
     "slug": "maman_boutique",
+    "owner": "stellagdi",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
