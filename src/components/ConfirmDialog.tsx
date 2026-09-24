@@ -57,9 +57,11 @@ export function ConfirmDialog({
         <Button ref={safeRef} variant="indigo-outline" onPress={onSafe} accessibilityLabel={safeLabel}>
           {safeLabel}
         </Button>
-        <Button variant="danger-solid" onPress={onConfirmDanger} accessibilityLabel={dangerLabel}>
-          {dangerLabel}
-        </Button>
+        {dangerLabel ? (
+          <Button variant="danger-solid" onPress={onConfirmDanger} accessibilityLabel={dangerLabel}>
+            {dangerLabel}
+          </Button>
+        ) : null}
       </View>
     </Sheet>
   );

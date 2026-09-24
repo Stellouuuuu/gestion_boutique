@@ -13,12 +13,14 @@ import { telechargerBoutiqueSiVide } from '../db/remote';
 import { getSetting, SETTINGS_KEYS } from '../db/settings';
 import { useAdminSession } from '../lib/AdminSession';
 import { useAuth } from '../lib/AuthSession';
+import { useSync } from '../lib/SyncSession';
 
 export default function HomeScreen() {
   const { colors } = useTheme();
   const db = useSQLiteContext();
   const { unlocked } = useAdminSession();
-  const { loading: authLoading, session, membre } = useAuth();
+  const { loading: authLoading, isLocallyAuthenticated, membre } = useAuth();
+  const { indicateur, refreshIndicateur } = useSync();
   const [totalJour, setTotalJour] = useState(0);
   const [finis, setFinis] = useState(0);
   const [pinReady, setPinReady] = useState<boolean | null>(null);
@@ -27,7 +29,7 @@ export default function HomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      if (!session) {
+      if (!isLocallyAuthenticated) {
         setPinReady(null);
         return;
       }
@@ -39,23 +41,23 @@ export default function HomeScreen() {
       return () => {
         active = false;
       };
-    }, [db, session])
+    }, [db, isLocallyAuthenticated])
   );
 
   useEffect(() => {
     if (authLoading) return;
-    if (!session) {
+    if (!isLocallyAuthenticated) {
       router.replace('/connexion');
       return;
     }
     if (pinReady === false) {
       router.replace('/bienvenue');
     }
-  }, [authLoading, session, pinReady]);
+  }, [authLoading, isLocallyAuthenticated, pinReady]);
 
   // Après une mise à jour de schéma (tables vidées), retélécharge si la boutique est vide.
   useEffect(() => {
-    if (!session || !membre || pinReady !== true) return;
+    if (!isLocallyAuthenticated || !membre || pinReady !== true) return;
     const boutiqueId = membre.boutiqueId;
     let active = true;
     (async () => {
@@ -72,7 +74,7 @@ export default function HomeScreen() {
     return () => {
       active = false;
     };
-  }, [db, session, membre, pinReady]);
+  }, [db, isLocallyAuthenticated, membre, pinReady]);
 
   useFocusEffect(
     useCallback(() => {
@@ -86,15 +88,16 @@ export default function HomeScreen() {
           setTotalJour(totaux.total);
           setFinis(nbFinis);
         }
+        await refreshIndicateur();
       })();
       return () => {
         active = false;
       };
-    }, [db])
+    }, [db, refreshIndicateur])
   );
 
   const articlesReady = !!membre && articlesReadyFor === membre.boutiqueId;
-  const pret = !authLoading && !!session && pinReady === true && articlesReady;
+  const pret = !authLoading && isLocallyAuthenticated && pinReady === true && articlesReady;
   if (!pret) {
     return (
       <ScreenScroll>
@@ -104,6 +107,13 @@ export default function HomeScreen() {
       </ScreenScroll>
     );
   }
+
+  const indicateurColor =
+    indicateur.kind === 'ok'
+      ? colors.ok
+      : indicateur.kind === 'stale'
+        ? colors.warn
+        : colors.muted;
 
   return (
     <ScreenScroll>
@@ -130,6 +140,13 @@ export default function HomeScreen() {
           </Text>
         </View>
       </View>
+
+      <Text
+        accessibilityRole="text"
+        style={[styles.syncHint, { color: indicateurColor }]}
+      >
+        {indicateur.label}
+      </Text>
 
       <View style={styles.big}>
         <BigButton
@@ -183,6 +200,12 @@ const styles = StyleSheet.create({
   stat: { flex: 1, borderRadius: 16, padding: 16 },
   statLabel: { fontSize: 13, fontWeight: '700', letterSpacing: 0.6 },
   statValue: { fontSize: 26, marginTop: 4 },
+  syncHint: {
+    fontSize: 14,
+    marginBottom: 14,
+    marginTop: -4,
+    textAlign: 'center',
+  },
   big: { gap: 14 },
   gestion: {
     marginTop: 36,

@@ -4,19 +4,49 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { supabase } from './supabase';
 import { telVersIdentifiant } from './identifiant';
 import { fetchMembre, type Membre } from '../db/remote';
+import { countPending } from '../db/syncStatus';
 import { getSetting, setSetting, deleteSetting, SETTINGS_KEYS } from '../db/settings';
+
+export class PendingSyncError extends Error {
+  readonly pendingVentes: number;
+  readonly pendingTotal: number;
+  constructor(pendingVentes: number, pendingTotal: number) {
+    const n = pendingVentes > 0 ? pendingVentes : pendingTotal;
+    const label =
+      pendingVentes > 0
+        ? n === 1
+          ? '1 vente n’est pas encore sauvegardée'
+          : `${n} ventes ne sont pas encore sauvegardées`
+        : n === 1
+          ? '1 modification n’est pas encore sauvegardée'
+          : `${n} modifications ne sont pas encore sauvegardées`;
+    super(`${label} en ligne. Connectez-vous à Internet et réessayez.`);
+    this.name = 'PendingSyncError';
+    this.pendingVentes = pendingVentes;
+    this.pendingTotal = pendingTotal;
+  }
+}
 
 interface AuthContextValue {
   /** Vrai tant qu'on n'a pas déterminé s'il y a une session (et, si oui, la boutique). */
   loading: boolean;
   session: Session | null;
   membre: Membre | null;
+  /**
+   * Connectée pour la navigation : session Supabase OU cache boutique local.
+   * Hors ligne / jeton expiré : on reste sur l'accueil tant que le cache existe.
+   */
+  isLocallyAuthenticated: boolean;
   signIn: (tel: string, motDePasse: string) => Promise<void>;
   rejoindre: (code: string, nom: string, tel: string, motDePasse: string) => Promise<void>;
+  /** Refuse s'il reste des lignes a_envoyer (PendingSyncError). */
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+/** Déconnexion volontaire en cours : autorise le nettoyage du membre sur SIGNED_OUT. */
+let signOutIntentionnel = false;
 
 export function AuthSessionProvider({ children }: PropsWithChildren) {
   const db = useSQLiteContext();
@@ -62,30 +92,41 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     let active = true;
     (async () => {
-      const cache = await chargerMembreLocal();
-      const { data } = await supabase.auth.getSession();
-      if (!active) return;
-      setSession(data.session);
-      if (data.session) {
-        if (cache) rafraichirMembreDistant(data.session.user.id);
-        else await rafraichirMembreDistant(data.session.user.id);
+      // 1. Cache local d'abord → l'accueil peut s'afficher sans réseau.
+      await chargerMembreLocal();
+      // 2. Session persistée (même expirée) : getSession lit le storage, ne force pas le réseau.
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!active) return;
+        setSession(data.session);
+        if (data.session) {
+          void rafraichirMembreDistant(data.session.user.id);
+        }
+      } catch {
+        // Storage / réseau : on garde le membre local déjà chargé.
       }
-      setLoading(false);
+      if (active) setLoading(false);
     })();
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, newSession) => {
+      if (event === 'SIGNED_OUT') {
+        setSession(null);
+        if (signOutIntentionnel) {
+          signOutIntentionnel = false;
+          setMembre(null);
+        }
+        // Sinon : échec de refresh hors ligne / transient → on garde le membre local.
+        return;
+      }
       setSession(newSession);
-      if (event === 'SIGNED_IN' && newSession) {
-        rafraichirMembreDistant(newSession.user.id);
-      } else if (event === 'SIGNED_OUT') {
-        setMembre(null);
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && newSession) {
+        void rafraichirMembreDistant(newSession.user.id);
       }
     });
     return () => {
       active = false;
       sub.subscription.unsubscribe();
     };
-    // Ne s'exécute qu'au montage : chargerMembreLocal/rafraichirMembreDistant sont stables (useCallback sur `db`).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -100,9 +141,6 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
   const rejoindre = useCallback(
     async (code: string, nom: string, tel: string, motDePasse: string) => {
       const email = telVersIdentifiant(tel);
-      // Si un essai précédent a réussi l'inscription mais échoué sur le code (mauvais code
-      // retapé), on est déjà connecté avec ce compte : on ne réinscrit pas (ce qui échouerait
-      // avec « déjà inscrit »), on retente juste rejoindre_boutique avec la session existante.
       const {
         data: { session: dejaConnecte },
       } = await supabase.auth.getSession();
@@ -120,17 +158,39 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
   );
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    const pending = await countPending(db);
+    if (pending.total > 0) {
+      throw new PendingSyncError(pending.ventes, pending.total);
+    }
+    signOutIntentionnel = true;
     await Promise.all([
       deleteSetting(db, SETTINGS_KEYS.boutiqueId),
       deleteSetting(db, SETTINGS_KEYS.role),
       deleteSetting(db, SETTINGS_KEYS.membreNom),
     ]);
     setMembre(null);
+    setSession(null);
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // Hors ligne : le cache local est déjà vidé ; on est déconnecté pour l'app.
+    }
   }, [db]);
 
+  const isLocallyAuthenticated = session != null || membre != null;
+
   return (
-    <AuthContext.Provider value={{ loading, session, membre, signIn, rejoindre, signOut }}>
+    <AuthContext.Provider
+      value={{
+        loading,
+        session,
+        membre,
+        isLocallyAuthenticated,
+        signIn,
+        rejoindre,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

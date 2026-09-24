@@ -1,4 +1,5 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
+import { notifyLocalDataChange } from '../lib/syncBus';
 import { newId } from '../lib/uuid';
 import { getSetting, SETTINGS_KEYS } from './settings';
 import { ARTICLE_SELECT_WITH_STOCK } from './stockSql';
@@ -125,6 +126,7 @@ export async function createArticle(db: SQLiteDatabase, input: NewArticleInput):
 
   const created = await getArticle(db, id);
   if (!created) throw new Error('Échec de la création de l’article.');
+  notifyLocalDataChange();
   return created;
 }
 
@@ -154,6 +156,7 @@ export async function updateArticleFields(
      WHERE id = ?`,
     [nom, input.categorie, input.prix_detail, input.prix_gros, input.prix_achat, now, id]
   );
+  notifyLocalDataChange();
 }
 
 export async function softDeleteArticle(db: SQLiteDatabase, id: string): Promise<void> {
@@ -162,6 +165,7 @@ export async function softDeleteArticle(db: SQLiteDatabase, id: string): Promise
     'UPDATE articles SET actif = 0, modifie_le = ?, a_envoyer = 1 WHERE id = ?',
     [now, id]
   );
+  notifyLocalDataChange();
 }
 
 export async function countArticles(db: SQLiteDatabase, boutiqueId?: string): Promise<number> {

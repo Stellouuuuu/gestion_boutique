@@ -18,6 +18,7 @@ import { migrateDatabase } from '../db/migrate';
 import { ToastProvider } from '../components/Toast';
 import { AdminSessionProvider } from '../lib/AdminSession';
 import { AuthSessionProvider } from '../lib/AuthSession';
+import { SyncSessionProvider } from '../lib/SyncSession';
 import { useTheme } from '../theme/useTheme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -64,11 +65,13 @@ export default function RootLayout() {
       <Suspense fallback={<LoadingScreen />}>
         <SQLiteProvider databaseName="boutique.db" onInit={migrateDatabase} useSuspense>
           <AuthSessionProvider>
-            <ToastProvider>
-              <AdminSessionProvider>
-                <ThemedStack />
-              </AdminSessionProvider>
-            </ToastProvider>
+            <SyncSessionProvider>
+              <ToastProvider>
+                <AdminSessionProvider>
+                  <ThemedStack />
+                </AdminSessionProvider>
+              </ToastProvider>
+            </SyncSessionProvider>
           </AuthSessionProvider>
         </SQLiteProvider>
       </Suspense>

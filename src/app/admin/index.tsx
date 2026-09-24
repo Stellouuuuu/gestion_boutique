@@ -12,7 +12,8 @@ import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { useTheme } from '../../theme/useTheme';
 import { listArticles, listArticlesSansPrix, filterByQuery } from '../../db/articles';
 import type { Article, Categorie } from '../../db/types';
-import { useAuth } from '../../lib/AuthSession';
+import { useAuth, PendingSyncError } from '../../lib/AuthSession';
+import { useToast } from '../../components/Toast';
 
 type Filtre = 'tous' | 'a_completer';
 
@@ -28,17 +29,28 @@ function AdminList() {
   const db = useSQLiteContext();
   const { colors } = useTheme();
   const { membre, signOut } = useAuth();
+  const { showToast } = useToast();
   const [cat, setCat] = useState<Categorie>('meches');
   const [query, setQuery] = useState('');
   const [filtre, setFiltre] = useState<Filtre>('tous');
   const [articles, setArticles] = useState<Article[]>([]);
   const [sansPrixCount, setSansPrixCount] = useState(0);
   const [confirmDeconnexion, setConfirmDeconnexion] = useState(false);
+  const [blocageDeconnexion, setBlocageDeconnexion] = useState<string | null>(null);
 
   const onDeconnexion = async () => {
-    setConfirmDeconnexion(false);
-    await signOut();
-    router.replace('/connexion');
+    try {
+      await signOut();
+      setConfirmDeconnexion(false);
+      router.replace('/connexion');
+    } catch (e) {
+      setConfirmDeconnexion(false);
+      if (e instanceof PendingSyncError) {
+        setBlocageDeconnexion(e.message);
+      } else {
+        showToast('Impossible de se déconnecter pour l’instant.');
+      }
+    }
   };
 
   const load = useCallback(async () => {
@@ -138,6 +150,16 @@ function AdminList() {
         onSafe={() => setConfirmDeconnexion(false)}
         dangerLabel="Oui, me déconnecter"
         onConfirmDanger={onDeconnexion}
+      />
+
+      <ConfirmDialog
+        visible={blocageDeconnexion != null}
+        title="Pas encore"
+        description={blocageDeconnexion ?? ''}
+        safeLabel="D’accord"
+        onSafe={() => setBlocageDeconnexion(null)}
+        dangerLabel=""
+        onConfirmDanger={() => setBlocageDeconnexion(null)}
       />
     </ScreenList>
   );

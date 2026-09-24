@@ -1,4 +1,5 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
+import { notifyLocalDataChange } from '../lib/syncBus';
 import { newId } from '../lib/uuid';
 import { getArticle } from './articles';
 import { getSetting, SETTINGS_KEYS } from './settings';
@@ -65,6 +66,7 @@ async function insertMouvement(
   );
   const created = await db.getFirstAsync<Mouvement>('SELECT * FROM mouvements WHERE id = ?', [id]);
   if (!created) throw new Error('Échec de l’enregistrement du mouvement.');
+  notifyLocalDataChange();
   return created;
 }
 
@@ -187,6 +189,7 @@ export async function cancelMouvement(db: SQLiteDatabase, mouvementId: string): 
     'UPDATE mouvements SET annule = 1, annule_le = ?, modifie_le = ?, a_envoyer = 1 WHERE id = ?',
     [now, now, m.id]
   );
+  notifyLocalDataChange();
 }
 
 function startEndOfToday(): { start: string; end: string } {
