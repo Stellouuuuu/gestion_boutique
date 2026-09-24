@@ -1,0 +1,2214 @@
+[
+ {
+  "nom": "4 flowers",
+  "categorie": "meches",
+  "prix_detail": 1400,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "4pcs",
+  "categorie": "meches",
+  "prix_detail": 3000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "8 amies amaka",
+  "categorie": "meches",
+  "prix_detail": 1500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Active",
+  "categorie": "meches",
+  "prix_detail": 2200,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Adorable",
+  "categorie": "meches",
+  "prix_detail": 5000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Afro pondo grd",
+  "categorie": "meches",
+  "prix_detail": 1335,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Amanda",
+  "categorie": "meches",
+  "prix_detail": 1670,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "ANI Spring",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ari-C",
+  "categorie": "meches",
+  "prix_detail": 3000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bamba plus grand",
+  "categorie": "meches",
+  "prix_detail": 4500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bella",
+  "categorie": "meches",
+  "prix_detail": 2500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Boho water culy",
+  "categorie": "meches",
+  "prix_detail": 2000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bomba plus",
+  "categorie": "meches",
+  "prix_detail": 2800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bon-street",
+  "categorie": "meches",
+  "prix_detail": 2000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bounce",
+  "categorie": "meches",
+  "prix_detail": 1600,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bouncy kinky",
+  "categorie": "meches",
+  "prix_detail": 2000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Brillant",
+  "categorie": "meches",
+  "prix_detail": 2000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Burtherfly twist grd",
+  "categorie": "meches",
+  "prix_detail": 4000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Butterfly twist pt",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Celina locs",
+  "categorie": "meches",
+  "prix_detail": 4000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ceres",
+  "categorie": "meches",
+  "prix_detail": 1400,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chery",
+  "categorie": "meches",
+  "prix_detail": 5500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Clara tissage",
+  "categorie": "meches",
+  "prix_detail": 9000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Closure",
+  "categorie": "meches",
+  "prix_detail": 2500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Corde noir",
+  "categorie": "meches",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Corde noir1500 Baby",
+  "categorie": "meches",
+  "prix_detail": 170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cozi original",
+  "categorie": "meches",
+  "prix_detail": 1170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cozy vert pt",
+  "categorie": "meches",
+  "prix_detail": 1170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cro chili locs",
+  "categorie": "meches",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cro elim",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cro Full pock",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cro gini",
+  "categorie": "meches",
+  "prix_detail": 5000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cro lulu",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cro sultant",
+  "categorie": "meches",
+  "prix_detail": 4000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cro unique",
+  "categorie": "meches",
+  "prix_detail": 3800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cro vill dread",
+  "categorie": "meches",
+  "prix_detail": 3000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cro-baby",
+  "categorie": "meches",
+  "prix_detail": 5000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Crochet Aviv churk",
+  "categorie": "meches",
+  "prix_detail": 2500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Crochet culy twit braid",
+  "categorie": "meches",
+  "prix_detail": 1800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Crochet Liz twist",
+  "categorie": "meches",
+  "prix_detail": 4500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Crochet max locs",
+  "categorie": "meches",
+  "prix_detail": 5000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Crochet pristine",
+  "categorie": "meches",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Crochet shasha",
+  "categorie": "meches",
+  "prix_detail": 3800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Croflout locs plus",
+  "categorie": "meches",
+  "prix_detail": 4800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cro-meg",
+  "categorie": "meches",
+  "prix_detail": 5000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cully boby",
+  "categorie": "meches",
+  "prix_detail": 4000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Curly braid",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Dada locs",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Daniela sublime",
+  "categorie": "meches",
+  "prix_detail": 1670,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Daniella",
+  "categorie": "meches",
+  "prix_detail": 1500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Daniellax2",
+  "categorie": "meches",
+  "prix_detail": 2000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Deep weave",
+  "categorie": "meches",
+  "prix_detail": 2500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Dejava",
+  "categorie": "meches",
+  "prix_detail": 1800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Deluxe",
+  "categorie": "meches",
+  "prix_detail": 4000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Diva",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Duoz postige long",
+  "categorie": "meches",
+  "prix_detail": 2700,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Durable",
+  "categorie": "meches",
+  "prix_detail": 6500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Eunix Mini twist Sénégal",
+  "categorie": "meches",
+  "prix_detail": 3000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Everlove",
+  "categorie": "meches",
+  "prix_detail": 4000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Faux mèche",
+  "categorie": "meches",
+  "prix_detail": 335,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Filipino",
+  "categorie": "meches",
+  "prix_detail": 7500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Flower",
+  "categorie": "meches",
+  "prix_detail": 4000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Forever",
+  "categorie": "meches",
+  "prix_detail": 1500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Frenche culy",
+  "categorie": "meches",
+  "prix_detail": 2500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Frontal naturel",
+  "categorie": "meches",
+  "prix_detail": 6500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Frontal synthétique",
+  "categorie": "meches",
+  "prix_detail": 2500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Funky",
+  "categorie": "meches",
+  "prix_detail": 1500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Générous",
+  "categorie": "meches",
+  "prix_detail": 1666,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Havana",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Invisible locs",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Janet",
+  "categorie": "meches",
+  "prix_detail": 1335,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Jino",
+  "categorie": "meches",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Leine",
+  "categorie": "meches",
+  "prix_detail": 933,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "locs star",
+  "categorie": "meches",
+  "prix_detail": 3800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Lx Hair",
+  "categorie": "meches",
+  "prix_detail": 2500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Lydia",
+  "categorie": "meches",
+  "prix_detail": 6000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Mama christabelle",
+  "categorie": "meches",
+  "prix_detail": 2000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Mini beauterflive",
+  "categorie": "meches",
+  "prix_detail": 4000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Modern Queen",
+  "categorie": "meches",
+  "prix_detail": 4000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Multi",
+  "categorie": "meches",
+  "prix_detail": 935,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Natural",
+  "categorie": "meches",
+  "prix_detail": 1500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Natural twist grand",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Natural twist petit",
+  "categorie": "meches",
+  "prix_detail": 2500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Next bulk",
+  "categorie": "meches",
+  "prix_detail": 1670,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Olori",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ondulet grd",
+  "categorie": "meches",
+  "prix_detail": 1670,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Passion twist",
+  "categorie": "meches",
+  "prix_detail": 2200,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Passion twist riche",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Pop braid",
+  "categorie": "meches",
+  "prix_detail": 3200,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Princess locs",
+  "categorie": "meches",
+  "prix_detail": 4000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Queen et Girl",
+  "categorie": "meches",
+  "prix_detail": 5500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Remy",
+  "categorie": "meches",
+  "prix_detail": 2200,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Rose mary",
+  "categorie": "meches",
+  "prix_detail": 1835,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Sara",
+  "categorie": "meches",
+  "prix_detail": 5000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Sénégalais OROBO",
+  "categorie": "meches",
+  "prix_detail": 3000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Shary",
+  "categorie": "meches",
+  "prix_detail": 1500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Spring",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Sublime kinky",
+  "categorie": "meches",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Super twist",
+  "categorie": "meches",
+  "prix_detail": 4500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Super valentina",
+  "categorie": "meches",
+  "prix_detail": 2500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "TC Summber",
+  "categorie": "meches",
+  "prix_detail": 4000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Versace",
+  "categorie": "meches",
+  "prix_detail": 3000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Vivace",
+  "categorie": "meches",
+  "prix_detail": 4500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Vogue cool",
+  "categorie": "meches",
+  "prix_detail": 1600,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Watermélon",
+  "categorie": "meches",
+  "prix_detail": 3000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Wet wave",
+  "categorie": "meches",
+  "prix_detail": 2000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Wéve master",
+  "categorie": "meches",
+  "prix_detail": 3600,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Wolosso",
+  "categorie": "meches",
+  "prix_detail": 1700,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "X 3 locs",
+  "categorie": "meches",
+  "prix_detail": 3500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "X pressing pt",
+  "categorie": "meches",
+  "prix_detail": 1200,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "X pression kinky",
+  "categorie": "meches",
+  "prix_detail": 1300,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Xpression curly",
+  "categorie": "meches",
+  "prix_detail": 1350,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "X-pression détail",
+  "categorie": "meches",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Xpression grd",
+  "categorie": "meches",
+  "prix_detail": 1400,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Xprestige",
+  "categorie": "meches",
+  "prix_detail": 300,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Aiguille",
+  "categorie": "produits",
+  "prix_detail": 170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Apperl",
+  "categorie": "produits",
+  "prix_detail": 335,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Avocado de 1800",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Avocado grand 3",
+  "categorie": "produits",
+  "prix_detail": 1100,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ballon de 1300",
+  "categorie": "produits",
+  "prix_detail": 1300,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bande à fleur",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bande cheveux petit",
+  "categorie": "produits",
+  "prix_detail": 300,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bande chouchou",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bande grand",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bande noir",
+  "categorie": "produits",
+  "prix_detail": 300,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Barrette blanc",
+  "categorie": "produits",
+  "prix_detail": 335,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Barrette blanc grand",
+  "categorie": "produits",
+  "prix_detail": 400,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Barrette enfant",
+  "categorie": "produits",
+  "prix_detail": 170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Barrette grand",
+  "categorie": "produits",
+  "prix_detail": 150,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Barrette mariage",
+  "categorie": "produits",
+  "prix_detail": 2000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Barrette papillon",
+  "categorie": "produits",
+  "prix_detail": 1500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Barrette petit",
+  "categorie": "produits",
+  "prix_detail": 300,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Barrette piquet",
+  "categorie": "produits",
+  "prix_detail": 85,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Barrette piquet grand",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Black Magic",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bobine chiffon",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bobine grand",
+  "categorie": "produits",
+  "prix_detail": 800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bobine petit",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bobine plastique",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Boîte de produit",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Boucle en fer",
+  "categorie": "produits",
+  "prix_detail": 170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bougie grand",
+  "categorie": "produits",
+  "prix_detail": 170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Bougie petit",
+  "categorie": "produits",
+  "prix_detail": 85,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Brosse grand",
+  "categorie": "produits",
+  "prix_detail": 700,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Brosse moyen",
+  "categorie": "produits",
+  "prix_detail": 600,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Brosse petit",
+  "categorie": "produits",
+  "prix_detail": 100,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Brosse rond",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Brosse still",
+  "categorie": "produits",
+  "prix_detail": 600,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cache visage",
+  "categorie": "produits",
+  "prix_detail": 700,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Champoing élan",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Champoing Tip Top",
+  "categorie": "produits",
+  "prix_detail": 400,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Champoing tokpa grand",
+  "categorie": "produits",
+  "prix_detail": 400,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Champoing tokpa petit",
+  "categorie": "produits",
+  "prix_detail": 185,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chapeau de bain",
+  "categorie": "produits",
+  "prix_detail": 170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chapeau cheveux grand",
+  "categorie": "produits",
+  "prix_detail": 800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chapeau cheveux petit",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chapeau de nuit",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Cheveux closure",
+  "categorie": "produits",
+  "prix_detail": 2500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chiffon coiffé petit",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chiffon grand",
+  "categorie": "produits",
+  "prix_detail": 1500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou baby",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou bonbon",
+  "categorie": "produits",
+  "prix_detail": 235,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou boule grand",
+  "categorie": "produits",
+  "prix_detail": 335,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou boule petit",
+  "categorie": "produits",
+  "prix_detail": 170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou de 100 (enfant)",
+  "categorie": "produits",
+  "prix_detail": 85,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou de 150",
+  "categorie": "produits",
+  "prix_detail": 135,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou en 200f",
+  "categorie": "produits",
+  "prix_detail": 170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou fleur",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou grand de 300 (adulte)",
+  "categorie": "produits",
+  "prix_detail": 300,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou papillon",
+  "categorie": "produits",
+  "prix_detail": 600,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou perle grand",
+  "categorie": "produits",
+  "prix_detail": 170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou perle nœud",
+  "categorie": "produits",
+  "prix_detail": 135,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou perle petit",
+  "categorie": "produits",
+  "prix_detail": 85,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Chouchou pince",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ciseau de 250",
+  "categorie": "produits",
+  "prix_detail": 250,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ciseau de 400",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ciseau de 500",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Closure petit de 2 rait",
+  "categorie": "produits",
+  "prix_detail": 170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Colle active",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Colle frontale grand",
+  "categorie": "produits",
+  "prix_detail": 1500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Colle frontale petit",
+  "categorie": "produits",
+  "prix_detail": 1300,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Colle petit 500/1350",
+  "categorie": "produits",
+  "prix_detail": 335,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Colle Ultra",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Coton petit",
+  "categorie": "produits",
+  "prix_detail": 85,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Crochet long",
+  "categorie": "produits",
+  "prix_detail": 400,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Crochet rasta 1 boue",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Crochet rasta à 2 bouches",
+  "categorie": "produits",
+  "prix_detail": 700,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Crochet rasta à 3 bouches",
+  "categorie": "produits",
+  "prix_detail": 700,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Crochet rose",
+  "categorie": "produits",
+  "prix_detail": 150,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Crochet rose grand",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Dallas grand 3/4400",
+  "categorie": "produits",
+  "prix_detail": 2000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Dallas moyen 3/2300",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Dallas petit",
+  "categorie": "produits",
+  "prix_detail": 200,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Dermatol",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Dissolvant grand",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Dissolvant petit",
+  "categorie": "produits",
+  "prix_detail": 200,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Elastique",
+  "categorie": "produits",
+  "prix_detail": 700,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Emballage",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Faux cil complet",
+  "categorie": "produits",
+  "prix_detail": 335,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Faux cil en boîte",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Faux cils cherry",
+  "categorie": "produits",
+  "prix_detail": 250,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Faux cils détail",
+  "categorie": "produits",
+  "prix_detail": 335,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Fer à lisser grand",
+  "categorie": "produits",
+  "prix_detail": 6000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Fer en peigne",
+  "categorie": "produits",
+  "prix_detail": 6000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Fil Grand",
+  "categorie": "produits",
+  "prix_detail": 335,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "FIL Petit",
+  "categorie": "produits",
+  "prix_detail": 170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Filet bande",
+  "categorie": "produits",
+  "prix_detail": 435,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Filet closure demi",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Filet closure petit",
+  "categorie": "produits",
+  "prix_detail": 200,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Filet naturel perruque closure",
+  "categorie": "produits",
+  "prix_detail": 135,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Filet perruque",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Filet soutien closure",
+  "categorie": "produits",
+  "prix_detail": 335,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Filet soutien sans closure",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Filets chignons",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Fleur de baptême",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Garde cheveux",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Gel pétal grand",
+  "categorie": "produits",
+  "prix_detail": 665,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Gel pétales blancs",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Gel pétals moyen",
+  "categorie": "produits",
+  "prix_detail": 200,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Gel pétals petit",
+  "categorie": "produits",
+  "prix_detail": 125,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Geleco Eko",
+  "categorie": "produits",
+  "prix_detail": 1500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Gomme",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Huile Luodais",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Huile Luôdaïs carton",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Huile Luodoïs au lait",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Huile naturel",
+  "categorie": "produits",
+  "prix_detail": 1200,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Huile Xpression",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "King fa",
+  "categorie": "produits",
+  "prix_detail": 800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Lac à huile",
+  "categorie": "produits",
+  "prix_detail": 1600,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "like à huile petit",
+  "categorie": "produits",
+  "prix_detail": 800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Like à mousse Grand",
+  "categorie": "produits",
+  "prix_detail": 1600,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Like à mousse petit",
+  "categorie": "produits",
+  "prix_detail": 800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Like à sec G",
+  "categorie": "produits",
+  "prix_detail": 1800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Like à sec Petit",
+  "categorie": "produits",
+  "prix_detail": 1600,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Like merling",
+  "categorie": "produits",
+  "prix_detail": 1500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Lime chiffon",
+  "categorie": "produits",
+  "prix_detail": 165,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Lime en bois",
+  "categorie": "produits",
+  "prix_detail": 50,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Lime en bois blanc",
+  "categorie": "produits",
+  "prix_detail": 85,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Limé en fer",
+  "categorie": "produits",
+  "prix_detail": 250,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Lisseur petit",
+  "categorie": "produits",
+  "prix_detail": 1300,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Lotion dallas",
+  "categorie": "produits",
+  "prix_detail": 900,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Mayonnaise",
+  "categorie": "produits",
+  "prix_detail": 2000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Mayonnaise lala",
+  "categorie": "produits",
+  "prix_detail": 3000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Mayonnaise olive de 3000",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Mayonnaise petit",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Méga détail",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Méga en carton de 12",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Neutralisant",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ongle 200",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ongle blanc 3/250",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ongle couleur 150",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ongle de 1200",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ongle de 250",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ongle en boîte",
+  "categorie": "produits",
+  "prix_detail": 1200,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Owie persé….",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Passion",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Passion twist",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Peigne à larme",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Peigne à produit",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Peigne à queue en fer",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Peigne à queue Petit",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Peigne afro",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Peigne Afro en fer",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Peigne afro petit",
+  "categorie": "produits",
+  "prix_detail": 100,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Peigne complet",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Peigne grand",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Peigne grand à queue",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Peigne moyen",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Peigne râteau",
+  "categorie": "produits",
+  "prix_detail": 170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Peigne rond",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Perle de 2500",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Perle de 3000",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Perle de 500",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Perle paquet de 1800",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Pétal one grand",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Piques",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Pommade cyndie",
+  "categorie": "produits",
+  "prix_detail": 435,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Poudre produit GBB",
+  "categorie": "produits",
+  "prix_detail": 420,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Produit ABC petit",
+  "categorie": "produits",
+  "prix_detail": 420,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Produit BO-16",
+  "categorie": "produits",
+  "prix_detail": 420,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Produit Casetimes",
+  "categorie": "produits",
+  "prix_detail": 400,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Produit Dallas",
+  "categorie": "produits",
+  "prix_detail": 400,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Produit olive",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Produit optimal",
+  "categorie": "produits",
+  "prix_detail": 420,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Rouleau noir coiffeuse",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ruban brillant",
+  "categorie": "produits",
+  "prix_detail": 1170,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ruban petit",
+  "categorie": "produits",
+  "prix_detail": 85,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Ruban simple",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Sachet petit",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Sans colle",
+  "categorie": "produits",
+  "prix_detail": 1000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Scotche",
+  "categorie": "produits",
+  "prix_detail": 500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Séchoir",
+  "categorie": "produits",
+  "prix_detail": 5500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Secret",
+  "categorie": "produits",
+  "prix_detail": null,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Soleil petit",
+  "categorie": "produits",
+  "prix_detail": 265,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Soleil grand",
+  "categorie": "produits",
+  "prix_detail": 800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Soleil petit faux",
+  "categorie": "produits",
+  "prix_detail": 150,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Super glu grand",
+  "categorie": "produits",
+  "prix_detail": 700,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Super glu petit",
+  "categorie": "produits",
+  "prix_detail": 300,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Super glue",
+  "categorie": "produits",
+  "prix_detail": 85,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Taille ongle",
+  "categorie": "produits",
+  "prix_detail": 70,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Taille ongle original",
+  "categorie": "produits",
+  "prix_detail": 135,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Tam tam couleur",
+  "categorie": "produits",
+  "prix_detail": 435,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Tam tam yizia",
+  "categorie": "produits",
+  "prix_detail": 700,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Tam-tam got 26",
+  "categorie": "produits",
+  "prix_detail": 600,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Tam-Tam got 26 jaune",
+  "categorie": "produits",
+  "prix_detail": 800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Tam-Tam olive petit",
+  "categorie": "produits",
+  "prix_detail": 600,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Tam-tam overa",
+  "categorie": "produits",
+  "prix_detail": 1700,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Teinte chinois",
+  "categorie": "produits",
+  "prix_detail": 100,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Teinte cruset 3/1200",
+  "categorie": "produits",
+  "prix_detail": 400,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Teinte subaru 400/3000",
+  "categorie": "produits",
+  "prix_detail": 250,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Teinte tancho",
+  "categorie": "produits",
+  "prix_detail": 800,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Tête cheveux",
+  "categorie": "produits",
+  "prix_detail": 5500,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Tête grande",
+  "categorie": "produits",
+  "prix_detail": 6000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Tête ronde",
+  "categorie": "produits",
+  "prix_detail": 4000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Vernis couleur",
+  "categorie": "produits",
+  "prix_detail": 2000,
+  "prix_gros": null,
+  "stock_initial": 0
+ },
+ {
+  "nom": "Vernis neutre",
+  "categorie": "produits",
+  "prix_detail": 2000,
+  "prix_gros": null,
+  "stock_initial": 0
+ }
+]

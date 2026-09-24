@@ -1,0 +1,405 @@
+<title>Boutique de Maman</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap">
+<style>
+:root{
+  --bg:#F3F4F8; --card:#FFFFFF; --ink:#1B1E3A; --muted:#5C6180; --line:#D9DCE8;
+  --indigo:#27306B; --indigo-soft:#E4E7F6;
+  --mech:#8A2E62; --mech-soft:#F6E3EE;
+  --prod:#0F6B63; --prod-soft:#DDF1EE;
+  --sun:#F2B233; --sun-ink:#3A2A00;
+  --ok:#1E7A3C; --ok-soft:#DDF3E4; --warn:#A65A00; --warn-soft:#FDEBD3; --bad:#B3261E; --bad-soft:#FBE1DF;
+  --shadow:0 1px 0 rgba(27,30,58,.06),0 6px 18px -10px rgba(27,30,58,.25);
+  --f:"Atkinson Hyperlegible",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --fd:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--bg:#12142A;--card:#1C1F3B;--ink:#EEF0FA;--muted:#A9AECB;--line:#30355C;
+  --indigo:#9EA9F2;--indigo-soft:#262B52;--mech:#E59AC4;--mech-soft:#3A2033;--prod:#6FD1C4;--prod-soft:#16373A;
+  --sun:#F2B233;--sun-ink:#2A1E00;--ok:#6FD68F;--ok-soft:#173825;--warn:#F4B35E;--warn-soft:#3A2A12;--bad:#FF8A80;--bad-soft:#3F1B1B;
+  --shadow:0 6px 18px -10px rgba(0,0,0,.6);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;--bg:#12142A;--card:#1C1F3B;--ink:#EEF0FA;--muted:#A9AECB;--line:#30355C;
+  --indigo:#9EA9F2;--indigo-soft:#262B52;--mech:#E59AC4;--mech-soft:#3A2033;--prod:#6FD1C4;--prod-soft:#16373A;
+  --sun:#F2B233;--sun-ink:#2A1E00;--ok:#6FD68F;--ok-soft:#173825;--warn:#F4B35E;--warn-soft:#3A2A12;--bad:#FF8A80;--bad-soft:#3F1B1B;
+  --shadow:0 6px 18px -10px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:18px;line-height:1.4;padding-inline:16px;padding-block:0 40px}
+.wrap{max-width:560px;margin:0 auto}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+input,select{font:inherit;color:var(--ink);background:var(--card);border:2px solid var(--line);border-radius:12px;padding:14px 16px;width:100%}
+.num{font-variant-numeric:tabular-nums}
+.demo{margin-top:12px;background:var(--sun);color:var(--sun-ink);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700;text-align:center}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;display:flex;align-items:center;gap:12px}
+.back{flex:none;white-space:nowrap;display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 18px;font-weight:700;min-height:56px}
+.top h2{font-family:var(--fd);font-size:21px;line-height:1.15;margin:0;text-wrap:balance}
+
+/* home */
+.hello{padding-block:20px 8px}
+.hello h1{font-family:var(--fd);font-weight:800;font-size:34px;line-height:1.05;margin:0}
+.hello p{margin:6px 0 0;color:var(--muted)}
+.today{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-block:16px}
+.today div{background:var(--card);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow)}
+.today small{display:block;color:var(--muted);font-size:14px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.today b{font-family:var(--fd);font-size:26px}
+.big{display:grid;gap:14px}
+.bigbtn{display:flex;align-items:center;gap:16px;width:100%;text-align:left;border-radius:20px;padding:22px 20px;min-height:96px;box-shadow:var(--shadow);font-size:24px;font-weight:700}
+.bigbtn .ic{flex:none;width:56px;height:56px;border-radius:16px;display:grid;place-items:center;font-size:30px;font-weight:800;font-family:var(--fd)}
+.bigbtn span small{display:block;font-size:16px;font-weight:400;opacity:.85}
+.b-sell{background:var(--indigo);color:#fff}
+.b-sell .ic{background:rgba(255,255,255,.16)}
+:root[data-theme="dark"] .b-sell{color:#12142A}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .b-sell{color:#12142A}}
+.b-in{background:var(--card);border:3px solid var(--ok)}
+.b-in .ic{background:var(--ok-soft);color:var(--ok)}
+.b-stock,.b-day{background:var(--card)}
+.b-stock .ic,.b-day .ic{background:var(--indigo-soft);color:var(--indigo)}
+.gestion{margin-top:36px;padding-top:18px;border-top:2px dashed var(--line);text-align:center}
+.gestion button{color:var(--muted);font-size:16px;padding:12px 18px;border-radius:12px;border:2px solid var(--line)}
+
+/* category tabs */
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.cat{border-radius:14px;padding:14px;font-weight:700;font-size:20px;border:3px solid var(--line);background:var(--card);min-height:60px}
+.cat[data-c="meches"][aria-pressed="true"]{background:var(--mech);border-color:var(--mech);color:#fff}
+.cat[data-c="produits"][aria-pressed="true"]{background:var(--prod);border-color:var(--prod);color:#fff}
+:root[data-theme="dark"] .cat[aria-pressed="true"]{color:#12142A}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cat[aria-pressed="true"]{color:#12142A}}
+.letters{display:flex;gap:6px;overflow-x:auto;padding-block:8px 10px;scrollbar-width:thin}
+.letters button{flex:none;width:44px;height:44px;border-radius:10px;background:var(--card);border:2px solid var(--line);font-weight:700}
+.list{display:grid;gap:8px}
+.row{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:14px 16px;min-height:68px;width:100%;text-align:left;border:2px solid transparent}
+.row:active{border-color:var(--sun)}
+.row .n{flex:1;font-weight:700;font-size:19px;min-width:0;overflow-wrap:anywhere}
+.row .p{color:var(--muted);font-size:15px;font-weight:400;display:block}
+.chip{flex:none;border-radius:999px;padding:6px 12px;font-weight:700;font-size:16px;white-space:nowrap}
+.c-ok{background:var(--ok-soft);color:var(--ok)}
+.c-low{background:var(--warn-soft);color:var(--warn)}
+.c-out{background:var(--bad-soft);color:var(--bad)}
+.lh{font-family:var(--fd);font-size:20px;color:var(--muted);padding:10px 4px 2px}
+.empty{color:var(--muted);text-align:center;padding:30px 10px}
+
+/* quantity */
+.qcard{background:var(--card);border-radius:20px;padding:22px 18px;box-shadow:var(--shadow);text-align:center}
+.qcard .tag{display:inline-block;border-radius:999px;padding:4px 12px;font-size:14px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.qcard h3{font-family:var(--fd);font-size:30px;margin:10px 0 4px;text-wrap:balance}
+.qcard .sub{color:var(--muted)}
+.stepper{display:grid;grid-template-columns:84px 1fr 84px;gap:12px;align-items:center;margin:22px 0 10px}
+.stepper button{height:84px;border-radius:20px;font-size:44px;font-weight:800;background:var(--indigo-soft);color:var(--indigo)}
+.stepper output{font-family:var(--fd);font-size:60px;font-weight:800}
+.summary{margin:16px 0 0;font-size:20px;background:var(--bg);border-radius:14px;padding:14px}
+.summary b{font-family:var(--fd);font-size:28px}
+.alert{margin-top:12px;border-radius:12px;padding:12px;background:var(--warn-soft);color:var(--warn);font-weight:700}
+.go{display:block;width:100%;margin-top:18px;border-radius:18px;padding:20px;font-size:23px;font-weight:700;min-height:76px}
+.go-sell{background:var(--indigo);color:#fff}
+.go-in{background:var(--ok);color:#fff}
+:root[data-theme="dark"] .go-sell,:root[data-theme="dark"] .go-in{color:#12142A}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .go-sell,:root:not([data-theme="light"]) .go-in{color:#12142A}}
+.go:disabled{opacity:.4}
+.ghost{display:block;width:100%;margin-top:10px;padding:16px;border-radius:16px;border:2px solid var(--line);font-weight:700;color:var(--muted)}
+
+/* day */
+.tot{background:var(--indigo);color:#fff;border-radius:20px;padding:18px 20px;display:grid;gap:6px}
+:root[data-theme="dark"] .tot{color:#12142A}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tot{color:#12142A}}
+.tot b{font-family:var(--fd);font-size:40px;line-height:1}
+.tot .split{display:flex;gap:16px;flex-wrap:wrap;font-size:16px;opacity:.9}
+.mv{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:12px 14px}
+.mv .n{flex:1;min-width:0}
+.mv .n b{display:block}
+.mv .n span{color:var(--muted);font-size:15px}
+.mv .amt{font-weight:700;text-align:right}
+.mv .x{flex:none;border:2px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;color:var(--muted)}
+.mv.cancel{opacity:.45}
+.mv.cancel b{text-decoration:line-through}
+.sec{font-family:var(--fd);font-size:20px;margin:22px 0 8px}
+
+/* modal */
+.scrim{position:fixed;inset:0;background:rgba(10,12,30,.55);display:grid;place-items:end center;z-index:20;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.sheet{background:var(--card);border-radius:22px;padding:22px 18px;width:100%;max-width:520px}
+.sheet h3{font-family:var(--fd);font-size:26px;margin:0 0 8px}
+.sheet p{margin:0 0 6px}
+.btns{display:grid;gap:10px;margin-top:18px}
+.danger{background:var(--bad);color:#fff;border-radius:16px;padding:18px;font-weight:700;font-size:20px}
+:root[data-theme="dark"] .danger{color:#12142A}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .danger{color:#12142A}}
+
+/* toast */
+.toast{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:528px;margin:0 auto;background:var(--ink);color:var(--bg);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;z-index:30;font-weight:700}
+.toast span{flex:1}
+.toast button{background:var(--sun);color:var(--sun-ink);border-radius:12px;padding:12px 16px;font-weight:700}
+
+/* gestion */
+.pin{display:flex;gap:10px;justify-content:center;margin:18px 0}
+.pin i{width:22px;height:22px;border-radius:50%;border:3px solid var(--indigo)}
+.pin i.on{background:var(--indigo)}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:320px;margin:0 auto}
+.pad button{height:70px;border-radius:16px;background:var(--card);font-size:28px;font-weight:700;box-shadow:var(--shadow)}
+.form{display:grid;gap:14px;background:var(--card);border-radius:20px;padding:18px}
+.form label{font-weight:700;display:grid;gap:6px}
+.add{background:var(--sun);color:var(--sun-ink);border-radius:16px;padding:16px;font-weight:700;width:100%;margin-bottom:12px;font-size:20px}
+.delzone{margin-top:40px;padding-top:16px;border-top:2px dashed var(--line)}
+.del{width:100%;border:2px solid var(--bad);color:var(--bad);border-radius:14px;padding:14px;font-weight:700}
+.tarif{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--bg);border-radius:16px;padding:6px;margin-top:18px}
+.tarif button{border-radius:12px;padding:12px 6px;font-weight:700;font-size:18px;min-height:64px;line-height:1.15}
+.tarif button small{display:block;font-weight:400;font-size:14px;color:var(--muted)}
+.tarif button[aria-pressed="true"]{background:var(--card);box-shadow:var(--shadow);outline:3px solid var(--indigo)}
+.tarif button:disabled{opacity:.4}
+.remise{margin-top:10px;color:var(--indigo);font-weight:700;text-decoration:underline;padding:10px;font-size:16px}
+.strike{text-decoration:line-through;color:var(--muted);font-size:18px;font-weight:400}
+.redux{display:inline-block;margin-top:6px;background:var(--sun);color:var(--sun-ink);border-radius:999px;padding:3px 10px;font-size:14px;font-weight:700}
+.mv .n .redux{display:table;color:var(--sun-ink);white-space:nowrap;font-size:13px;margin-top:4px}
+.note{color:var(--muted);font-size:15px;text-align:center;margin-top:10px}
+@media (prefers-reduced-motion:no-preference){.bigbtn,.row,.go{transition:transform .08s}.bigbtn:active,.go:active{transform:scale(.98)}}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+const RAW = {"meches": [["4 flowers", 1400], ["4pcs", 3000], ["8 amies amaka", 1500], ["Active", 2200], ["Adorable", 5000], ["Afro pondo grd", 1335], ["Amanda", 1670], ["ANI Spring", 3500], ["Ari-C", 3000], ["Bamba plus grand", 4500], ["Bella", 2500], ["Boho water culy", 2000], ["Bomba plus", 2800], ["Bon-street", 2000], ["Bounce", 1600], ["Bouncy kinky", 2000], ["Brillant", 2000], ["Burtherfly twist grd", 4000], ["Butterfly twist pt", 3500], ["Celina locs", 4000], ["Ceres", 1400], ["Chery", 5500], ["Clara tissage", 9000], ["Closure", 2500], ["Corde noir", 500], ["Corde noir1500 Baby", 170], ["Cozi original", 1170], ["Cozy vert pt", 1170], ["Cro chili locs", 0], ["Cro elim", 3500], ["Cro Full pock", 3500], ["Cro gini", 5000], ["Cro lulu", 3500], ["Cro sultant", 4000], ["Cro unique", 3800], ["Cro vill dread", 3000], ["Cro-baby", 5000], ["Crochet Aviv churk", 2500], ["Crochet culy twit braid", 1800], ["Crochet Liz twist", 4500], ["Crochet max locs", 5000], ["Crochet pristine", 0], ["Crochet shasha", 3800], ["Croflout locs plus", 4800], ["Cro-meg", 5000], ["Cully boby", 4000], ["Curly braid", 3500], ["Dada locs", 3500], ["Daniela sublime", 1670], ["Daniella", 1500], ["Daniellax2", 2000], ["Deep weave", 2500], ["Dejava", 1800], ["Deluxe", 4000], ["Diva", 3500], ["Duoz postige long", 2700], ["Durable", 6500], ["Eunix Mini twist Sénégal", 3000], ["Everlove", 4000], ["Faux mèche", 335], ["Filipino", 7500], ["Flower", 4000], ["Forever", 1500], ["Frenche culy", 2500], ["Frontal naturel", 6500], ["Frontal synthétique", 2500], ["Funky", 1500], ["Générous", 1666], ["Havana", 3500], ["Invisible locs", 3500], ["Janet", 1335], ["Jino", 1000], ["Leine", 933], ["locs star", 3800], ["Lx Hair", 2500], ["Lydia", 6000], ["Mama christabelle", 2000], ["Mini beauterflive", 4000], ["Modern Queen", 4000], ["Multi", 935], ["Natural", 1500], ["Natural twist grand", 3500], ["Natural twist petit", 2500], ["Next bulk", 1670], ["Olori", 3500], ["Ondulet grd", 1670], ["Passion twist", 2200], ["Passion twist riche", 3500], ["Pop braid", 3200], ["Princess locs", 4000], ["Queen et Girl", 5500], ["Remy", 2200], ["Rose mary", 1835], ["Sara", 5000], ["Sénégalais OROBO", 3000], ["Shary", 1500], ["Spring", 3500], ["Sublime kinky", 0], ["Super twist", 4500], ["Super valentina", 2500], ["TC Summber", 4000], ["Versace", 3000], ["Vivace", 4500], ["Vogue cool", 1600], ["Watermélon", 3000], ["Wet wave", 2000], ["Wéve master", 3600], ["Wolosso", 1700], ["X 3 locs", 3500], ["X pressing pt", 1200], ["X pression kinky", 1300], ["Xpression curly", 1350], ["X-pression détail", 0], ["Xpression grd", 1400], ["Xprestige", 300]], "produits": [["Aiguille", 170], ["Apperl", 335], ["Avocado de 1800", 0], ["Avocado grand 3", 1100], ["Ballon de 1300", 1300], ["Bande à fleur", 500], ["Bande cheveux petit", 300], ["Bande chouchou", 500], ["Bande grand", 500], ["Bande noir", 300], ["Barrette blanc", 335], ["Barrette blanc grand", 400], ["Barrette enfant", 170], ["Barrette grand", 150], ["Barrette mariage", 2000], ["Barrette papillon", 1500], ["Barrette petit", 300], ["Barrette piquet", 85], ["Barrette piquet grand", 0], ["Black Magic", 500], ["Bobine chiffon", 1000], ["Bobine grand", 800], ["Bobine petit", 500], ["Bobine plastique", 1000], ["Boîte de produit", 1000], ["Boucle en fer", 170], ["Bougie grand", 170], ["Bougie petit", 85], ["Brosse grand", 700], ["Brosse moyen", 600], ["Brosse petit", 100], ["Brosse rond", 500], ["Brosse still", 600], ["Cache visage", 700], ["Champoing élan", 1000], ["Champoing Tip Top", 400], ["Champoing tokpa grand", 400], ["Champoing tokpa petit", 185], ["Chapeau de bain", 170], ["Chapeau cheveux grand", 800], ["Chapeau cheveux petit", 500], ["Chapeau de nuit", 500], ["Cheveux closure", 2500], ["Chiffon coiffé petit", 1000], ["Chiffon grand", 1500], ["Chouchou baby", 500], ["Chouchou bonbon", 235], ["Chouchou boule grand", 335], ["Chouchou boule petit", 170], ["Chouchou de 100 (enfant)", 85], ["Chouchou de 150", 135], ["Chouchou en 200f", 170], ["Chouchou fleur", 500], ["Chouchou grand de 300 (adulte)", 300], ["Chouchou papillon", 600], ["Chouchou perle grand", 170], ["Chouchou perle nœud", 135], ["Chouchou perle petit", 85], ["Chouchou pince", 0], ["Ciseau de 250", 250], ["Ciseau de 400", 0], ["Ciseau de 500", 500], ["Closure petit de 2 rait", 170], ["Colle active", 1000], ["Colle frontale grand", 1500], ["Colle frontale petit", 1300], ["Colle petit 500/1350", 335], ["Colle Ultra", 0], ["Coton petit", 85], ["Crochet long", 400], ["Crochet rasta 1 boue", 500], ["Crochet rasta à 2 bouches", 700], ["Crochet rasta à 3 bouches", 700], ["Crochet rose", 150], ["Crochet rose grand", 0], ["Dallas grand 3/4400", 2000], ["Dallas moyen 3/2300", 1000], ["Dallas petit", 200], ["Dermatol", 500], ["Dissolvant grand", 1000], ["Dissolvant petit", 200], ["Elastique", 700], ["Emballage", 500], ["Faux cil complet", 335], ["Faux cil en boîte", 1000], ["Faux cils cherry", 250], ["Faux cils détail", 335], ["Fer à lisser grand", 6000], ["Fer en peigne", 6000], ["Fil Grand", 335], ["FIL Petit", 170], ["Filet bande", 435], ["Filet closure demi", 500], ["Filet closure petit", 200], ["Filet naturel perruque closure", 135], ["Filet perruque", 1000], ["Filet soutien closure", 335], ["Filet soutien sans closure", 0], ["Filets chignons", 1000], ["Fleur de baptême", 0], ["Garde cheveux", 1000], ["Gel pétal grand", 665], ["Gel pétales blancs", 0], ["Gel pétals moyen", 200], ["Gel pétals petit", 125], ["Geleco Eko", 1500], ["Gomme", 1000], ["Huile Luodais", 1000], ["Huile Luôdaïs carton", 1000], ["Huile Luodoïs au lait", 1000], ["Huile naturel", 1200], ["Huile Xpression", 1000], ["King fa", 800], ["Lac à huile", 1600], ["like à huile petit", 800], ["Like à mousse Grand", 1600], ["Like à mousse petit", 800], ["Like à sec G", 1800], ["Like à sec Petit", 1600], ["Like merling", 1500], ["Lime chiffon", 165], ["Lime en bois", 50], ["Lime en bois blanc", 85], ["Limé en fer", 250], ["Lisseur petit", 1300], ["Lotion dallas", 900], ["Mayonnaise", 2000], ["Mayonnaise lala", 3000], ["Mayonnaise olive de 3000", 0], ["Mayonnaise petit", 0], ["Méga détail", 0], ["Méga en carton de 12", 0], ["Neutralisant", 0], ["Ongle 200", 0], ["Ongle blanc 3/250", 0], ["Ongle couleur 150", 0], ["Ongle de 1200", 0], ["Ongle de 250", 0], ["Ongle en boîte", 1200], ["Owie persé….", 0], ["Passion", 0], ["Passion twist", 0], ["Peigne à larme", 0], ["Peigne à produit", 0], ["Peigne à queue en fer", 0], ["Peigne à queue Petit", 0], ["Peigne afro", 0], ["Peigne Afro en fer", 0], ["Peigne afro petit", 100], ["Peigne complet", 1000], ["Peigne grand", 0], ["Peigne grand à queue", 0], ["Peigne moyen", 0], ["Peigne râteau", 170], ["Peigne rond", 0], ["Perle de 2500", 0], ["Perle de 3000", 0], ["Perle de 500", 0], ["Perle paquet de 1800", 0], ["Pétal one grand", 0], ["Piques", 0], ["Pommade cyndie", 435], ["Poudre produit GBB", 420], ["Produit ABC petit", 420], ["Produit BO-16", 420], ["Produit Casetimes", 400], ["Produit Dallas", 400], ["Produit olive", 500], ["Produit optimal", 420], ["Rouleau noir coiffeuse", 1000], ["Ruban brillant", 1170], ["Ruban petit", 85], ["Ruban simple", 1000], ["Sachet petit", 500], ["Sans colle", 1000], ["Scotche", 500], ["Séchoir", 5500], ["Secret", 0], ["Soleil petit", 265], ["Soleil grand", 800], ["Soleil petit faux", 150], ["Super glu grand", 700], ["Super glu petit", 300], ["Super glue", 85], ["Taille ongle", 70], ["Taille ongle original", 135], ["Tam tam couleur", 435], ["Tam tam yizia", 700], ["Tam-tam got 26", 600], ["Tam-Tam got 26 jaune", 800], ["Tam-Tam olive petit", 600], ["Tam-tam overa", 1700], ["Teinte chinois", 100], ["Teinte cruset 3/1200", 400], ["Teinte subaru 400/3000", 250], ["Teinte tancho", 800], ["Tête cheveux", 5500], ["Tête grande", 6000], ["Tête ronde", 4000], ["Vernis couleur", 2000], ["Vernis neutre", 2000]]};
+const $ = s => document.querySelector(s);
+const F = n => (Math.round(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g," ") + " F";
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const CAT = {meches:"Mèches", produits:"Produits"};
+const LOW = 2;
+const PIN = "0000";
+
+// ---- état (maquette : en mémoire) ----
+let seed = 7; const rnd = () => (seed = (seed*9301+49297)%233280)/233280;
+let nextId = 1;
+const articles = [];
+for (const cat of ["meches","produits"]) for (const [nom,prix] of RAW[cat])
+  articles.push({id:nextId++, nom, cat, prix, gros: prix>=500 ? Math.round(prix*0.85/50)*50 : 0, stock: Math.floor(rnd()*12)});
+const mouvements = []; let mvId = 1;
+const today = new Date();
+// quelques ventes d'exemple pour aujourd'hui
+[["meches","Bella",2],["meches","Xpression grd",1],["produits","Peigne afro",3],["produits","Chouchou fleur",2],["meches","Diva",1]].forEach(([c,n,q],i)=>{
+  const a = articles.find(x=>x.cat===c && x.nom===n); if(!a) return;
+  const tarif = i===2?'gros':'detail', pu = tarif==='gros'?a.gros:a.prix; a.stock += q; mouvements.push({id:mvId++, type:"vente", art:a.id, qte:q, prix:pu, tarif, montant: i===4 ? q*pu-500 : q*pu, normal:q*pu, t:new Date(today.getTime()-(5-i)*47*60000), annule:false});
+  a.stock -= q;
+});
+
+let S = {screen:"home", mode:null, cat:"meches", q:"", art:null, qte:1, unlocked:false, pin:"", edit:null, stockFilter:"tous", tarif:"detail", remise:null};
+const go = patch => { Object.assign(S, patch); render(); window.scrollTo(0,0); };
+const art = id => articles.find(a=>a.id===id);
+
+function state(a){ return a.stock<=0 ? ["c-out", "Fini"] : a.stock<=LOW ? ["c-low", "Reste "+a.stock] : ["c-ok","Reste "+a.stock]; }
+function ventesDuJour(){ return mouvements.filter(m=>m.type==="vente" && !m.annule && sameDay(m.t)); }
+function sameDay(t){ return t.toDateString()===today.toDateString(); }
+
+// ---- écrans ----
+function header(title){ return `<div class="top"><button class="back" onclick="go({screen:'home',q:''})" aria-label="Retour à l'accueil">← Accueil</button><h2>${title}</h2></div>`; }
+
+function home(){
+  const v = ventesDuJour(); const tot = v.reduce((s,m)=>s+m.montant,0);
+  const fini = articles.filter(a=>a.stock<=0).length;
+  const jours = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+  return `
+  <div class="demo">Maquette de démonstration : les restes et les prix de gros sont inventés</div>
+  <div class="hello"><h1>Bonjour Maman</h1><p>Aujourd'hui, ${jours[today.getDay()]} ${today.getDate()}/${today.getMonth()+1}</p></div>
+  <div class="today">
+    <div><small>Vendu aujourd'hui</small><b class="num">${F(tot)}</b></div>
+    <div><small>Articles finis</small><b class="num">${fini}</b></div>
+  </div>
+  <div class="big">
+    <button class="bigbtn b-sell" onclick="go({screen:'pick',mode:'vente',q:''})"><span class="ic">F</span><span>J'ai vendu<small>Enregistrer une vente</small></span></button>
+    <button class="bigbtn b-in" onclick="go({screen:'pick',mode:'entree',q:''})"><span class="ic">+</span><span>Nouvelle marchandise<small>Ajouter ce qui est arrivé</small></span></button>
+    <button class="bigbtn b-stock" onclick="go({screen:'stock',q:''})"><span class="ic">≡</span><span>Voir les restes<small>Ce qu'il y a en boutique</small></span></button>
+    <button class="bigbtn b-day" onclick="go({screen:'day'})"><span class="ic">✓</span><span>Point du jour<small>Ventes et argent de la journée</small></span></button>
+  </div>
+  <div class="gestion"><button onclick="go({screen: S.unlocked?'admin':'pin', pin:''})">Gérer les articles (code)</button></div>`;
+}
+
+function catTabs(){
+  return `<div class="cats">${Object.keys(CAT).map(c=>`<button class="cat" data-c="${c}" aria-pressed="${S.cat===c}" onclick="go({cat:'${c}',q:''})">${CAT[c]}</button>`).join("")}</div>
+  <input id="search" type="search" placeholder="Chercher un nom…" value="${esc(S.q)}" oninput="S.q=this.value;drawList()" autocomplete="off">`;
+}
+function filtered(){
+  const q = S.q.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+  let L = articles.filter(a=>a.cat===S.cat);
+  if (q) L = L.filter(a=>a.nom.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").includes(q));
+  if (S.screen==="stock" && S.stockFilter==="racheter") L = L.filter(a=>a.stock<=LOW);
+  return L.sort((a,b)=>a.nom.localeCompare(b.nom,"fr",{sensitivity:"base"}));
+}
+function letterOf(n){ const c=n.normalize("NFD")[0].toUpperCase(); return /[A-Z]/.test(c)?c:"#"; }
+function drawList(){
+  const L = filtered(); const el = $("#list"); if(!el) return;
+  if(!L.length){ el.innerHTML = `<p class="empty">Aucun article trouvé.</p>`; $("#letters").innerHTML=""; return; }
+  let html="", last=""; const letters=[];
+  for(const a of L){
+    const l = letterOf(a.nom);
+    if(l!==last){ html+=`<div class="lh" id="L-${l}">${l}</div>`; letters.push(l); last=l; }
+    const [cls,txt] = state(a);
+    const click = S.screen==="admin" ? `go({screen:'edit',edit:${a.id}})` : S.screen==="stock" ? "" : `pickArt(${a.id})`;
+    html += `<${click?'button':'div'} class="row" ${click?`onclick="${click}"`:''}><span class="n">${esc(a.nom)}<span class="p num">${a.prix?F(a.prix)+(a.gros?" · gros "+F(a.gros):""):"Prix à mettre"}</span></span><span class="chip num ${cls}">${txt}</span></${click?'button':'div'}>`;
+  }
+  el.innerHTML = html;
+  $("#letters").innerHTML = S.q ? "" : letters.map(l=>`<button onclick="document.getElementById('L-${l}').scrollIntoView({behavior:'smooth',block:'start'})">${l}</button>`).join("");
+}
+function pick(){
+  const t = S.mode==="vente" ? "Qu'avez-vous vendu ?" : "Qu'est-ce qui est arrivé ?";
+  return header(t) + catTabs() + `<div class="letters" id="letters"></div><div class="list" id="list"></div>`;
+}
+function pickArt(id){
+  const a = art(id);
+  if (S.mode==="vente" && !a.prix){ modal(`<h3>Prix manquant</h3><p><b>${esc(a.nom)}</b> n'a pas encore de prix. Demandez de le mettre dans « Gérer les articles ».</p><div class="btns"><button class="ghost" onclick="closeModal()">D'accord</button></div>`); return; }
+  go({screen:"qty", art:id, qte:1, tarif:"detail", remise:null});
+}
+function qty(){
+  const a = art(S.art); const v = S.mode==="vente";
+  const tagStyle = a.cat==="meches" ? "background:var(--mech-soft);color:var(--mech)" : "background:var(--prod-soft);color:var(--prod)";
+  const trop = v && S.qte > a.stock;
+  const pu = S.tarif==="gros" ? a.gros : a.prix;
+  const normal = S.qte*pu, total = S.remise ?? normal;
+  const after = v ? a.stock - S.qte : a.stock + S.qte;
+  return header(v?"Vente":"Nouvelle marchandise") + `
+  <div class="qcard">
+    <span class="tag" style="${tagStyle}">${CAT[a.cat]}</span>
+    <h3>${esc(a.nom)}</h3>
+    <div class="sub num">${a.prix?F(a.prix)+" l'unité":"Prix à mettre"} · reste actuel : ${a.stock}</div>
+    <div class="stepper">
+      <button onclick="setQ(-1)" aria-label="Moins un">−</button>
+      <output class="num" aria-live="polite">${S.qte}</output>
+      <button onclick="setQ(1)" aria-label="Plus un">+</button>
+    </div>
+    ${v ? `<div class="tarif" role="group" aria-label="Type de vente">
+      <button aria-pressed="${S.tarif==='detail'}" onclick="setTarif('detail')">Détail<small class="num">${F(a.prix)} / pièce</small></button>
+      <button aria-pressed="${S.tarif==='gros'}" ${a.gros?'':'disabled'} onclick="setTarif('gros')">En gros<small class="num">${a.gros?F(a.gros)+' / pièce':'pas de prix gros'}</small></button>
+    </div>` : ""}
+    <div class="summary num">${v ? (S.remise!=null ? `${S.qte} × ${F(pu)} = <span class="strike">${F(normal)}</span> <b>${F(total)}</b><br><span class="redux">Réduction de ${F(normal-total)}</span>` : `${S.qte} × ${F(pu)} = <b>${F(normal)}</b>`) : `On ajoute <b>${S.qte}</b> au stock`}<br><span style="color:var(--muted);font-size:16px">Après : il restera ${after}</span></div>
+    ${trop?`<div class="alert">Attention : le stock dit qu'il n'en reste que ${a.stock}. Vérifiez le nombre.</div>`:""}
+    ${v ? (S.remise!=null ? `<button class="remise" onclick="S.remise=null;render()">Enlever la réduction</button>` : `<button class="remise" onclick="askRemise()">Faire une réduction</button>`) : ""}
+    <button class="go ${v?'go-sell':'go-in'}" onclick="valider()">${v?"Oui, j'ai vendu":"Oui, ajouter au stock"}</button>
+    <button class="ghost" onclick="go({screen:'pick'})">Non, choisir un autre article</button>
+  </div>`;
+}
+function setQ(d){ S.qte = Math.max(1, Math.min(999, S.qte+d)); S.remise=null; render(); }
+function setTarif(t){ S.tarif=t; S.remise=null; render(); }
+function askRemise(){
+  const a=art(S.art), pu=S.tarif==="gros"?a.gros:a.prix, normal=S.qte*pu;
+  modal(`<h3>Réduction</h3><p>Prix normal : <b class="num">${F(normal)}</b></p>
+  <label style="font-weight:700;display:grid;gap:6px;margin-top:12px">Combien la cliente paie au total ?
+  <input id="f-remise" type="number" inputmode="numeric" min="1" max="${normal}" step="5" placeholder="ex. ${Math.round(normal*0.9/50)*50}"></label>
+  <p id="r-err" class="alert" hidden></p>
+  <div class="btns"><button class="go go-sell" style="margin:0" onclick="okRemise(${normal})">Valider ce prix</button><button class="ghost" onclick="closeModal()">Pas de réduction</button></div>`);
+  setTimeout(()=>$("#f-remise")?.focus(),50);
+}
+function okRemise(normal){
+  const v=+$("#f-remise").value, e=$("#r-err");
+  if(!v||v<=0){ e.textContent="Écrivez le montant payé."; e.hidden=false; return; }
+  if(v>=normal){ e.textContent="Ce montant n'est pas plus petit que le prix normal."; e.hidden=false; return; }
+  if(v<normal*0.5){ e.textContent="Plus de la moitié de réduction : vérifiez le montant."; e.hidden=false; if(!e.dataset.ok){e.dataset.ok=1;return;} }
+  S.remise=v; closeModal(); render();
+}
+let toastTimer;
+function valider(){
+  const a = art(S.art); const v = S.mode==="vente";
+  const pu = S.tarif==="gros"&&v ? a.gros : a.prix, normal = S.qte*pu;
+  const m = {id:mvId++, type:S.mode, art:a.id, qte:S.qte, prix:pu, tarif:v?S.tarif:null, normal, montant: v ? (S.remise ?? normal) : 0, t:new Date(), annule:false};
+  a.stock += v ? -S.qte : S.qte; mouvements.push(m);
+  const msg = v ? `Vendu : ${S.qte} ${a.nom} = ${F(m.montant)}` : `Ajouté : ${S.qte} ${a.nom}`;
+  go({screen:"pick", q:""});
+  toast(msg, m.id);
+}
+function toast(msg, mid){
+  clearTimeout(toastTimer); document.querySelector(".toast")?.remove();
+  const t = document.createElement("div"); t.className="toast"; t.setAttribute("role","status");
+  t.innerHTML = `<span>✓ ${esc(msg)}</span>${mid?`<button onclick="undo(${mid})">Annuler</button>`:""}`;
+  document.body.appendChild(t); toastTimer = setTimeout(()=>t.remove(), 10000);
+}
+function undo(mid){
+  const m = mouvements.find(x=>x.id===mid); if(!m||m.annule) return;
+  m.annule = true; const a = art(m.art); a.stock += m.type==="vente" ? m.qte : -m.qte;
+  document.querySelector(".toast")?.remove(); render(); toast("C'est annulé, rien n'a changé.");
+}
+
+function stock(){
+  return header("Les restes") + catTabs() + `
+  <div class="cats" style="margin-top:10px">
+    <button class="cat" style="font-size:17px;min-height:50px" aria-pressed="${S.stockFilter==='tous'}" onclick="go({stockFilter:'tous'})">Tout voir</button>
+    <button class="cat" style="font-size:17px;min-height:50px" aria-pressed="${S.stockFilter==='racheter'}" onclick="go({stockFilter:'racheter'})">À racheter</button>
+  </div>
+  <div class="letters" id="letters"></div><div class="list" id="list"></div>`;
+}
+
+function day(){
+  const L = mouvements.filter(m=>sameDay(m.t)).sort((a,b)=>b.t-a.t);
+  const v = L.filter(m=>m.type==="vente"&&!m.annule);
+  const sum = c => v.filter(m=>art(m.art).cat===c).reduce((s,m)=>s+m.montant,0);
+  const hh = t => t.getHours().toString().padStart(2,"0")+"h"+t.getMinutes().toString().padStart(2,"0");
+  const line = m => { const a = art(m.art); return `<div class="mv ${m.annule?'cancel':''}">
+      <div class="n"><b>${m.qte} × ${esc(a.nom)}</b><span class="num">${hh(m.t)} · ${CAT[a.cat]}${m.tarif==="gros"?" · en gros":""}${m.annule?" · annulé":""}</span>${m.type==="vente"&&m.montant<m.normal&&!m.annule?`<span class="redux num">Réduction ${F(m.normal-m.montant)}</span>`:""}</div>
+      <div class="amt num">${m.type==="vente"?F(m.montant):"+"+m.qte}</div>
+      ${m.annule?"":`<button class="x" onclick="askCancel(${m.id})">Erreur ?</button>`}</div>`; };
+  const ventes = L.filter(m=>m.type==="vente"), entrees = L.filter(m=>m.type==="entree");
+  return header("Point du jour") + `
+  <div class="tot"><span>Argent des ventes aujourd'hui</span><b class="num">${F(sum("meches")+sum("produits"))}</b>
+  <div class="split num"><span>Mèches : ${F(sum("meches"))}</span><span>Produits : ${F(sum("produits"))}</span></div></div>
+  <div class="sec">Ventes (${v.length})</div><div class="list">${ventes.map(line).join("")||'<p class="empty">Pas encore de vente.</p>'}</div>
+  <div class="sec">Marchandise arrivée</div><div class="list">${entrees.map(line).join("")||'<p class="empty">Rien d\'ajouté aujourd\'hui.</p>'}</div>`;
+}
+function askCancel(mid){
+  const m = mouvements.find(x=>x.id===mid), a = art(m.art);
+  modal(`<h3>Annuler cette ligne ?</h3><p><b>${m.qte} × ${esc(a.nom)}</b></p><p style="color:var(--muted)">${m.type==="vente"?`Les ${m.qte} articles reviennent dans le stock.`:`Les ${m.qte} articles sont retirés du stock.`}</p>
+  <div class="btns"><button class="danger" onclick="closeModal();undo(${mid})">Oui, annuler la ligne</button><button class="ghost" onclick="closeModal()">Non, garder</button></div>`);
+}
+
+// ---- gestion (protégée par code) ----
+function pinScreen(){
+  return header("Gérer les articles") + `<p style="text-align:center">Tapez le code pour modifier la liste.<br><span style="color:var(--muted);font-size:15px">(maquette : 0000)</span></p>
+  <div class="pin">${[0,1,2,3].map(i=>`<i class="${i<S.pin.length?'on':''}"></i>`).join("")}</div>
+  <div class="pad">${[1,2,3,4,5,6,7,8,9,"",0,"⌫"].map(k=>k===""?"<span></span>":`<button onclick="pinKey('${k}')">${k}</button>`).join("")}</div>`;
+}
+function pinKey(k){
+  if(k==="⌫") S.pin=S.pin.slice(0,-1); else if(S.pin.length<4) S.pin+=k;
+  if(S.pin.length===4){ if(S.pin===PIN){ go({screen:"admin",unlocked:true,pin:"",q:""}); return; } S.pin=""; render(); toast("Code incorrect"); return; }
+  render();
+}
+function admin(){
+  return header("Gérer les articles") + `<button class="add" onclick="go({screen:'edit',edit:'new'})">+ Ajouter un nouvel article</button>` + catTabs() + `<div class="letters" id="letters"></div><div class="list" id="list"></div>`;
+}
+function edit(){
+  const isNew = S.edit==="new"; const a = isNew ? {nom:"",cat:S.cat,prix:"",gros:"",stock:0} : art(S.edit);
+  return `<div class="top"><button class="back" onclick="go({screen:'admin'})">← Retour</button><h2>${isNew?"Nouvel article":"Modifier"}</h2></div>
+  <form class="form" onsubmit="event.preventDefault();saveArt()">
+    <label>Nom de l'article<input id="f-nom" value="${esc(a.nom)}" required></label>
+    <label>Catégorie<select id="f-cat">${Object.keys(CAT).map(c=>`<option value="${c}" ${a.cat===c?"selected":""}>${CAT[c]}</option>`).join("")}</select></label>
+    <label>Prix au détail, par pièce (F)<input id="f-prix" type="number" inputmode="numeric" min="0" step="5" value="${a.prix||""}"></label>
+    <label>Prix en gros, par pièce (F)<input id="f-gros" type="number" inputmode="numeric" min="0" step="5" value="${a.gros||""}" placeholder="Laisser vide si pas de gros"></label>
+    <label>Quantité en boutique<input id="f-stock" type="number" inputmode="numeric" min="0" value="${a.stock}"></label>
+    <button class="go go-sell" type="submit">Enregistrer</button>
+  </form>
+  ${isNew?"":`<div class="delzone"><button class="del" onclick="askDel(${a.id})">Supprimer cet article</button><p class="note">L'historique des ventes est gardé.</p></div>`}`;
+}
+function saveArt(){
+  const nom=$("#f-nom").value.trim(); if(!nom){ toast("Écrivez un nom"); return; }
+  const data={nom,cat:$("#f-cat").value,prix:+$("#f-prix").value||0,gros:+$("#f-gros").value||0,stock:Math.max(0,+$("#f-stock").value||0)};
+  if(S.edit==="new"){
+    if(articles.some(x=>x.nom.toLowerCase()===nom.toLowerCase()&&x.cat===data.cat)){ toast("Cet article existe déjà"); return; }
+    articles.push({id:nextId++,...data});
+  } else Object.assign(art(S.edit),data);
+  go({screen:"admin",cat:data.cat,q:""}); toast(`${nom} enregistré`);
+}
+function askDel(id){
+  const a=art(id);
+  modal(`<h3>Supprimer « ${esc(a.nom)} » ?</h3><p style="color:var(--muted)">Il ne sera plus dans la liste des ventes ni des restes.</p>
+  <div class="btns"><button class="ghost" style="border-color:var(--indigo);color:var(--indigo)" onclick="closeModal()">Non, garder l'article</button><button class="danger" onclick="doDel(${id})">Oui, supprimer</button></div>`);
+}
+function doDel(id){ const i=articles.findIndex(a=>a.id===id); const [a]=articles.splice(i,1); closeModal(); go({screen:"admin"}); toast(`${a.nom} supprimé`); }
+
+// ---- modal ----
+function modal(html){ closeModal(); const s=document.createElement("div"); s.className="scrim"; s.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}</div>`; document.body.appendChild(s); s.querySelector("button")?.focus(); }
+function closeModal(){ document.querySelector(".scrim")?.remove(); }
+
+function render(){
+  const V = {home, pick, qty, stock, day, pin:pinScreen, admin, edit}[S.screen];
+  $("#app").innerHTML = V();
+  if(["pick","stock","admin"].includes(S.screen)) drawList();
+}
+render();
+</script>
