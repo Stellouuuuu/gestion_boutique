@@ -33,6 +33,11 @@ export default function HomeScreen() {
         setPinReady(null);
         return;
       }
+      // La vendeuse n'a pas besoin du PIN (réservé à Gérer).
+      if (membre?.role === 'vendeuse') {
+        setPinReady(true);
+        return;
+      }
       let active = true;
       (async () => {
         const p = await getSetting(db, SETTINGS_KEYS.pin);
@@ -41,7 +46,7 @@ export default function HomeScreen() {
       return () => {
         active = false;
       };
-    }, [db, isLocallyAuthenticated])
+    }, [db, isLocallyAuthenticated, membre?.role])
   );
 
   useEffect(() => {
@@ -50,10 +55,11 @@ export default function HomeScreen() {
       router.replace('/connexion');
       return;
     }
-    if (pinReady === false) {
+    // PIN uniquement pour la propriétaire
+    if (membre?.role !== 'vendeuse' && pinReady === false) {
       router.replace('/bienvenue');
     }
-  }, [authLoading, isLocallyAuthenticated, pinReady]);
+  }, [authLoading, isLocallyAuthenticated, pinReady, membre?.role]);
 
   // Après une mise à jour de schéma (tables vidées), retélécharge si la boutique est vide.
   useEffect(() => {
@@ -179,15 +185,17 @@ export default function HomeScreen() {
         />
       </View>
 
-      <View style={[styles.gestion, { borderTopColor: colors.line }]}>
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => router.push(unlocked ? '/admin' : '/admin/pin')}
-          style={[styles.gestionBtn, { borderColor: colors.line }]}
-        >
-          <Text style={[styles.gestionText, { color: colors.muted }]}>Gérer les articles (code)</Text>
-        </Pressable>
-      </View>
+      {membre?.role === 'proprietaire' ? (
+        <View style={[styles.gestion, { borderTopColor: colors.line }]}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push(unlocked ? '/admin' : '/admin/pin')}
+            style={[styles.gestionBtn, { borderColor: colors.line }]}
+          >
+            <Text style={[styles.gestionText, { color: colors.muted }]}>Gérer les articles (code)</Text>
+          </Pressable>
+        </View>
+      ) : null}
     </ScreenScroll>
   );
 }

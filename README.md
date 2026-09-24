@@ -45,6 +45,11 @@ Puis `a` (Android), `i` (iOS) ou `w` (web). Sur un appareil physique : scanner l
 - Indicateur discret sur l’accueil : « ✓ Tout est sauvegardé », « N ventes en attente de réseau », ou (après 24 h) « Pas de connexion depuis hier… ».
 - **Sans réseau, l’app ne renvoie jamais à Connexion** : le cache boutique local suffit. On ne déconnecte que si Supabase dit explicitement que la session est invalide, ou si on choisit « Se déconnecter » (refusé s’il reste des lignes `a_envoyer`).
 
+## Rôles
+
+- **Propriétaire** : accès à « Gérer les articles » (PIN), invitations, membres, Mon compte (mot de passe, déconnexion).
+- **Vendeuse** : ventes, entrées, restes, point du jour. Pas d’accès à Gérer (bouton masqué + contrôle côté app).
+
 ## Créer le compte de Maman (ordinateur)
 
 ```bash
@@ -64,6 +69,7 @@ npx tsc --noEmit
 npx expo lint
 node --env-file=.env scripts/verifier-etape2.mjs
 node --env-file=.env scripts/verifier-etape3.mjs
+node --env-file=.env --env-file=.env.admin scripts/verifier-etape4.mjs
 ```
 
 ## Schéma local (v2)

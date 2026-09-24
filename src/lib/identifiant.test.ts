@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { telVersIdentifiant } from './identifiant.ts';
+import { formatTelAffiche, telVersIdentifiant } from './identifiant.ts';
 
 test('un numéro saisi avec espaces et sans préfixe donne le même identifiant qu\'avec le préfixe 229', () => {
   assert.equal(telVersIdentifiant('01 97 00 00 00'), telVersIdentifiant('2290197000000'));
@@ -16,4 +16,9 @@ test('ne double pas le préfixe 229 quand il est déjà présent', () => {
 
 test('retire tout ce qui n\'est pas un chiffre', () => {
   assert.equal(telVersIdentifiant('+229 01 97 00 00 00'), '2290197000000@boutique-maman.app');
+});
+
+test('formatTelAffiche affiche un numéro béninois lisible', () => {
+  assert.equal(formatTelAffiche('2290197000000@boutique-maman.app'), '01 97 00 00 00');
+  assert.equal(formatTelAffiche('01 97 00 00 00'), '01 97 00 00 00');
 });
