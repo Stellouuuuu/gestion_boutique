@@ -30,7 +30,9 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
+# local env files (clé anon dans .env, clé service_role dans .env.admin — jamais sur GitHub)
+.env
+.env.admin
 .env*.local
 
 # typescript
@@ -39,3 +41,4 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+boutique-maman-etape2(1).zip
