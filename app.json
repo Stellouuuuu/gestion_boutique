@@ -19,10 +19,25 @@
       "package": "com.boutique.app"
     },
     "web": {
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "Boutique",
+      "shortName": "Boutique",
+      "themeColor": "#27306B",
+      "backgroundColor": "#F3F4F8",
+      "display": "standalone",
+      "output": "single",
+      "bundler": "metro"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "headers": {
+            "Cross-Origin-Embedder-Policy": "require-corp",
+            "Cross-Origin-Opener-Policy": "same-origin"
+          }
+        }
+      ],
       "expo-sqlite",
       "expo-font",
       [

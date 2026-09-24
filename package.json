@@ -33,7 +33,8 @@
     "@types/react": "~19.2.2",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~57.0.2",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "workbox-cli": "^7.3.0"
   },
   "scripts": {
     "test": "node --experimental-strip-types --test src/**/*.test.ts",
@@ -41,7 +42,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "build:web": "expo export -p web && npx workbox-cli generateSW workbox-config.js"
   },
   "private": true
 }

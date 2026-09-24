@@ -31,6 +31,27 @@ npx expo start
 
 Puis `a` (Android), `i` (iOS) ou `w` (web). Sur un appareil physique : scanner le QR code avec Expo Go (modules natifs déjà couverts) ou un development build si besoin.
 
+## Version iPhone (web, gratuite)
+
+Build de production :
+
+```bash
+npm run build:web
+```
+
+Cela crée le dossier `dist/` (export Expo + service worker Workbox). Les en-têtes COOP/COEP nécessaires à `expo-sqlite` sont dans `public/_headers` (pris en charge par Cloudflare Pages).
+
+### Héberger sur Cloudflare Pages
+
+1. Compte gratuit [Cloudflare Pages](https://pages.cloudflare.com/)
+2. Nouveau projet → upload du dossier `dist/`, **ou** connexion Git avec :
+   - **Build command** : `npm run build:web`
+   - **Output directory** : `dist`
+   - Variables d’environnement : `EXPO_PUBLIC_SUPABASE_URL` et `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+3. Sur iPhone Safari : ouvrir le site → bouton **Partager** → **Sur l’écran d’accueil**.
+
+Sur le web, Safari peut effacer les données locales : la synchro Supabase reste obligatoire ; l’indicateur d’accueil est le même que sur Android.
+
 ## Compte test
 
 - Téléphone : `00 00 00 01`
