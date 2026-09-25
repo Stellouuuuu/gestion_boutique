@@ -6,8 +6,9 @@ import { ScreenScroll } from '../components/ScreenScroll';
 import { PinPad } from '../components/PinPad';
 import { useTheme } from '../theme/useTheme';
 import { FONT_TITLE } from '../theme/typography';
-import { getSetting, setSetting, SETTINGS_KEYS, type CatalogueInitial } from '../db/settings';
+import { deleteSetting, getSetting, setSetting, SETTINGS_KEYS, type CatalogueInitial } from '../db/settings';
 import { telechargerBoutiqueSiVide } from '../db/remote';
+import { seedArticlesFromJson } from '../db/seed';
 import { useAuth } from '../lib/AuthSession';
 
 type Etape = 'pin-1' | 'pin-2' | 'telechargement' | 'erreur';
@@ -36,7 +37,18 @@ export default function BienvenueScreen() {
     }
     try {
       const cat = (await getSetting(db, SETTINGS_KEYS.catalogueInitial)) as CatalogueInitial | null;
-      await telechargerBoutiqueSiVide(db, membre.boutiqueId, cat === 'vide' ? 'vide' : 'type');
+      // articles.json uniquement si on vient de « Créer ma boutique » avec liste type.
+      if (cat === 'type') {
+        const { nbArticles } = await telechargerBoutiqueSiVide(db, membre.boutiqueId);
+        if (nbArticles === 0) {
+          await seedArticlesFromJson(db, membre.boutiqueId);
+        }
+        await deleteSetting(db, SETTINGS_KEYS.catalogueInitial);
+      } else if (cat === 'vide') {
+        await deleteSetting(db, SETTINGS_KEYS.catalogueInitial);
+      } else {
+        await telechargerBoutiqueSiVide(db, membre.boutiqueId);
+      }
       router.replace('/');
     } catch {
       setErreurTelechargement(

@@ -8,6 +8,8 @@ import {
   doitPurgerApresSignedOut,
   isLocallyAuthenticated as calcLocalAuth,
   peutConnecterAvecPending,
+  decisionAutreBoutiqueLocale,
+  MSG_AUTRE_COMPTE_PENDING,
 } from './authSecurity';
 import { fetchMembre, type Membre } from '../db/remote';
 import { countPending } from '../db/syncStatus';
@@ -19,7 +21,12 @@ import {
   type CatalogueInitial,
 } from '../db/settings';
 import { ajouterCompteRecent } from '../db/comptesRecents';
-import { purgerDonneesBoutiqueLocale, resetSynchroLocale } from '../db/purgeBoutique';
+import {
+  purgerDonneesBoutiqueLocale,
+  purgerToutesDonneesMetierLocales,
+  resetSynchroLocale,
+  listerBoutiqueIdsLocaux,
+} from '../db/purgeBoutique';
 
 export class PendingSyncError extends Error {
   readonly pendingVentes: number;
@@ -174,6 +181,33 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     [db]
   );
 
+  /**
+   * Si la base locale contient une autre boutique : purge si rien en attente,
+   * sinon bloque avec le même message que AutreComptePendingError.
+   */
+  const preparerBasePourBoutique = useCallback(
+    async (boutiqueId: string) => {
+      const [ids, pending] = await Promise.all([
+        listerBoutiqueIdsLocaux(db),
+        countPending(db),
+      ]);
+      const decision = decisionAutreBoutiqueLocale({
+        boutiqueCourante: boutiqueId,
+        boutiqueIdsLocaux: ids,
+        pendingTotal: pending.total,
+      });
+      if (decision === 'bloque') {
+        await supabase.auth.signOut().catch(() => {});
+        throw new AutreComptePendingError(MSG_AUTRE_COMPTE_PENDING);
+      }
+      if (decision === 'purge') {
+        await purgerToutesDonneesMetierLocales(db);
+        await resetSynchroLocale(db);
+      }
+    },
+    [db]
+  );
+
   useEffect(() => {
     let active = true;
     (async () => {
@@ -246,14 +280,17 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       if (error) throw error;
       if (data.user) {
         await verifierPasAutreCompte(data.user.id);
-        await rafraichirMembreDistant(data.user.id);
         const m = await fetchMembre(data.user.id);
         if (m) {
+          await preparerBasePourBoutique(m.boutiqueId);
+          await rafraichirMembreDistant(data.user.id);
           await mémoriserCompteRecent(data.user.id, data.user.email, m);
+        } else {
+          await rafraichirMembreDistant(data.user.id);
         }
       }
     },
-    [verifierPasAutreCompte, rafraichirMembreDistant, mémoriserCompteRecent]
+    [verifierPasAutreCompte, preparerBasePourBoutique, rafraichirMembreDistant, mémoriserCompteRecent]
   );
 
   const rejoindre = useCallback(
@@ -289,12 +326,13 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        await rafraichirMembreDistant(user.id);
         const m = await fetchMembre(user.id);
+        if (m) await preparerBasePourBoutique(m.boutiqueId);
+        await rafraichirMembreDistant(user.id);
         if (m) await mémoriserCompteRecent(user.id, user.email, m);
       }
     },
-    [verifierPasAutreCompte, rafraichirMembreDistant, mémoriserCompteRecent]
+    [verifierPasAutreCompte, preparerBasePourBoutique, rafraichirMembreDistant, mémoriserCompteRecent]
   );
 
   const creerBoutique = useCallback(
@@ -328,12 +366,13 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        await rafraichirMembreDistant(user.id);
         const m = await fetchMembre(user.id);
+        if (m) await preparerBasePourBoutique(m.boutiqueId);
+        await rafraichirMembreDistant(user.id);
         if (m) await mémoriserCompteRecent(user.id, user.email, m);
       }
     },
-    [verifierPasAutreCompte, rafraichirMembreDistant, mémoriserCompteRecent]
+    [verifierPasAutreCompte, preparerBasePourBoutique, rafraichirMembreDistant, mémoriserCompteRecent]
   );
 
   const rafraichirMembre = useCallback(async () => {

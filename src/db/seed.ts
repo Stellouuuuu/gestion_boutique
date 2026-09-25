@@ -14,8 +14,9 @@ interface RawArticle {
 const RAW_ARTICLES = articlesData as RawArticle[];
 
 /**
- * Secours pour une boutique vide (étape 2 §2.3) : importe articles.json, stock à 0.
- * N'est appelé qu'après un téléchargement Supabase qui ne renvoie aucun article.
+ * Importe articles.json (liste type, stock 0).
+ * Uniquement depuis « Créer ma boutique » → choix « liste type » (écran Bienvenue).
+ * Jamais à la connexion ni au téléchargement d’une boutique déjà en ligne.
  */
 export async function seedArticlesFromJson(db: SQLiteDatabase, boutiqueId: string): Promise<void> {
   const now = new Date().toISOString();

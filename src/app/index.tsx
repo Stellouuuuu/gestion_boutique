@@ -11,7 +11,7 @@ import { totalVentesDuJour, countArticlesFinis } from '../db/mouvements';
 import { countArticles } from '../db/articles';
 import { getInventaireEnCours } from '../db/inventaires';
 import { telechargerBoutiqueSiVide } from '../db/remote';
-import { getSetting, SETTINGS_KEYS, type CatalogueInitial } from '../db/settings';
+import { getSetting, SETTINGS_KEYS } from '../db/settings';
 import { useAdminSession } from '../lib/AdminSession';
 import { useAuth } from '../lib/AuthSession';
 import { useSync } from '../lib/SyncSession';
@@ -72,8 +72,8 @@ export default function HomeScreen() {
       try {
         const n = await countArticles(db, boutiqueId);
         if (n === 0) {
-          const cat = (await getSetting(db, SETTINGS_KEYS.catalogueInitial)) as CatalogueInitial | null;
-          await telechargerBoutiqueSiVide(db, boutiqueId, cat === 'vide' ? 'vide' : 'type');
+          // Jamais articles.json ici — uniquement le téléchargement Supabase.
+          await telechargerBoutiqueSiVide(db, boutiqueId);
         }
       } catch {
         // Hors ligne : on laisse l'écran s'afficher ; les ventes locales déjà là restent.

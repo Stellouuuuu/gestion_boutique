@@ -17,17 +17,24 @@ export async function listArticles(
   categorie: Categorie,
   opts?: { activeOnly?: boolean }
 ): Promise<Article[]> {
+  const boutiqueId = await getSetting(db, SETTINGS_KEYS.boutiqueId);
+  if (!boutiqueId) return [];
   const activeOnly = opts?.activeOnly ?? true;
   const sql = activeOnly
-    ? `SELECT ${ARTICLE_SELECT_WITH_STOCK} FROM articles a WHERE a.categorie = ? AND a.actif = 1`
-    : `SELECT ${ARTICLE_SELECT_WITH_STOCK} FROM articles a WHERE a.categorie = ?`;
-  return db.getAllAsync<Article>(sql, [categorie]);
+    ? `SELECT ${ARTICLE_SELECT_WITH_STOCK} FROM articles a
+       WHERE a.boutique_id = ? AND a.categorie = ? AND a.actif = 1`
+    : `SELECT ${ARTICLE_SELECT_WITH_STOCK} FROM articles a
+       WHERE a.boutique_id = ? AND a.categorie = ?`;
+  return db.getAllAsync<Article>(sql, [boutiqueId, categorie]);
 }
 
 export async function listArticlesSansPrix(db: SQLiteDatabase): Promise<Article[]> {
+  const boutiqueId = await getSetting(db, SETTINGS_KEYS.boutiqueId);
+  if (!boutiqueId) return [];
   return db.getAllAsync<Article>(
     `SELECT ${ARTICLE_SELECT_WITH_STOCK} FROM articles a
-     WHERE a.actif = 1 AND a.prix_detail IS NULL ORDER BY a.nom`
+     WHERE a.boutique_id = ? AND a.actif = 1 AND a.prix_detail IS NULL ORDER BY a.nom`,
+    [boutiqueId]
   );
 }
 
@@ -62,10 +69,12 @@ export async function findDuplicate(
   categorie: Categorie,
   excludeId?: string
 ): Promise<boolean> {
+  const boutiqueId = await getSetting(db, SETTINGS_KEYS.boutiqueId);
+  if (!boutiqueId) return false;
   const row = await db.getFirstAsync<{ id: string }>(
     `SELECT id FROM articles
-     WHERE actif = 1 AND categorie = ? AND lower(nom) = lower(?) AND id != ?`,
-    [categorie, nom, excludeId ?? '']
+     WHERE boutique_id = ? AND actif = 1 AND categorie = ? AND lower(nom) = lower(?) AND id != ?`,
+    [boutiqueId, categorie, nom, excludeId ?? '']
   );
   return row != null;
 }

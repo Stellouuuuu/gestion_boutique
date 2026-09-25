@@ -31,12 +31,22 @@ function boolFromSqlite(v: unknown): boolean {
   return v === 1 || v === true;
 }
 
-/** Envoi des lignes a_envoyer = 1, dans l'ordre parents → enfants. */
-async function pushTable(db: SQLiteDatabase, table: SyncTable): Promise<void> {
+/** Envoi des lignes a_envoyer = 1 de la boutique courante uniquement. */
+async function pushTable(
+  db: SQLiteDatabase,
+  table: SyncTable,
+  boutiqueId: string
+): Promise<number> {
   if (table === 'articles') {
+    const foreign = await db.getFirstAsync<{ n: number }>(
+      `SELECT COUNT(*) as n FROM articles WHERE a_envoyer = 1 AND boutique_id != ?`,
+      [boutiqueId]
+    );
+    const skipped = foreign?.n ?? 0;
     const rows = await db.getAllAsync<Record<string, unknown>>(
       `SELECT id, boutique_id, nom, categorie, prix_detail, prix_gros, prix_achat, actif, cree_le
-       FROM articles WHERE a_envoyer = 1`
+       FROM articles WHERE a_envoyer = 1 AND boutique_id = ?`,
+      [boutiqueId]
     );
     for (const lot of chunks(rows, BATCH)) {
       if (lot.length === 0) continue;
@@ -59,14 +69,20 @@ async function pushTable(db: SQLiteDatabase, table: SyncTable): Promise<void> {
         ids
       );
     }
-    return;
+    return skipped;
   }
 
   if (table === 'mouvements') {
+    const foreign = await db.getFirstAsync<{ n: number }>(
+      `SELECT COUNT(*) as n FROM mouvements WHERE a_envoyer = 1 AND boutique_id != ?`,
+      [boutiqueId]
+    );
+    const skipped = foreign?.n ?? 0;
     const rows = await db.getAllAsync<Record<string, unknown>>(
       `SELECT id, boutique_id, article_id, type, quantite, tarif, prix_unitaire, montant_normal,
               montant_paye, cout_unitaire, annule, annule_le, cree_par, cree_le
-       FROM mouvements WHERE a_envoyer = 1`
+       FROM mouvements WHERE a_envoyer = 1 AND boutique_id = ?`,
+      [boutiqueId]
     );
     const {
       data: { user },
@@ -112,13 +128,19 @@ async function pushTable(db: SQLiteDatabase, table: SyncTable): Promise<void> {
         ids
       );
     }
-    return;
+    return skipped;
   }
 
   if (table === 'inventaires') {
+    const foreign = await db.getFirstAsync<{ n: number }>(
+      `SELECT COUNT(*) as n FROM inventaires WHERE a_envoyer = 1 AND boutique_id != ?`,
+      [boutiqueId]
+    );
+    const skipped = foreign?.n ?? 0;
     const rows = await db.getAllAsync<Record<string, unknown>>(
       `SELECT id, boutique_id, perimetre, statut, fait_par, commence_le, termine_le, note
-       FROM inventaires WHERE a_envoyer = 1`
+       FROM inventaires WHERE a_envoyer = 1 AND boutique_id = ?`,
+      [boutiqueId]
     );
     for (const lot of chunks(rows, BATCH)) {
       if (lot.length === 0) continue;
@@ -130,13 +152,19 @@ async function pushTable(db: SQLiteDatabase, table: SyncTable): Promise<void> {
         ids
       );
     }
-    return;
+    return skipped;
   }
 
   // inventaire_lignes
+  const foreign = await db.getFirstAsync<{ n: number }>(
+    `SELECT COUNT(*) as n FROM inventaire_lignes WHERE a_envoyer = 1 AND boutique_id != ?`,
+    [boutiqueId]
+  );
+  const skipped = foreign?.n ?? 0;
   const rows = await db.getAllAsync<Record<string, unknown>>(
     `SELECT id, inventaire_id, boutique_id, article_id, stock_attendu, stock_compte, compte_le, mouvement_id
-     FROM inventaire_lignes WHERE a_envoyer = 1`
+     FROM inventaire_lignes WHERE a_envoyer = 1 AND boutique_id = ?`,
+    [boutiqueId]
   );
   for (const lot of chunks(rows, BATCH)) {
     if (lot.length === 0) continue;
@@ -148,6 +176,7 @@ async function pushTable(db: SQLiteDatabase, table: SyncTable): Promise<void> {
       ids
     );
   }
+  return skipped;
 }
 
 async function pullArticles(db: SQLiteDatabase, boutiqueId: string, since: string): Promise<string | null> {
@@ -162,11 +191,13 @@ async function pullArticles(db: SQLiteDatabase, boutiqueId: string, since: strin
   let maxMod: string | null = null;
   for (const a of data) {
     if (!maxMod || a.modifie_le > maxMod) maxMod = a.modifie_le;
-    const local = await db.getFirstAsync<{ a_envoyer: number; modifie_le: string }>(
-      'SELECT a_envoyer, modifie_le FROM articles WHERE id = ?',
+    const local = await db.getFirstAsync<{ a_envoyer: number; modifie_le: string; boutique_id: string }>(
+      'SELECT a_envoyer, modifie_le, boutique_id FROM articles WHERE id = ?',
       [a.id]
     );
     if (local?.a_envoyer === 1) continue; // push prioritaire, ne pas écraser
+    // Une ligne locale ne change JAMAIS de boutique_id
+    if (local && local.boutique_id !== a.boutique_id) continue;
     await db.runAsync(
       `INSERT INTO articles
          (id, boutique_id, nom, categorie, prix_detail, prix_gros, prix_achat, actif, cree_le, modifie_le, a_envoyer)
@@ -215,10 +246,11 @@ async function pullMouvements(
   let maxMod: string | null = null;
   for (const m of data) {
     if (!maxMod || m.modifie_le > maxMod) maxMod = m.modifie_le;
-    const local = await db.getFirstAsync<{ a_envoyer: number; annule: number }>(
-      'SELECT a_envoyer, annule FROM mouvements WHERE id = ?',
+    const local = await db.getFirstAsync<{ a_envoyer: number; annule: number; boutique_id: string }>(
+      'SELECT a_envoyer, annule, boutique_id FROM mouvements WHERE id = ?',
       [m.id]
     );
+    if (local && local.boutique_id !== m.boutique_id) continue;
     if (local?.a_envoyer === 1) {
       // Fusion annule : true gagne toujours, même si on poussera ensuite.
       if (m.annule && !local.annule) {
@@ -399,14 +431,22 @@ export async function synchroniserBoutique(
   boutiqueId: string
 ): Promise<SyncResult> {
   try {
+    let skippedForeign = 0;
     for (const table of SYNC_PUSH_ORDER) {
-      await pushTable(db, table);
+      skippedForeign += await pushTable(db, table, boutiqueId);
     }
     for (const table of SYNC_PUSH_ORDER) {
       await pullTable(db, boutiqueId, table);
     }
     await setDerniereSynchroOk(db, new Date().toISOString());
-    await clearDerniereSynchroErreur(db);
+    if (skippedForeign > 0) {
+      await setDerniereSynchroErreur(
+        db,
+        `${skippedForeign} ligne(s) d’une autre boutique restent en local (non envoyées).`
+      );
+    } else {
+      await clearDerniereSynchroErreur(db);
+    }
     return { ok: true };
   } catch (e) {
     const message =

@@ -205,13 +205,15 @@ export interface MouvementAvecArticle extends Mouvement {
 }
 
 export async function listMouvementsDuJour(db: SQLiteDatabase): Promise<MouvementAvecArticle[]> {
+  const boutiqueId = await getSetting(db, SETTINGS_KEYS.boutiqueId);
+  if (!boutiqueId) return [];
   const { start, end } = startEndOfToday();
   return db.getAllAsync<MouvementAvecArticle>(
     `SELECT m.*, a.nom AS article_nom, a.categorie AS article_categorie
      FROM mouvements m JOIN articles a ON a.id = m.article_id
-     WHERE m.cree_le >= ? AND m.cree_le < ?
+     WHERE m.boutique_id = ? AND m.cree_le >= ? AND m.cree_le < ?
      ORDER BY m.cree_le DESC`,
-    [start, end]
+    [boutiqueId, start, end]
   );
 }
 
@@ -223,12 +225,17 @@ export interface TotalDuJour {
 }
 
 export async function totalVentesDuJour(db: SQLiteDatabase): Promise<TotalDuJour> {
+  const boutiqueId = await getSetting(db, SETTINGS_KEYS.boutiqueId);
+  if (!boutiqueId) {
+    return { totalMeches: 0, totalProduits: 0, total: 0, nbVentes: 0 };
+  }
   const { start, end } = startEndOfToday();
   const rows = await db.getAllAsync<{ categorie: Article['categorie']; montant: number }>(
     `SELECT a.categorie as categorie, m.montant_paye as montant
      FROM mouvements m JOIN articles a ON a.id = m.article_id
-     WHERE m.type = 'vente' AND m.annule = 0 AND m.cree_le >= ? AND m.cree_le < ?`,
-    [start, end]
+     WHERE m.boutique_id = ? AND m.type = 'vente' AND m.annule = 0
+       AND m.cree_le >= ? AND m.cree_le < ?`,
+    [boutiqueId, start, end]
   );
   let totalMeches = 0;
   let totalProduits = 0;
@@ -245,9 +252,12 @@ export async function totalVentesDuJour(db: SQLiteDatabase): Promise<TotalDuJour
 }
 
 export async function countArticlesFinis(db: SQLiteDatabase): Promise<number> {
+  const boutiqueId = await getSetting(db, SETTINGS_KEYS.boutiqueId);
+  if (!boutiqueId) return 0;
   const row = await db.getFirstAsync<{ n: number }>(
     `SELECT COUNT(*) as n FROM articles a
-     WHERE a.actif = 1 AND ${stockExpr('a.id')} <= 0`
+     WHERE a.boutique_id = ? AND a.actif = 1 AND ${stockExpr('a.id')} <= 0`,
+    [boutiqueId]
   );
   return row?.n ?? 0;
 }

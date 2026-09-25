@@ -25,6 +25,9 @@ export function doitPurgerApresSignedOut(opts: {
   return true;
 }
 
+export const MSG_AUTRE_COMPTE_PENDING =
+  'Des ventes de l’autre compte attendent encore d’être envoyées sur ce téléphone. Reconnectez-vous avec le même numéro pour les sauvegarder, sinon elles seraient mélangées.';
+
 /**
  * Empêche qu’un autre compte se connecte tant qu’il reste des lignes a_envoyer
  * appartenant au précédent utilisateur.
@@ -38,7 +41,23 @@ export function peutConnecterAvecPending(opts: {
   if (!opts.lastUserId || opts.lastUserId === opts.newUserId) return { ok: true };
   return {
     ok: false,
-    message:
-      'Des ventes de l’autre compte attendent encore d’être envoyées sur ce téléphone. Reconnectez-vous avec le même numéro pour les sauvegarder, sinon elles seraient mélangées.',
+    message: MSG_AUTRE_COMPTE_PENDING,
   };
+}
+
+/**
+ * À la connexion à la boutique B : si la base locale a encore des données
+ * d’une autre boutique A —
+ * - a_envoyer > 0 → bloquer (ne pas perdre / mélanger) ;
+ * - sinon → purger le local avant téléchargement de B.
+ */
+export function decisionAutreBoutiqueLocale(opts: {
+  boutiqueCourante: string;
+  boutiqueIdsLocaux: string[];
+  pendingTotal: number;
+}): 'ok' | 'purge' | 'bloque' {
+  const autres = opts.boutiqueIdsLocaux.filter((id) => id !== opts.boutiqueCourante);
+  if (autres.length === 0) return 'ok';
+  if (opts.pendingTotal > 0) return 'bloque';
+  return 'purge';
 }

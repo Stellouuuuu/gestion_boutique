@@ -1,7 +1,5 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { supabase } from '../lib/supabase';
-import { seedArticlesFromJson } from './seed';
-import type { CatalogueInitial } from './settings';
 import type { Categorie, Tarif, TypeMouvement } from './types';
 
 export interface Membre {
@@ -62,21 +60,19 @@ interface RemoteMouvement {
 }
 
 /**
- * Téléchargement initial : si la boutique a déjà des articles en ligne,
- * on les télécharge avec leurs mouvements (stock = somme des mouvements).
- * Sinon : liste type (articles.json, stock 0) ou liste vide selon `catalogue`.
- * N'agit que si la boutique n'a encore aucun article en local.
+ * Téléchargement initial depuis Supabase uniquement.
+ * Ne touche JAMAIS à articles.json (réservé à « Créer ma boutique » → liste type).
+ * N'agit que si cette boutique n'a encore aucun article en local.
  */
 export async function telechargerBoutiqueSiVide(
   db: SQLiteDatabase,
-  boutiqueId: string,
-  catalogue: CatalogueInitial = 'type'
-): Promise<{ nbArticles: number; depuisJson: boolean }> {
+  boutiqueId: string
+): Promise<{ nbArticles: number }> {
   const dejaLocal = await db.getFirstAsync<{ n: number }>(
     'SELECT COUNT(*) as n FROM articles WHERE boutique_id = ?',
     [boutiqueId]
   );
-  if ((dejaLocal?.n ?? 0) > 0) return { nbArticles: dejaLocal!.n, depuisJson: false };
+  if ((dejaLocal?.n ?? 0) > 0) return { nbArticles: dejaLocal!.n };
 
   const { data: remoteArticles, error: errA } = await supabase
     .from('articles')
@@ -85,15 +81,7 @@ export async function telechargerBoutiqueSiVide(
   if (errA) throw errA;
 
   if (!remoteArticles || remoteArticles.length === 0) {
-    if (catalogue === 'vide') {
-      return { nbArticles: 0, depuisJson: false };
-    }
-    await seedArticlesFromJson(db, boutiqueId);
-    const n = await db.getFirstAsync<{ n: number }>(
-      'SELECT COUNT(*) as n FROM articles WHERE boutique_id = ?',
-      [boutiqueId]
-    );
-    return { nbArticles: n?.n ?? 0, depuisJson: true };
+    return { nbArticles: 0 };
   }
 
   const { data: remoteMouvements, error: errM } = await supabase
@@ -161,5 +149,5 @@ export async function telechargerBoutiqueSiVide(
     }
   });
 
-  return { nbArticles: remoteArticles.length, depuisJson: false };
+  return { nbArticles: remoteArticles.length };
 }
