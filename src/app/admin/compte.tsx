@@ -5,22 +5,15 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { Header } from '../../components/Header';
 import { ScreenScroll } from '../../components/ScreenScroll';
 import { Button } from '../../components/Button';
-import { PasswordField } from '../../components/PasswordField';
-import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { RequireUnlocked } from '../../components/RequireUnlocked';
 import { useTheme } from '../../theme/useTheme';
 import { FONT_TITLE } from '../../theme/typography';
-import { useAuth, PendingSyncError } from '../../lib/AuthSession';
+import { useAuth } from '../../lib/AuthSession';
 import { useSync } from '../../lib/SyncSession';
 import { useToast } from '../../components/Toast';
 import { formatTelAffiche } from '../../lib/identifiant';
 import { getErrorMessage } from '../../lib/errors';
-import {
-  changerMotDePasse,
-  fetchBoutique,
-  updateMonNom,
-  updateNomBoutique,
-} from '../../db/membres';
+import { fetchBoutique, updateMonNom, updateNomBoutique } from '../../db/membres';
 import { setSetting, SETTINGS_KEYS } from '../../db/settings';
 
 export default function CompteScreen() {
@@ -47,7 +40,7 @@ function formatDateHeure(iso: string | null | undefined): string {
 function CompteForm() {
   const db = useSQLiteContext();
   const { colors } = useTheme();
-  const { membre, session, signOut, rafraichirMembre } = useAuth();
+  const { membre, session, rafraichirMembre } = useAuth();
   const { showToast } = useToast();
   const {
     derniereSynchroOk,
@@ -64,15 +57,6 @@ function CompteForm() {
   const [retrying, setRetrying] = useState(false);
   const [savingProfil, setSavingProfil] = useState(false);
   const [erreurProfil, setErreurProfil] = useState<string | null>(null);
-
-  const [ancien, setAncien] = useState('');
-  const [nouveau, setNouveau] = useState('');
-  const [confirmation, setConfirmation] = useState('');
-  const [erreurMdp, setErreurMdp] = useState<string | null>(null);
-  const [savingMdp, setSavingMdp] = useState(false);
-
-  const [confirmDeconnexion, setConfirmDeconnexion] = useState(false);
-  const [blocageDeconnexion, setBlocageDeconnexion] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -129,46 +113,6 @@ function CompteForm() {
     }
   };
 
-  const onChangerMdp = async () => {
-    if (savingMdp) return;
-    if (ancien.length < 6 || nouveau.length < 6) {
-      setErreurMdp('Le mot de passe doit faire au moins 6 caractères.');
-      return;
-    }
-    if (nouveau !== confirmation) {
-      setErreurMdp('Les deux nouveaux mots de passe sont différents.');
-      return;
-    }
-    setSavingMdp(true);
-    setErreurMdp(null);
-    try {
-      await changerMotDePasse(ancien, nouveau);
-      setAncien('');
-      setNouveau('');
-      setConfirmation('');
-      showToast('Mot de passe changé');
-    } catch (e) {
-      setErreurMdp(getErrorMessage(e) || 'Impossible de changer le mot de passe.');
-    } finally {
-      setSavingMdp(false);
-    }
-  };
-
-  const onDeconnexion = async () => {
-    try {
-      await signOut();
-      setConfirmDeconnexion(false);
-      router.replace('/connexion');
-    } catch (e) {
-      setConfirmDeconnexion(false);
-      if (e instanceof PendingSyncError) {
-        setBlocageDeconnexion(e.message);
-      } else {
-        showToast('Impossible de se déconnecter pour l’instant.');
-      }
-    }
-  };
-
   const onRetrySync = async () => {
     if (retrying) return;
     setRetrying(true);
@@ -182,14 +126,14 @@ function CompteForm() {
 
   return (
     <ScreenScroll>
-      <Header title="Mon compte" onBack={() => router.replace('/admin')} />
+      <Header title="Profil boutique" onBack={() => router.replace('/admin')} />
 
       {chargement ? (
         <ActivityIndicator size="large" color={colors.indigo} style={{ marginTop: 40 }} />
       ) : (
         <View style={[styles.card, { backgroundColor: colors.card }]}>
           <Text style={[styles.sectionTitle, { color: colors.ink, fontFamily: FONT_TITLE }]}>
-            Mon profil
+            Noms affichés
           </Text>
           <View style={styles.field}>
             <Text style={[styles.label, { color: colors.ink }]}>Mon nom</Text>
@@ -202,26 +146,18 @@ function CompteForm() {
               ]}
             />
           </View>
-          {membre?.role === 'proprietaire' ? (
-            <View style={styles.field}>
-              <Text style={[styles.label, { color: colors.ink }]}>Nom de la boutique</Text>
-              <TextInput
-                value={nomBoutique}
-                onChangeText={setNomBoutique}
-                style={[
-                  styles.input,
-                  { borderColor: colors.line, color: colors.ink, backgroundColor: colors.bg },
-                ]}
-              />
-            </View>
-          ) : (
-            <InfoRow label="Boutique" value={nomBoutique || '—'} />
-          )}
+          <View style={styles.field}>
+            <Text style={[styles.label, { color: colors.ink }]}>Nom de la boutique</Text>
+            <TextInput
+              value={nomBoutique}
+              onChangeText={setNomBoutique}
+              style={[
+                styles.input,
+                { borderColor: colors.line, color: colors.ink, backgroundColor: colors.bg },
+              ]}
+            />
+          </View>
           <InfoRow label="Téléphone" value={telAffiche || '—'} />
-          <InfoRow
-            label="Rôle"
-            value={membre?.role === 'proprietaire' ? 'Propriétaire' : 'Vendeuse'}
-          />
           {erreurProfil ? (
             <View style={[styles.alert, { backgroundColor: colors.warnSoft }]}>
               <Text style={{ color: colors.warn, fontWeight: '700' }}>{erreurProfil}</Text>
@@ -270,51 +206,11 @@ function CompteForm() {
         </Button>
       </View>
 
-      <View style={[styles.card, { backgroundColor: colors.card, marginTop: 16 }]}>
-        <Text style={[styles.sectionTitle, { color: colors.ink, fontFamily: FONT_TITLE }]}>
-          Changer mon mot de passe
-        </Text>
-        <PasswordField label="Ancien mot de passe" value={ancien} onChangeText={setAncien} />
-        <PasswordField label="Nouveau mot de passe" value={nouveau} onChangeText={setNouveau} />
-        <PasswordField
-          label="Confirmer le nouveau"
-          value={confirmation}
-          onChangeText={setConfirmation}
-        />
-        {erreurMdp ? (
-          <View style={[styles.alert, { backgroundColor: colors.warnSoft }]}>
-            <Text style={{ color: colors.warn, fontWeight: '700' }}>{erreurMdp}</Text>
-          </View>
-        ) : null}
-        <Button variant="indigo-outline" disabled={savingMdp} loading={savingMdp} onPress={onChangerMdp}>
-          Enregistrer le mot de passe
+      <View style={{ marginTop: 24 }}>
+        <Button variant="ghost" onPress={() => router.push('/mon-compte')}>
+          Mot de passe et déconnexion →
         </Button>
       </View>
-
-      <View style={[styles.delzone, { borderTopColor: colors.line }]}>
-        <Button variant="danger-outline" onPress={() => setConfirmDeconnexion(true)}>
-          Se déconnecter
-        </Button>
-      </View>
-
-      <ConfirmDialog
-        visible={confirmDeconnexion}
-        title="Se déconnecter ?"
-        description="Vous pourrez vous reconnecter avec votre numéro et votre mot de passe."
-        safeLabel="Non, rester connecté·e"
-        onSafe={() => setConfirmDeconnexion(false)}
-        dangerLabel="Oui, me déconnecter"
-        onConfirmDanger={onDeconnexion}
-      />
-      <ConfirmDialog
-        visible={blocageDeconnexion != null}
-        title="Pas encore"
-        description={blocageDeconnexion ?? ''}
-        safeLabel="D’accord"
-        onSafe={() => setBlocageDeconnexion(null)}
-        dangerLabel=""
-        onConfirmDanger={() => setBlocageDeconnexion(null)}
-      />
     </ScreenScroll>
   );
 }
@@ -337,5 +233,4 @@ const styles = StyleSheet.create({
   input: { borderWidth: 2, borderRadius: 12, padding: 14, fontSize: 18, minHeight: 56 },
   infoRow: { gap: 2 },
   alert: { borderRadius: 12, padding: 12 },
-  delzone: { marginTop: 40, paddingTop: 16, borderTopWidth: 2, borderStyle: 'dashed' },
 });

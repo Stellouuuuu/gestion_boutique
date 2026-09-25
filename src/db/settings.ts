@@ -11,7 +11,10 @@ export const SETTINGS_KEYS = {
   catalogueInitial: 'catalogue_initial',
   /** Dernier user_id authentifié — pour bloquer un autre compte si a_envoyer > 0. */
   lastUserId: 'last_user_id',
+  /** JSON : jusqu’à 3 comptes récents (jamais de mot de passe). */
+  comptesRecents: 'comptes_recents',
 } as const;
+
 
 export type CatalogueInitial = 'type' | 'vide';
 

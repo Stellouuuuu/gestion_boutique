@@ -181,7 +181,7 @@ function AdminList() {
               onPress={() => router.push('/admin/compte')}
               style={styles.linkRow}
             >
-              <Text style={[styles.linkText, { color: colors.indigo }]}>Mon compte</Text>
+              <Text style={[styles.linkText, { color: colors.indigo }]}>Profil boutique</Text>
             </Pressable>
 
             <Pressable

@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { router } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { ScreenScroll } from '../components/ScreenScroll';
 import { PasswordField } from '../components/PasswordField';
 import { Button } from '../components/Button';
@@ -8,8 +9,15 @@ import { useTheme } from '../theme/useTheme';
 import { FONT_TITLE } from '../theme/typography';
 import { useAuth, AutreComptePendingError } from '../lib/AuthSession';
 import { MOT_DE_PASSE_OUBLIE_TEXTE } from '../lib/config';
+import { masquerTel } from '../lib/identifiant';
+import {
+  listerComptesRecents,
+  oublierCompte,
+  type CompteRecent,
+} from '../db/comptesRecents';
 
 export default function ConnexionScreen() {
+  const db = useSQLiteContext();
   const { colors } = useTheme();
   const { signIn } = useAuth();
 
@@ -17,6 +25,17 @@ export default function ConnexionScreen() {
   const [motDePasse, setMotDePasse] = useState('');
   const [erreur, setErreur] = useState<string | null>(null);
   const [envoi, setEnvoi] = useState(false);
+  const [recents, setRecents] = useState<CompteRecent[]>([]);
+
+  const chargerRecents = useCallback(async () => {
+    setRecents(await listerComptesRecents(db));
+  }, [db]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void chargerRecents();
+    }, [chargerRecents])
+  );
 
   const onConnexion = async () => {
     if (envoi) return;
@@ -37,12 +56,56 @@ export default function ConnexionScreen() {
     }
   };
 
+  const choisirRecent = (c: CompteRecent) => {
+    setTel(c.telDigits.startsWith('229') ? c.telDigits : `229${c.telDigits}`);
+    setMotDePasse('');
+    setErreur(null);
+  };
+
+  const onOublier = async (c: CompteRecent) => {
+    await oublierCompte(db, c.userId);
+    await chargerRecents();
+  };
+
   return (
     <ScreenScroll>
       <View style={styles.hello}>
         <Text style={[styles.h1, { color: colors.ink, fontFamily: FONT_TITLE }]}>Boutique de Maman</Text>
         <Text style={[styles.sub, { color: colors.muted }]}>Connectez-vous pour continuer</Text>
       </View>
+
+      {recents.length > 0 ? (
+        <View style={[styles.recents, { backgroundColor: colors.card }]}>
+          <Text style={[styles.recentsTitle, { color: colors.muted }]}>COMPTES RÉCENTS</Text>
+          {recents.map((c) => (
+            <View key={c.userId} style={[styles.recentRow, { borderBottomColor: colors.line }]}>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => choisirRecent(c)}
+                style={styles.recentMain}
+              >
+                <Text style={{ color: colors.ink, fontWeight: '700', fontSize: 17 }}>
+                  {c.prenom}
+                  {c.boutiqueNom ? ` · ${c.boutiqueNom}` : ''}
+                </Text>
+                <Text style={{ color: colors.muted, marginTop: 2, fontSize: 15 }}>
+                  {masquerTel(c.telDigits)}
+                </Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Oublier ce compte"
+                onPress={() => void onOublier(c)}
+                hitSlop={8}
+              >
+                <Text style={{ color: colors.indigo, fontWeight: '700', fontSize: 14 }}>
+                  Oublier
+                </Text>
+              </Pressable>
+            </View>
+          ))}
+        </View>
+      ) : null}
 
       <View style={[styles.card, { backgroundColor: colors.card }]}>
         <View style={styles.field}>
@@ -88,6 +151,17 @@ const styles = StyleSheet.create({
   hello: { paddingTop: 40, paddingBottom: 24, alignItems: 'center' },
   h1: { fontSize: 30, fontWeight: '800', textAlign: 'center' },
   sub: { marginTop: 8, fontSize: 18, textAlign: 'center' },
+  recents: { borderRadius: 20, padding: 16, marginBottom: 16, gap: 4 },
+  recentsTitle: { fontSize: 12, fontWeight: '700', letterSpacing: 0.6, marginBottom: 8 },
+  recentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    minHeight: 56,
+  },
+  recentMain: { flex: 1 },
   card: { borderRadius: 20, padding: 20, gap: 14 },
   field: { gap: 6 },
   label: { fontWeight: '700', fontSize: 16 },

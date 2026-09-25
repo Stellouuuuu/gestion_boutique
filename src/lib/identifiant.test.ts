@@ -1,24 +1,44 @@
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formatTelAffiche, telVersIdentifiant } from './identifiant.ts';
+import { describe, it } from 'node:test';
+import {
+  formatTelAffiche,
+  masquerTel,
+  telDigitsDepuis,
+  telVersIdentifiant,
+} from './identifiant.ts';
 
-test('un numéro saisi avec espaces et sans préfixe donne le même identifiant qu\'avec le préfixe 229', () => {
-  assert.equal(telVersIdentifiant('01 97 00 00 00'), telVersIdentifiant('2290197000000'));
+describe('telVersIdentifiant', () => {
+  it('un numéro saisi avec espaces et sans préfixe donne le même identifiant qu\'avec le préfixe 229', () => {
+    assert.equal(telVersIdentifiant('01 97 00 00 01'), telVersIdentifiant('2290197000001'));
+  });
+
+  it('ajoute le préfixe 229 quand il manque', () => {
+    assert.equal(telVersIdentifiant('0197000001'), '2290197000001@boutique-maman.app');
+  });
+
+  it('ne double pas le préfixe 229 quand il est déjà présent', () => {
+    assert.equal(telVersIdentifiant('2290197000001'), '2290197000001@boutique-maman.app');
+  });
+
+  it('retire tout ce qui n\'est pas un chiffre', () => {
+    assert.equal(telVersIdentifiant('+229 01-97-00-00-01'), '2290197000001@boutique-maman.app');
+  });
 });
 
-test('ajoute le préfixe 229 quand il manque', () => {
-  assert.equal(telVersIdentifiant('0197000000'), '2290197000000@boutique-maman.app');
+describe('formatTelAffiche', () => {
+  it('affiche un numéro béninois lisible', () => {
+    assert.equal(formatTelAffiche('2290197000012@boutique-maman.app'), '01 97 00 00 12');
+  });
 });
 
-test('ne double pas le préfixe 229 quand il est déjà présent', () => {
-  assert.equal(telVersIdentifiant('2290197000000'), '2290197000000@boutique-maman.app');
+describe('masquerTel', () => {
+  it('masque le milieu', () => {
+    assert.equal(masquerTel('2290197000012'), '01 97 •• •• 12');
+  });
 });
 
-test('retire tout ce qui n\'est pas un chiffre', () => {
-  assert.equal(telVersIdentifiant('+229 01 97 00 00 00'), '2290197000000@boutique-maman.app');
-});
-
-test('formatTelAffiche affiche un numéro béninois lisible', () => {
-  assert.equal(formatTelAffiche('2290197000000@boutique-maman.app'), '01 97 00 00 00');
-  assert.equal(formatTelAffiche('01 97 00 00 00'), '01 97 00 00 00');
+describe('telDigitsDepuis', () => {
+  it('extrait les chiffres locaux', () => {
+    assert.equal(telDigitsDepuis('2290197000012@boutique-maman.app'), '0197000012');
+  });
 });

@@ -3,7 +3,7 @@ import type { Session } from '@supabase/supabase-js';
 import NetInfo from '@react-native-community/netinfo';
 import { useSQLiteContext } from 'expo-sqlite';
 import { supabase } from './supabase';
-import { telVersIdentifiant } from './identifiant';
+import { telDigitsDepuis, telVersIdentifiant } from './identifiant';
 import {
   doitPurgerApresSignedOut,
   isLocallyAuthenticated as calcLocalAuth,
@@ -18,6 +18,8 @@ import {
   SETTINGS_KEYS,
   type CatalogueInitial,
 } from '../db/settings';
+import { ajouterCompteRecent } from '../db/comptesRecents';
+import { purgerDonneesBoutiqueLocale, resetSynchroLocale } from '../db/purgeBoutique';
 
 export class PendingSyncError extends Error {
   readonly pendingVentes: number;
@@ -222,6 +224,19 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const mémoriserCompteRecent = useCallback(
+    async (userId: string, email: string | undefined, m: Membre | null) => {
+      if (!m) return;
+      await ajouterCompteRecent(db, {
+        userId,
+        telDigits: telDigitsDepuis(email ?? ''),
+        prenom: m.nom,
+        boutiqueNom: m.boutiqueNom,
+      });
+    },
+    [db]
+  );
+
   const signIn = useCallback(
     async (tel: string, motDePasse: string) => {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -229,9 +244,16 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         password: motDePasse,
       });
       if (error) throw error;
-      if (data.user) await verifierPasAutreCompte(data.user.id);
+      if (data.user) {
+        await verifierPasAutreCompte(data.user.id);
+        await rafraichirMembreDistant(data.user.id);
+        const m = await fetchMembre(data.user.id);
+        if (m) {
+          await mémoriserCompteRecent(data.user.id, data.user.email, m);
+        }
+      }
     },
-    [verifierPasAutreCompte]
+    [verifierPasAutreCompte, rafraichirMembreDistant, mémoriserCompteRecent]
   );
 
   const rejoindre = useCallback(
@@ -266,9 +288,13 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (user) await rafraichirMembreDistant(user.id);
+      if (user) {
+        await rafraichirMembreDistant(user.id);
+        const m = await fetchMembre(user.id);
+        if (m) await mémoriserCompteRecent(user.id, user.email, m);
+      }
     },
-    [verifierPasAutreCompte, rafraichirMembreDistant]
+    [verifierPasAutreCompte, rafraichirMembreDistant, mémoriserCompteRecent]
   );
 
   const creerBoutique = useCallback(
@@ -301,9 +327,13 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (user) await rafraichirMembreDistant(user.id);
+      if (user) {
+        await rafraichirMembreDistant(user.id);
+        const m = await fetchMembre(user.id);
+        if (m) await mémoriserCompteRecent(user.id, user.email, m);
+      }
     },
-    [verifierPasAutreCompte, rafraichirMembreDistant]
+    [verifierPasAutreCompte, rafraichirMembreDistant, mémoriserCompteRecent]
   );
 
   const rafraichirMembre = useCallback(async () => {
@@ -319,8 +349,24 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     if (pending.total > 0) {
       throw new PendingSyncError(pending.ventes, pending.total);
     }
+
+    const boutiqueId =
+      membre?.boutiqueId ?? (await getSetting(db, SETTINGS_KEYS.boutiqueId));
+    const email = session?.user?.email;
+    const userId = session?.user?.id;
+
+    if (userId && membre) {
+      await mémoriserCompteRecent(userId, email, membre);
+    }
+
+    if (boutiqueId) {
+      await purgerDonneesBoutiqueLocale(db, boutiqueId);
+    }
+    await resetSynchroLocale(db);
+
     signOutIntentionnel = true;
     await deleteSetting(db, SETTINGS_KEYS.lastUserId);
+    await deleteSetting(db, SETTINGS_KEYS.pin);
     await purgerCacheLocal();
     setSession(null);
     try {
@@ -328,7 +374,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     } catch {
       // Hors ligne OK
     }
-  }, [db, purgerCacheLocal]);
+  }, [db, membre, session, purgerCacheLocal, mémoriserCompteRecent]);
 
   const isLocallyAuthenticated = calcLocalAuth(session, membre);
 

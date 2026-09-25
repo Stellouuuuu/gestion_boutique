@@ -1,12 +1,13 @@
 -- Inscription libre + édition des noms (à exécuter dans l’éditeur SQL Supabase).
 -- Idempotent : safe à rejouer.
+--
+-- Sur Supabase, pgcrypto vit dans le schéma « extensions » :
+-- creer_boutique doit avoir search_path = public, extensions.
 
--- 0) pgcrypto requis par creer_boutique (gen_random_bytes)
-create extension if not exists pgcrypto;
+create extension if not exists pgcrypto with schema extensions;
 
--- 0b) Recréer creer_boutique (codes invitation) avec gen_random_bytes disponible
 create or replace function creer_boutique(p_nom_boutique text, p_mon_nom text) returns uuid
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = public, extensions as $$
 declare b uuid; c text;
 begin
   if auth.uid() is null then raise exception 'non connecté'; end if;
@@ -25,14 +26,12 @@ end $$;
 grant execute on function creer_boutique(text, text) to authenticated;
 grant execute on function rejoindre_boutique(text, text) to authenticated;
 
--- 1) Propriétaire peut renommer sa boutique
 drop policy if exists b_modifier on boutiques;
 create policy b_modifier on boutiques
   for update
   using (est_proprietaire(id))
   with check (est_proprietaire(id));
 
--- 2) Un membre peut modifier son propre nom ; la propriétaire peut aussi modifier les membres
 drop policy if exists m_modifier on membres;
 drop policy if exists m_modifier_soi on membres;
 create policy m_modifier on membres

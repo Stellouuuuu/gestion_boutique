@@ -128,16 +128,28 @@ export default function HomeScreen() {
 
   return (
     <ScreenScroll>
-      <View style={styles.hello}>
-        <Text style={[styles.h1, { color: colors.ink, fontFamily: FONT_TITLE }]}>
-          Bonjour {membre?.nom ?? 'Maman'}
-        </Text>
-        {membre?.boutiqueNom ? (
-          <Text style={[styles.boutique, { color: colors.muted }]}>{membre.boutiqueNom}</Text>
-        ) : null}
-        <Text style={[styles.date, { color: colors.muted }]}>
-          Aujourd’hui, {formatDateAujourdhui()}
-        </Text>
+      <View style={styles.topBar}>
+        <View style={styles.hello}>
+          <Text style={[styles.h1, { color: colors.ink, fontFamily: FONT_TITLE }]}>
+            Bonjour {membre?.nom ?? 'Maman'}
+          </Text>
+          {membre?.boutiqueNom ? (
+            <Text style={[styles.boutique, { color: colors.muted }]}>{membre.boutiqueNom}</Text>
+          ) : null}
+          <Text style={[styles.date, { color: colors.muted }]}>
+            Aujourd’hui, {formatDateAujourdhui()}
+          </Text>
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Mon compte"
+          onPress={() => router.push('/mon-compte')}
+          style={[styles.avatar, { backgroundColor: colors.indigo }]}
+        >
+          <Text style={[styles.avatarLetter, { color: colors.onSolid }]}>
+            {(membre?.nom ?? '?').trim().charAt(0).toUpperCase() || '?'}
+          </Text>
+        </Pressable>
       </View>
 
       <View style={styles.today}>
@@ -229,7 +241,24 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  hello: { paddingTop: 20, paddingBottom: 8 },
+  hello: { flex: 1, paddingRight: 12 },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    paddingTop: 20,
+    paddingBottom: 8,
+  },
+  avatar: {
+    minWidth: 48,
+    minHeight: 48,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarLetter: { fontSize: 22, fontWeight: '800' },
   h1: { fontSize: 34, fontWeight: '800' },
   boutique: { marginTop: 4, fontSize: 15 },
   date: { marginTop: 6, fontSize: 18 },
