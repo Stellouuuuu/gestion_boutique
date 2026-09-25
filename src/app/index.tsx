@@ -117,7 +117,7 @@ export default function HomeScreen() {
   const indicateurColor =
     indicateur.kind === 'ok'
       ? colors.ok
-      : indicateur.kind === 'stale'
+      : indicateur.kind === 'stale' || indicateur.kind === 'error'
         ? colors.warn
         : colors.muted;
 
@@ -183,6 +183,15 @@ export default function HomeScreen() {
           variant="neutral"
           onPress={() => router.push('/day')}
         />
+        {membre?.role === 'proprietaire' ? (
+          <BigButton
+            icon="≡"
+            title="Mes bilans"
+            subtitle="Semaine, mois, bénéfice"
+            variant="neutral"
+            onPress={() => router.push('/bilans')}
+          />
+        ) : null}
       </View>
 
       {membre?.role === 'proprietaire' ? (

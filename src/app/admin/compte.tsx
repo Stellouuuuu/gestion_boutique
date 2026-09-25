@@ -10,6 +10,7 @@ import { RequireUnlocked } from '../../components/RequireUnlocked';
 import { useTheme } from '../../theme/useTheme';
 import { FONT_TITLE } from '../../theme/typography';
 import { useAuth, PendingSyncError } from '../../lib/AuthSession';
+import { useSync } from '../../lib/SyncSession';
 import { useToast } from '../../components/Toast';
 import { formatTelAffiche } from '../../lib/identifiant';
 import { getErrorMessage } from '../../lib/errors';
@@ -23,14 +24,35 @@ export default function CompteScreen() {
   );
 }
 
+function formatDateHeure(iso: string | null | undefined): string {
+  if (!iso) return 'Jamais';
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return iso;
+  const d = new Date(t);
+  const jj = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const aa = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${jj}/${mm}/${aa} à ${hh}:${min}`;
+}
+
 function CompteForm() {
   const { colors } = useTheme();
   const { membre, session, signOut } = useAuth();
   const { showToast } = useToast();
+  const {
+    derniereSynchroOk,
+    derniereErreur,
+    pendingTotal,
+    retryNow,
+    refreshIndicateur,
+  } = useSync();
 
   const [nomBoutique, setNomBoutique] = useState<string | null>(null);
   const [telAffiche, setTelAffiche] = useState('');
   const [chargement, setChargement] = useState(true);
+  const [retrying, setRetrying] = useState(false);
 
   const [ancien, setAncien] = useState('');
   const [nouveau, setNouveau] = useState('');
@@ -46,6 +68,7 @@ function CompteForm() {
       let active = true;
       (async () => {
         setChargement(true);
+        await refreshIndicateur();
         const email = session?.user?.email ?? '';
         if (active) setTelAffiche(formatTelAffiche(email));
         if (membre) {
@@ -61,7 +84,7 @@ function CompteForm() {
       return () => {
         active = false;
       };
-    }, [membre, session])
+    }, [membre, session, refreshIndicateur])
   );
 
   const onChangerMdp = async () => {
@@ -104,6 +127,17 @@ function CompteForm() {
     }
   };
 
+  const onRetrySync = async () => {
+    if (retrying) return;
+    setRetrying(true);
+    try {
+      await retryNow();
+      showToast('Synchronisation relancée');
+    } finally {
+      setRetrying(false);
+    }
+  };
+
   return (
     <ScreenScroll>
       <Header title="Mon compte" onBack={() => router.replace('/admin')} />
@@ -123,6 +157,38 @@ function CompteForm() {
           />
         </View>
       )}
+
+      <View style={[styles.card, { backgroundColor: colors.card, marginTop: 16 }]}>
+        <Text style={[styles.sectionTitle, { color: colors.ink, fontFamily: FONT_TITLE }]}>
+          Sauvegarde en ligne
+        </Text>
+        <InfoRow label="Dernier succès" value={formatDateHeure(derniereSynchroOk)} />
+        <InfoRow
+          label="En attente"
+          value={
+            pendingTotal === 0
+              ? 'Rien'
+              : pendingTotal === 1
+                ? '1 ligne'
+                : `${pendingTotal} lignes`
+          }
+        />
+        {derniereErreur ? (
+          <View style={[styles.alert, { backgroundColor: colors.warnSoft }]}>
+            <Text style={{ color: colors.warn, fontWeight: '700', marginBottom: 4 }}>
+              Dernière erreur ({formatDateHeure(derniereErreur.le)})
+            </Text>
+            <Text style={{ color: colors.ink, fontSize: 13 }} selectable>
+              {derniereErreur.message}
+            </Text>
+          </View>
+        ) : (
+          <InfoRow label="Dernière erreur" value="Aucune" />
+        )}
+        <Button variant="indigo-outline" disabled={retrying} loading={retrying} onPress={onRetrySync}>
+          Réessayer maintenant
+        </Button>
+      </View>
 
       <View style={[styles.card, { backgroundColor: colors.card, marginTop: 16 }]}>
         <Text style={[styles.sectionTitle, { color: colors.ink, fontFamily: FONT_TITLE }]}>

@@ -19,7 +19,7 @@ import {
 } from '../../db/articles';
 import { recordCorrection } from '../../db/mouvements';
 import type { Article, Categorie } from '../../db/types';
-
+import { useAuth } from '../../lib/AuthSession';
 export default function EditScreen() {
   return (
     <RequireUnlocked>
@@ -34,7 +34,8 @@ function EditForm() {
   const db = useSQLiteContext();
   const { colors } = useTheme();
   const { showToast } = useToast();
-
+  const { session } = useAuth();
+  const creePar = session?.user?.id ?? null;
   const [loaded, setLoaded] = useState(isNew);
   const [existing, setExisting] = useState<Article | null>(null);
   const [nom, setNom] = useState('');
@@ -98,7 +99,7 @@ function EditForm() {
           prix_achat,
         });
         if (stockNum !== existing.stock) {
-          await recordCorrection(db, existing.id, stockNum);
+          await recordCorrection(db, existing.id, stockNum, creePar);
         }
       }
       router.replace('/admin');

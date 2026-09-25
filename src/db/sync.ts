@@ -1,8 +1,11 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { supabase } from '../lib/supabase';
+import { fillCreeParForPush } from './syncPush';
 import {
+  clearDerniereSynchroErreur,
   getDernierPull,
   setDernierPull,
+  setDerniereSynchroErreur,
   setDerniereSynchroOk,
   SYNC_PUSH_ORDER,
   type SyncTable,
@@ -65,24 +68,42 @@ async function pushTable(db: SQLiteDatabase, table: SyncTable): Promise<void> {
               montant_paye, cout_unitaire, annule, annule_le, cree_par, cree_le
        FROM mouvements WHERE a_envoyer = 1`
     );
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    const authUid = user?.id ?? null;
+
     for (const lot of chunks(rows, BATCH)) {
       if (lot.length === 0) continue;
-      const payload = lot.map((r) => ({
-        id: r.id,
-        boutique_id: r.boutique_id,
-        article_id: r.article_id,
-        type: r.type,
-        quantite: r.quantite,
-        tarif: r.tarif,
-        prix_unitaire: r.prix_unitaire ?? 0,
-        montant_normal: r.montant_normal ?? 0,
-        montant_paye: r.montant_paye ?? 0,
-        cout_unitaire: r.cout_unitaire,
-        annule: boolFromSqlite(r.annule),
-        annule_le: r.annule_le,
-        cree_par: r.cree_par,
-        cree_le: r.cree_le,
-      }));
+      const payload = [];
+      for (const r of lot) {
+        const { cree_par, filled } = fillCreeParForPush(
+          { id: String(r.id), cree_par: (r.cree_par as string | null) ?? null },
+          authUid
+        );
+        if (filled) {
+          await db.runAsync('UPDATE mouvements SET cree_par = ? WHERE id = ?', [
+            cree_par,
+            r.id as string,
+          ]);
+        }
+        payload.push({
+          id: r.id,
+          boutique_id: r.boutique_id,
+          article_id: r.article_id,
+          type: r.type,
+          quantite: r.quantite,
+          tarif: r.tarif,
+          prix_unitaire: r.prix_unitaire ?? 0,
+          montant_normal: r.montant_normal ?? 0,
+          montant_paye: r.montant_paye ?? 0,
+          cout_unitaire: r.cout_unitaire,
+          annule: boolFromSqlite(r.annule),
+          annule_le: r.annule_le,
+          cree_par,
+          cree_le: r.cree_le,
+        });
+      }
       const { error } = await supabase.from('mouvements').upsert(payload, { onConflict: 'id' });
       if (error) throw error;
       const ids = lot.map((r) => r.id as string);
@@ -385,9 +406,16 @@ export async function synchroniserBoutique(
       await pullTable(db, boutiqueId, table);
     }
     await setDerniereSynchroOk(db, new Date().toISOString());
+    await clearDerniereSynchroErreur(db);
     return { ok: true };
   } catch (e) {
-    const message = e instanceof Error ? e.message : String(e);
+    const message =
+      e && typeof e === 'object' && 'message' in e
+        ? String((e as { message: unknown }).message)
+        : e instanceof Error
+          ? e.message
+          : String(e);
+    await setDerniereSynchroErreur(db, message);
     return { ok: false, error: message };
   }
 }

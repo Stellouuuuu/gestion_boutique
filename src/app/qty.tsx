@@ -15,6 +15,7 @@ import { cancelMouvement, recordEntree, recordVente } from '../db/mouvements';
 import type { Article, Tarif } from '../db/types';
 import { CAT_LABEL } from '../theme/colors';
 import { useToast } from '../components/Toast';
+import { useAuth } from '../lib/AuthSession';
 
 type Mode = 'vente' | 'entree';
 
@@ -28,12 +29,15 @@ export default function QtyScreen() {
   const db = useSQLiteContext();
   const { colors } = useTheme();
   const { showToast } = useToast();
+  const { session } = useAuth();
+  const creePar = session?.user?.id ?? null;
 
   const [article, setArticle] = useState<Article | null>(null);
   const [qte, setQte] = useState(1);
   const [tarif, setTarif] = useState<Tarif>('detail');
   const [remise, setRemise] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [prixAchatInput, setPrixAchatInput] = useState('');
 
   const [remiseVisible, setRemiseVisible] = useState(false);
   const [remiseInput, setRemiseInput] = useState('');
@@ -46,7 +50,11 @@ export default function QtyScreen() {
       let active = true;
       (async () => {
         const a = await getArticle(db, articleId);
-        if (active) setArticle(a);
+        if (active) {
+          setArticle(a);
+          if (a?.prix_achat != null) setPrixAchatInput(String(a.prix_achat));
+          else setPrixAchatInput('');
+        }
       })();
       return () => {
         active = false;
@@ -114,13 +122,26 @@ export default function QtyScreen() {
           quantite: qte,
           tarif,
           montantPaye: remise,
+          creePar,
         });
         router.replace({ pathname: '/pick', params: { mode } });
         showToast(`Vendu : ${qte} ${article.nom} = ${formatFCFA(mouvement.montant_paye)}`, () =>
           cancelMouvement(db, mouvement.id)
         );
       } else {
-        const { mouvement } = await recordEntree(db, { articleId: article.id, quantite: qte });
+        const trimmed = prixAchatInput.trim();
+        const prixAchat =
+          trimmed === ''
+            ? undefined
+            : Number.isFinite(Number(trimmed)) && Number(trimmed) >= 0
+              ? Math.round(Number(trimmed))
+              : undefined;
+        const { mouvement } = await recordEntree(db, {
+          articleId: article.id,
+          quantite: qte,
+          creePar,
+          ...(prixAchat !== undefined ? { prixAchat } : {}),
+        });
         router.replace({ pathname: '/pick', params: { mode } });
         showToast(`Ajouté : ${qte} ${article.nom}`, () => cancelMouvement(db, mouvement.id));
       }
@@ -146,6 +167,35 @@ export default function QtyScreen() {
         </Text>
 
         <Stepper value={qte} onChange={changeQte} />
+
+        {!isVente ? (
+          <View style={[styles.achatBox, { backgroundColor: colors.bg }]}>
+            <Text style={{ color: colors.muted, fontSize: 14, fontWeight: '700', marginBottom: 6 }}>
+              Prix d’achat par pièce (facultatif)
+            </Text>
+            <TextInput
+              value={prixAchatInput}
+              onChangeText={setPrixAchatInput}
+              keyboardType="numeric"
+              placeholder={
+                article.prix_achat != null ? String(article.prix_achat) : 'ex. 3000'
+              }
+              placeholderTextColor={colors.muted}
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.line,
+                  color: colors.ink,
+                  backgroundColor: colors.card,
+                  width: '100%',
+                },
+              ]}
+            />
+            <Text style={{ color: colors.muted, fontSize: 13, marginTop: 6 }}>
+              Si vous le changez, il sera mémorisé pour les prochaines fois.
+            </Text>
+          </View>
+        ) : null}
 
         {isVente && (
           <View style={[styles.tarif, { backgroundColor: colors.bg }]}>
@@ -292,6 +342,7 @@ const styles = StyleSheet.create({
   sub: { fontSize: 16, marginTop: 4, textAlign: 'center' },
   tarif: { flexDirection: 'row', gap: 8, borderRadius: 16, padding: 6, marginTop: 18, width: '100%' },
   tarifBtn: { flex: 1 },
+  achatBox: { width: '100%', borderRadius: 14, padding: 14, marginTop: 16 },
   summary: { width: '100%', borderRadius: 14, padding: 14, marginTop: 16, gap: 6 },
   summaryText: { fontSize: 20, textAlign: 'left' },
   afterText: { fontSize: 16 },

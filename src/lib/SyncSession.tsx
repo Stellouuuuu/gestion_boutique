@@ -14,6 +14,7 @@ import { synchroniserBoutique } from '../db/sync';
 import {
   buildSyncIndicateur,
   countPending,
+  getDerniereSynchroErreur,
   getDerniereSynchroOk,
   type SyncIndicateur,
 } from '../db/syncStatus';
@@ -24,8 +25,12 @@ interface SyncContextValue {
   indicateur: SyncIndicateur;
   pendingTotal: number;
   pendingVentes: number;
+  derniereSynchroOk: string | null;
+  derniereErreur: { message: string; le: string } | null;
   /** Déclenche une synchro (debounced). Ne bloque pas l'écran. */
   requestSync: () => void;
+  /** Synchro immédiate (bouton « Réessayer maintenant »). */
+  retryNow: () => Promise<void>;
   refreshIndicateur: () => Promise<void>;
 }
 
@@ -43,11 +48,18 @@ export function SyncSessionProvider({ children }: PropsWithChildren) {
   });
   const [pendingTotal, setPendingTotal] = useState(0);
   const [pendingVentes, setPendingVentes] = useState(0);
+  const [derniereSynchroOk, setDerniereOkState] = useState<string | null>(null);
+  const [derniereErreur, setDerniereErreurState] = useState<{
+    message: string;
+    le: string;
+  } | null>(null);
+  const [isOnline, setIsOnline] = useState<boolean | null>(null);
 
   const running = useRef(false);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const boutiqueIdRef = useRef<string | null>(null);
   const sessionRef = useRef(session);
+  const isOnlineRef = useRef<boolean | null>(null);
 
   useEffect(() => {
     boutiqueIdRef.current = membre?.boutiqueId ?? null;
@@ -57,11 +69,26 @@ export function SyncSessionProvider({ children }: PropsWithChildren) {
     sessionRef.current = session;
   }, [session]);
 
+  useEffect(() => {
+    isOnlineRef.current = isOnline;
+  }, [isOnline]);
+
   const refreshIndicateur = useCallback(async () => {
-    const [pending, lastOk] = await Promise.all([countPending(db), getDerniereSynchroOk(db)]);
+    const [pending, lastOk, lastErr] = await Promise.all([
+      countPending(db),
+      getDerniereSynchroOk(db),
+      getDerniereSynchroErreur(db),
+    ]);
     setPendingTotal(pending.total);
     setPendingVentes(pending.ventes);
-    setIndicateur(buildSyncIndicateur(pending, lastOk));
+    setDerniereOkState(lastOk);
+    setDerniereErreurState(lastErr);
+    setIndicateur(
+      buildSyncIndicateur(pending, lastOk, {
+        isOnline: isOnlineRef.current,
+        lastSyncError: lastErr?.message ?? null,
+      })
+    );
   }, [db]);
 
   const runSync = useCallback(async () => {
@@ -71,7 +98,10 @@ export function SyncSessionProvider({ children }: PropsWithChildren) {
       return;
     }
     const net = await NetInfo.fetch();
-    if (net.isConnected === false) {
+    const online = net.isConnected !== false;
+    setIsOnline(online);
+    isOnlineRef.current = online;
+    if (!online) {
       await refreshIndicateur();
       return;
     }
@@ -89,6 +119,11 @@ export function SyncSessionProvider({ children }: PropsWithChildren) {
     debounceTimer.current = setTimeout(() => {
       void runSync();
     }, DEBOUNCE_MS);
+  }, [runSync]);
+
+  const retryNow = useCallback(async () => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    await runSync();
   }, [runSync]);
 
   // Indicateur + synchro initiale (différé pour ne pas setState synchrone dans l'effet)
@@ -120,7 +155,10 @@ export function SyncSessionProvider({ children }: PropsWithChildren) {
   // Retour réseau
   useEffect(() => {
     const unsub = NetInfo.addEventListener((state) => {
-      if (state.isConnected) void runSync();
+      const online = state.isConnected !== false;
+      setIsOnline(online);
+      isOnlineRef.current = online;
+      if (online) void runSync();
       else void refreshIndicateur();
     });
     return unsub;
@@ -137,7 +175,16 @@ export function SyncSessionProvider({ children }: PropsWithChildren) {
 
   return (
     <SyncContext.Provider
-      value={{ indicateur, pendingTotal, pendingVentes, requestSync, refreshIndicateur }}
+      value={{
+        indicateur,
+        pendingTotal,
+        pendingVentes,
+        derniereSynchroOk,
+        derniereErreur,
+        requestSync,
+        retryNow,
+        refreshIndicateur,
+      }}
     >
       {children}
     </SyncContext.Provider>

@@ -64,6 +64,8 @@ export async function countPending(db: SQLiteDatabase): Promise<PendingCounts> {
 }
 
 const SETTINGS_LAST_SYNC = 'derniere_synchro_ok';
+const SETTINGS_LAST_ERR = 'derniere_synchro_erreur';
+const SETTINGS_LAST_ERR_AT = 'derniere_synchro_erreur_le';
 
 export async function getDerniereSynchroOk(db: SQLiteDatabase): Promise<string | null> {
   const row = await db.getFirstAsync<{ value: string }>(
@@ -81,20 +83,78 @@ export async function setDerniereSynchroOk(db: SQLiteDatabase, iso: string): Pro
   );
 }
 
+export async function getDerniereSynchroErreur(
+  db: SQLiteDatabase
+): Promise<{ message: string; le: string } | null> {
+  const [msg, le] = await Promise.all([
+    db.getFirstAsync<{ value: string }>('SELECT value FROM settings WHERE key = ?', [
+      SETTINGS_LAST_ERR,
+    ]),
+    db.getFirstAsync<{ value: string }>('SELECT value FROM settings WHERE key = ?', [
+      SETTINGS_LAST_ERR_AT,
+    ]),
+  ]);
+  if (!msg?.value) return null;
+  return { message: msg.value, le: le?.value ?? '' };
+}
+
+export async function setDerniereSynchroErreur(
+  db: SQLiteDatabase,
+  message: string,
+  iso = new Date().toISOString()
+): Promise<void> {
+  await db.runAsync(
+    `INSERT INTO settings (key, value) VALUES (?, ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+    [SETTINGS_LAST_ERR, message]
+  );
+  await db.runAsync(
+    `INSERT INTO settings (key, value) VALUES (?, ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+    [SETTINGS_LAST_ERR_AT, iso]
+  );
+}
+
+export async function clearDerniereSynchroErreur(db: SQLiteDatabase): Promise<void> {
+  await db.runAsync('DELETE FROM settings WHERE key IN (?, ?)', [
+    SETTINGS_LAST_ERR,
+    SETTINGS_LAST_ERR_AT,
+  ]);
+}
+
 export type SyncIndicateur =
   | { kind: 'ok'; label: string }
   | { kind: 'pending'; label: string }
-  | { kind: 'stale'; label: string };
+  | { kind: 'stale'; label: string }
+  | { kind: 'error'; label: string };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+const MSG_ERREUR_SAUVEGARDE =
+  "Les ventes n'arrivent pas à être sauvegardées. Prévenez Stella.";
+
+export interface BuildSyncIndicateurOptions {
+  now?: number;
+  /** false = hors ligne affirmé ; true / undefined = on considère qu’un échec Supabase n’est pas « réseau ». */
+  isOnline?: boolean | null;
+  lastSyncError?: string | null;
+}
 
 export function buildSyncIndicateur(
   pending: PendingCounts,
   derniereSynchroOk: string | null,
-  now = Date.now()
+  options: BuildSyncIndicateurOptions = {}
 ): SyncIndicateur {
+  const now = options.now ?? Date.now();
+  const isOnline = options.isOnline;
+  const lastError = options.lastSyncError ?? null;
   const last = derniereSynchroOk ? Date.parse(derniereSynchroOk) : NaN;
   const stale = !Number.isFinite(last) || now - last > DAY_MS;
+
+  // Réseau présent (ou non affirmé hors-ligne) + échec d’envoi → jamais « attente de réseau ».
+  if (pending.total > 0 && lastError && isOnline !== false) {
+    return { kind: 'error', label: MSG_ERREUR_SAUVEGARDE };
+  }
 
   if (pending.total > 0 && stale) {
     return {
@@ -113,7 +173,6 @@ export function buildSyncIndicateur(
     return { kind: 'pending', label: 'Des changements en attente de réseau' };
   }
   if (stale && derniereSynchroOk == null) {
-    // Jamais synchronisé après install : discret, pas d'alarme tant que rien n'attend.
     return { kind: 'ok', label: '✓ Tout est sauvegardé' };
   }
   if (stale) {
