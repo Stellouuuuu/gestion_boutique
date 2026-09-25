@@ -6,7 +6,7 @@ import { ScreenScroll } from '../components/ScreenScroll';
 import { PinPad } from '../components/PinPad';
 import { useTheme } from '../theme/useTheme';
 import { FONT_TITLE } from '../theme/typography';
-import { setSetting, SETTINGS_KEYS } from '../db/settings';
+import { getSetting, setSetting, SETTINGS_KEYS, type CatalogueInitial } from '../db/settings';
 import { telechargerBoutiqueSiVide } from '../db/remote';
 import { useAuth } from '../lib/AuthSession';
 
@@ -14,8 +14,7 @@ type Etape = 'pin-1' | 'pin-2' | 'telechargement' | 'erreur';
 
 /**
  * Écran affiché une seule fois, juste après la toute première connexion sur cet appareil :
- * choix du code PIN de l'espace Gérer, puis téléchargement des articles de la boutique
- * (cahier des charges étape 2 §2, « Écrans » point 2).
+ * choix du code PIN de l'espace Gérer, puis téléchargement / liste type des articles.
  */
 export default function BienvenueScreen() {
   const db = useSQLiteContext();
@@ -36,7 +35,8 @@ export default function BienvenueScreen() {
       return;
     }
     try {
-      await telechargerBoutiqueSiVide(db, membre.boutiqueId);
+      const cat = (await getSetting(db, SETTINGS_KEYS.catalogueInitial)) as CatalogueInitial | null;
+      await telechargerBoutiqueSiVide(db, membre.boutiqueId, cat === 'vide' ? 'vide' : 'type');
       router.replace('/');
     } catch {
       setErreurTelechargement(

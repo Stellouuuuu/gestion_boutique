@@ -1,26 +1,35 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { supabase } from '../lib/supabase';
 import { seedArticlesFromJson } from './seed';
+import type { CatalogueInitial } from './settings';
 import type { Categorie, Tarif, TypeMouvement } from './types';
 
 export interface Membre {
   boutiqueId: string;
   role: 'proprietaire' | 'vendeuse';
   nom: string;
+  boutiqueNom: string;
 }
 
 /** Récupère la boutique et le rôle de l'utilisateur connecté (une seule boutique active pour l'instant). */
 export async function fetchMembre(userId: string): Promise<Membre | null> {
   const { data, error } = await supabase
     .from('membres')
-    .select('boutique_id, role, nom')
+    .select('boutique_id, role, nom, boutiques(nom)')
     .eq('user_id', userId)
     .eq('actif', true)
     .limit(1)
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
-  return { boutiqueId: data.boutique_id, role: data.role, nom: data.nom };
+  const boutique = data.boutiques as { nom: string } | { nom: string }[] | null;
+  const boutiqueNom = Array.isArray(boutique) ? boutique[0]?.nom : boutique?.nom;
+  return {
+    boutiqueId: data.boutique_id,
+    role: data.role,
+    nom: data.nom,
+    boutiqueNom: boutiqueNom ?? '',
+  };
 }
 
 interface RemoteArticle {
@@ -55,12 +64,13 @@ interface RemoteMouvement {
 /**
  * Téléchargement initial : si la boutique a déjà des articles en ligne,
  * on les télécharge avec leurs mouvements (stock = somme des mouvements).
- * Sinon (boutique toute neuve), secours sur articles.json.
+ * Sinon : liste type (articles.json, stock 0) ou liste vide selon `catalogue`.
  * N'agit que si la boutique n'a encore aucun article en local.
  */
 export async function telechargerBoutiqueSiVide(
   db: SQLiteDatabase,
-  boutiqueId: string
+  boutiqueId: string,
+  catalogue: CatalogueInitial = 'type'
 ): Promise<{ nbArticles: number; depuisJson: boolean }> {
   const dejaLocal = await db.getFirstAsync<{ n: number }>(
     'SELECT COUNT(*) as n FROM articles WHERE boutique_id = ?',
@@ -75,6 +85,9 @@ export async function telechargerBoutiqueSiVide(
   if (errA) throw errA;
 
   if (!remoteArticles || remoteArticles.length === 0) {
+    if (catalogue === 'vide') {
+      return { nbArticles: 0, depuisJson: false };
+    }
     await seedArticlesFromJson(db, boutiqueId);
     const n = await db.getFirstAsync<{ n: number }>(
       'SELECT COUNT(*) as n FROM articles WHERE boutique_id = ?',

@@ -5,9 +5,16 @@ export const SETTINGS_KEYS = {
   boutiqueId: 'boutique_id',
   role: 'role',
   membreNom: 'membre_nom',
+  /** Nom de la boutique (cache local pour l’accueil). */
+  boutiqueNom: 'boutique_nom',
+  /** Après inscription : `type` (316 articles) ou `vide`. */
+  catalogueInitial: 'catalogue_initial',
   /** Dernier user_id authentifié — pour bloquer un autre compte si a_envoyer > 0. */
   lastUserId: 'last_user_id',
 } as const;
+
+export type CatalogueInitial = 'type' | 'vide';
+
 
 export async function getSetting(db: SQLiteDatabase, key: string): Promise<string | null> {
   const row = await db.getFirstAsync<{ value: string }>(

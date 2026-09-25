@@ -37,6 +37,7 @@
     "@types/react": "~19.2.2",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~57.0.2",
+    "playwright": "^1.63.0",
     "typescript": "~6.0.3",
     "workbox-cli": "^7.3.0"
   },
@@ -47,7 +48,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "build:web": "expo export -p web && npx workbox-cli generateSW workbox-config.js",
+    "build:web": "expo export -p web && node scripts/fix-web-dist-for-cloudflare.mjs && npx workbox-cli generateSW workbox-config.js",
+    "deploy:web": "npm run build:web && npx wrangler pages deploy dist --project-name=gestion-boutique",
     "build:android": "npx eas-cli@latest build -p android --profile preview"
   },
   "private": true

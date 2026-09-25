@@ -6,7 +6,7 @@ import { ScreenScroll } from '../components/ScreenScroll';
 import { PasswordField } from '../components/PasswordField';
 import { Button } from '../components/Button';
 import { useTheme } from '../theme/useTheme';
-import { useAuth } from '../lib/AuthSession';
+import { useAuth, NumeroDejaPrisError } from '../lib/AuthSession';
 import { getErrorMessage } from '../lib/errors';
 
 export default function RejoindreScreen() {
@@ -40,11 +40,18 @@ export default function RejoindreScreen() {
       await rejoindre(code, nom, tel, motDePasse);
       router.replace('/');
     } catch (e) {
-      const msg = getErrorMessage(e);
-      if (msg.includes('code_invalide')) setErreur('Ce code d’invitation n’existe pas.');
-      else if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('already been registered')) {
-        setErreur('Ce numéro a déjà un compte. Utilisez plutôt Connexion.');
-      } else setErreur('Impossible de rejoindre la boutique. Vérifiez le code et réessayez.');
+      if (e instanceof NumeroDejaPrisError) {
+        setErreur(e.message);
+      } else {
+        const msg = getErrorMessage(e);
+        if (msg.includes('code_invalide')) setErreur('Ce code d’invitation n’existe pas.');
+        else if (
+          msg.toLowerCase().includes('already registered') ||
+          msg.toLowerCase().includes('already been registered')
+        ) {
+          setErreur('Ce numéro a déjà un compte. Connectez-vous.');
+        } else setErreur('Impossible de rejoindre la boutique. Vérifiez le code et réessayez.');
+      }
     } finally {
       setEnvoi(false);
     }

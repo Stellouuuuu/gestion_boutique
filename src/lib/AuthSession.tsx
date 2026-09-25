@@ -11,7 +11,13 @@ import {
 } from './authSecurity';
 import { fetchMembre, type Membre } from '../db/remote';
 import { countPending } from '../db/syncStatus';
-import { getSetting, setSetting, deleteSetting, SETTINGS_KEYS } from '../db/settings';
+import {
+  getSetting,
+  setSetting,
+  deleteSetting,
+  SETTINGS_KEYS,
+  type CatalogueInitial,
+} from '../db/settings';
 
 export class PendingSyncError extends Error {
   readonly pendingVentes: number;
@@ -40,6 +46,13 @@ export class AutreComptePendingError extends Error {
   }
 }
 
+export class NumeroDejaPrisError extends Error {
+  constructor() {
+    super('Ce numéro a déjà un compte. Connectez-vous.');
+    this.name = 'NumeroDejaPrisError';
+  }
+}
+
 interface AuthContextValue {
   loading: boolean;
   session: Session | null;
@@ -47,6 +60,13 @@ interface AuthContextValue {
   isLocallyAuthenticated: boolean;
   signIn: (tel: string, motDePasse: string) => Promise<void>;
   rejoindre: (code: string, nom: string, tel: string, motDePasse: string) => Promise<void>;
+  creerBoutique: (
+    nomBoutique: string,
+    monNom: string,
+    tel: string,
+    motDePasse: string
+  ) => Promise<void>;
+  rafraichirMembre: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -65,7 +85,19 @@ export async function purgerCacheMembreSeulement(
     deleteSetting(db, SETTINGS_KEYS.boutiqueId),
     deleteSetting(db, SETTINGS_KEYS.role),
     deleteSetting(db, SETTINGS_KEYS.membreNom),
+    deleteSetting(db, SETTINGS_KEYS.boutiqueNom),
+    deleteSetting(db, SETTINGS_KEYS.catalogueInitial),
   ]);
+}
+
+function isAlreadyRegistered(msg: string): boolean {
+  const m = msg.toLowerCase();
+  return (
+    m.includes('already registered') ||
+    m.includes('already been registered') ||
+    m.includes('user already registered') ||
+    m.includes('email_exists')
+  );
 }
 
 export function AuthSessionProvider({ children }: PropsWithChildren) {
@@ -80,13 +112,19 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
   }, [db]);
 
   const chargerMembreLocal = useCallback(async (): Promise<Membre | null> => {
-    const [boutiqueId, role, nom] = await Promise.all([
+    const [boutiqueId, role, nom, boutiqueNom] = await Promise.all([
       getSetting(db, SETTINGS_KEYS.boutiqueId),
       getSetting(db, SETTINGS_KEYS.role),
       getSetting(db, SETTINGS_KEYS.membreNom),
+      getSetting(db, SETTINGS_KEYS.boutiqueNom),
     ]);
     if (boutiqueId && role && nom) {
-      const m: Membre = { boutiqueId, role: role as Membre['role'], nom };
+      const m: Membre = {
+        boutiqueId,
+        role: role as Membre['role'],
+        nom,
+        boutiqueNom: boutiqueNom ?? '',
+      };
       setMembre(m);
       return m;
     }
@@ -103,6 +141,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
             setSetting(db, SETTINGS_KEYS.boutiqueId, m.boutiqueId),
             setSetting(db, SETTINGS_KEYS.role, m.role),
             setSetting(db, SETTINGS_KEYS.membreNom, m.nom),
+            setSetting(db, SETTINGS_KEYS.boutiqueNom, m.boutiqueNom),
             setSetting(db, SETTINGS_KEYS.lastUserId, userId),
           ]);
         }
@@ -166,7 +205,6 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
             isOnline = null;
           }
           if (doitPurgerApresSignedOut({ intentionnel, isOnline })) {
-            // last_user_id et a_envoyer restent — reconnexion même compte = push OK.
             await purgerCacheLocal();
           }
         })();
@@ -207,17 +245,74 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
           email,
           password: motDePasse,
         });
-        if (errSignUp) throw errSignUp;
+        if (errSignUp) {
+          if (isAlreadyRegistered(errSignUp.message)) throw new NumeroDejaPrisError();
+          throw errSignUp;
+        }
         if (data.user) await verifierPasAutreCompte(data.user.id);
+        if (!data.session) {
+          const { error: errIn } = await supabase.auth.signInWithPassword({
+            email,
+            password: motDePasse,
+          });
+          if (errIn) throw errIn;
+        }
       }
       const { error: errJoin } = await supabase.rpc('rejoindre_boutique', {
         p_code: code.trim(),
         p_mon_nom: nom.trim(),
       });
       if (errJoin) throw errJoin;
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) await rafraichirMembreDistant(user.id);
     },
-    [verifierPasAutreCompte]
+    [verifierPasAutreCompte, rafraichirMembreDistant]
   );
+
+  const creerBoutique = useCallback(
+    async (nomBoutique: string, monNom: string, tel: string, motDePasse: string) => {
+      const email = telVersIdentifiant(tel);
+      const { data, error: errSignUp } = await supabase.auth.signUp({
+        email,
+        password: motDePasse,
+      });
+      if (errSignUp) {
+        if (isAlreadyRegistered(errSignUp.message)) throw new NumeroDejaPrisError();
+        throw errSignUp;
+      }
+      if (data.user) await verifierPasAutreCompte(data.user.id);
+      if (!data.session) {
+        const { error: errIn } = await supabase.auth.signInWithPassword({
+          email,
+          password: motDePasse,
+        });
+        if (errIn) {
+          if (isAlreadyRegistered(errIn.message)) throw new NumeroDejaPrisError();
+          throw errIn;
+        }
+      }
+      const { error: errRpc } = await supabase.rpc('creer_boutique', {
+        p_nom_boutique: nomBoutique.trim(),
+        p_mon_nom: monNom.trim(),
+      });
+      if (errRpc) throw errRpc;
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) await rafraichirMembreDistant(user.id);
+    },
+    [verifierPasAutreCompte, rafraichirMembreDistant]
+  );
+
+  const rafraichirMembre = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) await rafraichirMembreDistant(user.id);
+    else await chargerMembreLocal();
+  }, [rafraichirMembreDistant, chargerMembreLocal]);
 
   const signOut = useCallback(async () => {
     const pending = await countPending(db);
@@ -246,6 +341,8 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         isLocallyAuthenticated,
         signIn,
         rejoindre,
+        creerBoutique,
+        rafraichirMembre,
         signOut,
       }}
     >
@@ -259,3 +356,5 @@ export function useAuth(): AuthContextValue {
   if (!ctx) throw new Error('useAuth doit être utilisé dans un AuthSessionProvider');
   return ctx;
 }
+
+export type { CatalogueInitial };

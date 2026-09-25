@@ -73,6 +73,9 @@ export default function ConnexionScreen() {
       </View>
 
       <View style={styles.rejoindre}>
+        <Button variant="in" big onPress={() => router.push('/creer-boutique')}>
+          Créer ma boutique
+        </Button>
         <Button variant="ghost" onPress={() => router.push('/rejoindre')}>
           Rejoindre une boutique avec un code
         </Button>
@@ -91,5 +94,5 @@ const styles = StyleSheet.create({
   input: { borderWidth: 2, borderRadius: 12, padding: 14, fontSize: 18, minHeight: 56 },
   alert: { borderRadius: 12, padding: 12 },
   lienDiscret: { marginTop: 6, fontSize: 15, textAlign: 'center', minHeight: 44, textAlignVertical: 'center' },
-  rejoindre: { marginTop: 24 },
+  rejoindre: { marginTop: 24, gap: 12 },
 });

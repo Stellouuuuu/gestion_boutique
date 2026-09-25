@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TextInput, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { Header } from '../../components/Header';
 import { ScreenScroll } from '../../components/ScreenScroll';
 import { Button } from '../../components/Button';
@@ -14,7 +15,13 @@ import { useSync } from '../../lib/SyncSession';
 import { useToast } from '../../components/Toast';
 import { formatTelAffiche } from '../../lib/identifiant';
 import { getErrorMessage } from '../../lib/errors';
-import { changerMotDePasse, fetchBoutique } from '../../db/membres';
+import {
+  changerMotDePasse,
+  fetchBoutique,
+  updateMonNom,
+  updateNomBoutique,
+} from '../../db/membres';
+import { setSetting, SETTINGS_KEYS } from '../../db/settings';
 
 export default function CompteScreen() {
   return (
@@ -38,8 +45,9 @@ function formatDateHeure(iso: string | null | undefined): string {
 }
 
 function CompteForm() {
+  const db = useSQLiteContext();
   const { colors } = useTheme();
-  const { membre, session, signOut } = useAuth();
+  const { membre, session, signOut, rafraichirMembre } = useAuth();
   const { showToast } = useToast();
   const {
     derniereSynchroOk,
@@ -49,10 +57,13 @@ function CompteForm() {
     refreshIndicateur,
   } = useSync();
 
-  const [nomBoutique, setNomBoutique] = useState<string | null>(null);
+  const [nomBoutique, setNomBoutique] = useState('');
+  const [monNom, setMonNom] = useState('');
   const [telAffiche, setTelAffiche] = useState('');
   const [chargement, setChargement] = useState(true);
   const [retrying, setRetrying] = useState(false);
+  const [savingProfil, setSavingProfil] = useState(false);
+  const [erreurProfil, setErreurProfil] = useState<string | null>(null);
 
   const [ancien, setAncien] = useState('');
   const [nouveau, setNouveau] = useState('');
@@ -70,13 +81,16 @@ function CompteForm() {
         setChargement(true);
         await refreshIndicateur();
         const email = session?.user?.email ?? '';
-        if (active) setTelAffiche(formatTelAffiche(email));
+        if (active) {
+          setTelAffiche(formatTelAffiche(email));
+          setMonNom(membre?.nom ?? '');
+        }
         if (membre) {
           try {
             const b = await fetchBoutique(membre.boutiqueId);
-            if (active) setNomBoutique(b?.nom ?? null);
+            if (active) setNomBoutique(b?.nom ?? membre.boutiqueNom ?? '');
           } catch {
-            if (active) setNomBoutique(null);
+            if (active) setNomBoutique(membre.boutiqueNom ?? '');
           }
         }
         if (active) setChargement(false);
@@ -86,6 +100,34 @@ function CompteForm() {
       };
     }, [membre, session, refreshIndicateur])
   );
+
+  const onSauverProfil = async () => {
+    if (savingProfil || !membre) return;
+    if (!monNom.trim()) {
+      setErreurProfil('Écrivez votre nom.');
+      return;
+    }
+    if (membre.role === 'proprietaire' && !nomBoutique.trim()) {
+      setErreurProfil('Écrivez le nom de la boutique.');
+      return;
+    }
+    setSavingProfil(true);
+    setErreurProfil(null);
+    try {
+      await updateMonNom(membre.boutiqueId, monNom);
+      await setSetting(db, SETTINGS_KEYS.membreNom, monNom.trim());
+      if (membre.role === 'proprietaire') {
+        await updateNomBoutique(membre.boutiqueId, nomBoutique);
+        await setSetting(db, SETTINGS_KEYS.boutiqueNom, nomBoutique.trim());
+      }
+      await rafraichirMembre();
+      showToast('Profil enregistré');
+    } catch (e) {
+      setErreurProfil(getErrorMessage(e) || 'Impossible d’enregistrer.');
+    } finally {
+      setSavingProfil(false);
+    }
+  };
 
   const onChangerMdp = async () => {
     if (savingMdp) return;
@@ -147,14 +189,52 @@ function CompteForm() {
       ) : (
         <View style={[styles.card, { backgroundColor: colors.card }]}>
           <Text style={[styles.sectionTitle, { color: colors.ink, fontFamily: FONT_TITLE }]}>
-            {membre?.nom ?? '—'}
+            Mon profil
           </Text>
+          <View style={styles.field}>
+            <Text style={[styles.label, { color: colors.ink }]}>Mon nom</Text>
+            <TextInput
+              value={monNom}
+              onChangeText={setMonNom}
+              style={[
+                styles.input,
+                { borderColor: colors.line, color: colors.ink, backgroundColor: colors.bg },
+              ]}
+            />
+          </View>
+          {membre?.role === 'proprietaire' ? (
+            <View style={styles.field}>
+              <Text style={[styles.label, { color: colors.ink }]}>Nom de la boutique</Text>
+              <TextInput
+                value={nomBoutique}
+                onChangeText={setNomBoutique}
+                style={[
+                  styles.input,
+                  { borderColor: colors.line, color: colors.ink, backgroundColor: colors.bg },
+                ]}
+              />
+            </View>
+          ) : (
+            <InfoRow label="Boutique" value={nomBoutique || '—'} />
+          )}
           <InfoRow label="Téléphone" value={telAffiche || '—'} />
-          <InfoRow label="Boutique" value={nomBoutique ?? '—'} />
           <InfoRow
             label="Rôle"
             value={membre?.role === 'proprietaire' ? 'Propriétaire' : 'Vendeuse'}
           />
+          {erreurProfil ? (
+            <View style={[styles.alert, { backgroundColor: colors.warnSoft }]}>
+              <Text style={{ color: colors.warn, fontWeight: '700' }}>{erreurProfil}</Text>
+            </View>
+          ) : null}
+          <Button
+            variant="indigo-outline"
+            disabled={savingProfil}
+            loading={savingProfil}
+            onPress={onSauverProfil}
+          >
+            Enregistrer le profil
+          </Button>
         </View>
       )}
 
@@ -252,6 +332,9 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   card: { borderRadius: 20, padding: 18, gap: 14 },
   sectionTitle: { fontSize: 22, marginBottom: 4 },
+  field: { gap: 6 },
+  label: { fontWeight: '700', fontSize: 16 },
+  input: { borderWidth: 2, borderRadius: 12, padding: 14, fontSize: 18, minHeight: 56 },
   infoRow: { gap: 2 },
   alert: { borderRadius: 12, padding: 12 },
   delzone: { marginTop: 40, paddingTop: 16, borderTopWidth: 2, borderStyle: 'dashed' },

@@ -39,16 +39,52 @@ Build de production :
 npm run build:web
 ```
 
-Cela crée le dossier `dist/` (export Expo + service worker Workbox). Les en-têtes COOP/COEP nécessaires à `expo-sqlite` sont dans `public/_headers` (pris en charge par Cloudflare Pages).
+Cela crée le dossier `dist/` (export Expo + renommage `assets/node_modules` → `assets/npm` pour Cloudflare + service worker Workbox). Les en-têtes COOP/COEP nécessaires à `expo-sqlite` sont dans `public/_headers`.
 
-### Héberger sur Cloudflare Pages
+> **Important** : Wrangler Pages refuse d’uploader tout dossier nommé `node_modules`. Le script `scripts/fix-web-dist-for-cloudflare.mjs` (lancé par `build:web`) renomme donc ces assets, sinon le site affiche un écran blanc (fichier `.wasm` servi en HTML).
 
-1. Compte gratuit [Cloudflare Pages](https://pages.cloudflare.com/)
-2. Nouveau projet → upload du dossier `dist/`, **ou** connexion Git avec :
-   - **Build command** : `npm run build:web`
-   - **Output directory** : `dist`
-   - Variables d’environnement : `EXPO_PUBLIC_SUPABASE_URL` et `EXPO_PUBLIC_SUPABASE_ANON_KEY`
-3. Sur iPhone Safari : ouvrir le site → bouton **Partager** → **Sur l’écran d’accueil**.
+### Mettre à jour le site en ligne (Cloudflare Pages)
+
+Projet : **gestion-boutique** → https://gestion-boutique.pages.dev/
+
+1. Vérifier que `.env` contient `EXPO_PUBLIC_SUPABASE_URL` et `EXPO_PUBLIC_SUPABASE_ANON_KEY` (incluses dans le bundle au build).
+2. Se connecter une fois : `npx wrangler login` (navigateur Cloudflare).
+3. Déployer :
+
+```bash
+npm run deploy:web
+```
+
+Équivalent manuel :
+
+```bash
+npm run build:web
+npx wrangler pages deploy dist --project-name=gestion-boutique
+```
+
+4. Contrôler les en-têtes : `curl -sI https://gestion-boutique.pages.dev/ | grep -i cross-origin`
+5. Contrôler le wasm (doit être `application/wasm`, **pas** `text/html`) :
+
+```bash
+curl -sI "https://gestion-boutique.pages.dev/assets/npm/expo-sqlite/web/wa-sqlite/"*.wasm | head
+```
+
+6. Sur iPhone : Safari → ouvrir le site → **Partager** → **Sur l’écran d’accueil**. Si une ancienne version cassée reste en cache : supprimer l’icône, vider les données du site, puis réinstaller.
+
+Smoke test navigateur (Chromium + WebKit) :
+
+```bash
+npx playwright install chromium webkit
+node scripts/verifier-web-live.mjs
+```
+
+### Première création du projet Pages
+
+```bash
+npx wrangler pages project create gestion-boutique --production-branch=main
+```
+
+(Cloudflare n’accepte que des noms en minuscules avec tirets, pas de `_`.)
 
 Sur le web, Safari peut effacer les données locales : la synchro Supabase reste obligatoire ; l’indicateur d’accueil est le même que sur Android.
 

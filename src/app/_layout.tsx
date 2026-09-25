@@ -15,6 +15,7 @@ import {
   BricolageGrotesque_800ExtraBold,
 } from '@expo-google-fonts/bricolage-grotesque';
 import { migrateDatabase } from '../db/migrate';
+import { AppErrorBoundary } from '../components/AppErrorBoundary';
 import { ToastProvider } from '../components/Toast';
 import { AdminSessionProvider } from '../lib/AdminSession';
 import { AuthSessionProvider } from '../lib/AuthSession';
@@ -61,21 +62,23 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontsError) return null;
 
   return (
-    <SafeAreaProvider>
-      <Suspense fallback={<LoadingScreen />}>
-        <SQLiteProvider databaseName="boutique.db" onInit={migrateDatabase} useSuspense>
-          <AuthSessionProvider>
-            <SyncSessionProvider>
-              <ToastProvider>
-                <AdminSessionProvider>
-                  <ThemedStack />
-                </AdminSessionProvider>
-              </ToastProvider>
-            </SyncSessionProvider>
-          </AuthSessionProvider>
-        </SQLiteProvider>
-      </Suspense>
-    </SafeAreaProvider>
+    <AppErrorBoundary>
+      <SafeAreaProvider>
+        <Suspense fallback={<LoadingScreen />}>
+          <SQLiteProvider databaseName="boutique.db" onInit={migrateDatabase} useSuspense>
+            <AuthSessionProvider>
+              <SyncSessionProvider>
+                <ToastProvider>
+                  <AdminSessionProvider>
+                    <ThemedStack />
+                  </AdminSessionProvider>
+                </ToastProvider>
+              </SyncSessionProvider>
+            </AuthSessionProvider>
+          </SQLiteProvider>
+        </Suspense>
+      </SafeAreaProvider>
+    </AppErrorBoundary>
   );
 }
 

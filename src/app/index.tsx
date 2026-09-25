@@ -11,7 +11,7 @@ import { totalVentesDuJour, countArticlesFinis } from '../db/mouvements';
 import { countArticles } from '../db/articles';
 import { getInventaireEnCours } from '../db/inventaires';
 import { telechargerBoutiqueSiVide } from '../db/remote';
-import { getSetting, SETTINGS_KEYS } from '../db/settings';
+import { getSetting, SETTINGS_KEYS, type CatalogueInitial } from '../db/settings';
 import { useAdminSession } from '../lib/AdminSession';
 import { useAuth } from '../lib/AuthSession';
 import { useSync } from '../lib/SyncSession';
@@ -72,7 +72,8 @@ export default function HomeScreen() {
       try {
         const n = await countArticles(db, boutiqueId);
         if (n === 0) {
-          await telechargerBoutiqueSiVide(db, boutiqueId);
+          const cat = (await getSetting(db, SETTINGS_KEYS.catalogueInitial)) as CatalogueInitial | null;
+          await telechargerBoutiqueSiVide(db, boutiqueId, cat === 'vide' ? 'vide' : 'type');
         }
       } catch {
         // Hors ligne : on laisse l'écran s'afficher ; les ventes locales déjà là restent.
@@ -131,6 +132,9 @@ export default function HomeScreen() {
         <Text style={[styles.h1, { color: colors.ink, fontFamily: FONT_TITLE }]}>
           Bonjour {membre?.nom ?? 'Maman'}
         </Text>
+        {membre?.boutiqueNom ? (
+          <Text style={[styles.boutique, { color: colors.muted }]}>{membre.boutiqueNom}</Text>
+        ) : null}
         <Text style={[styles.date, { color: colors.muted }]}>
           Aujourd’hui, {formatDateAujourdhui()}
         </Text>
@@ -227,6 +231,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   hello: { paddingTop: 20, paddingBottom: 8 },
   h1: { fontSize: 34, fontWeight: '800' },
+  boutique: { marginTop: 4, fontSize: 15 },
   date: { marginTop: 6, fontSize: 18 },
   today: { flexDirection: 'row', gap: 12, marginVertical: 16 },
   stat: { flex: 1, borderRadius: 16, padding: 16 },

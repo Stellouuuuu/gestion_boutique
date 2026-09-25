@@ -74,3 +74,27 @@ export async function changerMotDePasse(ancien: string, nouveau: string): Promis
   const { error } = await supabase.auth.updateUser({ password: nouveau });
   if (error) throw error;
 }
+
+/** Met à jour le nom affiché du membre connecté. */
+export async function updateMonNom(boutiqueId: string, nom: string): Promise<void> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error('Session introuvable.');
+  const clean = nom.trim();
+  if (!clean) throw new Error('Écrivez votre nom.');
+  const { error } = await supabase
+    .from('membres')
+    .update({ nom: clean })
+    .eq('boutique_id', boutiqueId)
+    .eq('user_id', user.id);
+  if (error) throw error;
+}
+
+/** Propriétaire : renomme la boutique. */
+export async function updateNomBoutique(boutiqueId: string, nom: string): Promise<void> {
+  const clean = nom.trim();
+  if (!clean) throw new Error('Écrivez le nom de la boutique.');
+  const { error } = await supabase.from('boutiques').update({ nom: clean }).eq('id', boutiqueId);
+  if (error) throw error;
+}
