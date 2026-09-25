@@ -3,32 +3,18 @@
  * Vérifie le schéma local v2 (UUID, stock calculé, cout_unitaire, a_envoyer, inventaires)
  * et le téléchargement depuis Supabase pour le compte test.
  *
- * Usage : node --env-file=.env scripts/verifier-etape2.mjs
- * (lit aussi .env.admin si présent pour le service_role ; sinon utilise l'anon + login)
+ * Usage : node scripts/verifier-etape2.mjs
+ * (nécessite .env.test — projet boutique-test)
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 import { createClient } from '@supabase/supabase-js';
+import { loadTestEnv } from './lib/env-test.mjs';
+import { telVersIdentifiant } from './lib/tel.mjs';
 
-function loadEnv(path) {
-  if (!existsSync(path)) return {};
-  return Object.fromEntries(
-    readFileSync(path, 'utf8')
-      .trim()
-      .split('\n')
-      .filter((l) => l && !l.startsWith('#'))
-      .map((l) => {
-        const i = l.indexOf('=');
-        return [l.slice(0, i).trim(), l.slice(i + 1).trim()];
-      })
-  );
-}
 
-const env = { ...loadEnv('.env'), ...loadEnv('.env.admin') };
-const url = (env.EXPO_PUBLIC_SUPABASE_URL || env.SUPABASE_URL || '').replace(/\/+$/, '');
-const anon = env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
-const service = env.SUPABASE_SERVICE_ROLE_KEY;
+const { url, anon, service } = loadTestEnv();
 
 const SCHEMA_SQL = `
 PRAGMA foreign_keys = ON;
@@ -89,11 +75,6 @@ function ok(name, pass, detail = '') {
 // --- a) Connexion compte test + 316 articles ---
 const TEL = '00 00 00 01';
 const MDP = 'test1234';
-function telVersIdentifiant(tel) {
-  let d = String(tel).replace(/\D/g, '');
-  if (!d.startsWith('229')) d = '229' + d;
-  return `${d}@boutique-maman.app`;
-}
 
 const sb = createClient(url, anon || service, { auth: { persistSession: false, autoRefreshToken: false } });
 const { data: authData, error: authErr } = await sb.auth.signInWithPassword({

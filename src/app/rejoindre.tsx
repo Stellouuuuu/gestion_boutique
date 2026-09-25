@@ -15,7 +15,7 @@ export default function RejoindreScreen() {
 
   const [code, setCode] = useState('');
   const [nom, setNom] = useState('');
-  const [tel, setTel] = useState('229');
+  const [tel, setTel] = useState('');
   const [motDePasse, setMotDePasse] = useState('');
   const [erreur, setErreur] = useState<string | null>(null);
   const [envoi, setEnvoi] = useState(false);
@@ -92,6 +92,8 @@ export default function RejoindreScreen() {
             value={tel}
             onChangeText={setTel}
             keyboardType="phone-pad"
+            placeholder="01 97 00 00 00"
+            placeholderTextColor={colors.muted}
             style={[styles.input, { borderColor: colors.line, color: colors.ink, backgroundColor: colors.bg }]}
           />
         </View>

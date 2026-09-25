@@ -7,14 +7,17 @@
  * liée à ce numéro.
  *
  * Usage :
- *   node --env-file=.env.admin scripts/demo-donnees.mjs
- *   node --env-file=.env.admin scripts/demo-donnees.mjs --essai
+ *   node scripts/demo-donnees.mjs
+ *   node scripts/demo-donnees.mjs --essai
+ * (utilise .env.test — jamais la production)
  */
 import { randomUUID, randomInt } from 'node:crypto';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as XLSX from 'xlsx';
+import { loadTestEnv } from './lib/env-test.mjs';
+import { telVersIdentifiant } from './lib/tel.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -37,11 +40,6 @@ const FICHIER = args.fichier
   ? String(args.fichier)
   : resolve(ROOT, 'articles-boutique-maman.xlsx');
 
-function telVersIdentifiant(tel) {
-  let d = String(tel).replace(/\D/g, '');
-  if (!d.startsWith('229')) d = '229' + d;
-  return `${d}@boutique-maman.app`;
-}
 const email = telVersIdentifiant(TEL);
 
 function stop(msg) {
@@ -51,25 +49,10 @@ function stop(msg) {
 function* paquets(arr, n) {
   for (let i = 0; i < arr.length; i += n) yield arr.slice(i, i + n);
 }
-function loadEnv(path) {
-  if (!existsSync(path)) return {};
-  return Object.fromEntries(
-    readFileSync(path, 'utf8')
-      .trim()
-      .split('\n')
-      .filter((l) => l && !l.startsWith('#'))
-      .map((l) => {
-        const i = l.indexOf('=');
-        return [l.slice(0, i).trim(), l.slice(i + 1).trim()];
-      })
-  );
-}
 
-const env = { ...loadEnv(resolve(ROOT, '.env')), ...loadEnv(resolve(ROOT, '.env.admin')) };
-let url = (env.SUPABASE_URL || env.EXPO_PUBLIC_SUPABASE_URL || '').replace(/^["']|["']$/g, '');
-const key = (env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
-if (!url || !key) stop('SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY requis (.env.admin).');
-url = url.replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '');
+const { url: rawUrl, service: key } = loadTestEnv();
+let url = rawUrl;
+if (!url || !key) stop('SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY requis (.env.test).');
 
 // ---------- Excel ----------
 if (!existsSync(FICHIER)) stop(`Fichier introuvable : ${FICHIER}`);

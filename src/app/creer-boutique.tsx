@@ -18,7 +18,7 @@ export default function CreerBoutiqueScreen() {
 
   const [monNom, setMonNom] = useState('');
   const [nomBoutique, setNomBoutique] = useState('');
-  const [tel, setTel] = useState('229');
+  const [tel, setTel] = useState('');
   const [motDePasse, setMotDePasse] = useState('');
   const [confirmation, setConfirmation] = useState('');
   const [catalogue, setCatalogue] = useState<CatalogueInitial>('type');
@@ -102,6 +102,8 @@ export default function CreerBoutiqueScreen() {
             value={tel}
             onChangeText={setTel}
             keyboardType="phone-pad"
+            placeholder="01 97 00 00 00"
+            placeholderTextColor={colors.muted}
             style={[styles.input, { borderColor: colors.line, color: colors.ink, backgroundColor: colors.bg }]}
           />
         </View>

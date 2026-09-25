@@ -31,10 +31,13 @@ const manque = need.filter((k) => !args[k] || args[k] === true);
 if (manque.length) stop(`Il manque : ${manque.map((k) => "--" + k).join(", ")}`);
 const ESSAI = !!args.essai;
 
-// Même règle que dans l'app : chiffres seulement, préfixe 229 ajouté s'il manque.
+// Même règle que dans l'app (src/lib/identifiant.ts) : chiffres seulement ;
+// retire 229 s'il existe ; si 8 chiffres restants, ajoute « 01 » ; puis préfixe 229.
 // L'app DOIT utiliser exactement la même fonction, sinon Maman ne pourra pas se connecter.
 export function telVersIdentifiant(tel) {
   let d = String(tel).replace(/\D/g, "");
+  if (d.startsWith("229")) d = d.slice(3);
+  if (d.length === 8) d = "01" + d;
   if (!d.startsWith("229")) d = "229" + d;
   return `${d}@boutique-maman.app`;
 }

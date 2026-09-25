@@ -51,7 +51,7 @@ async function probe(browserType, name, launchOpts = {}) {
   let afterLogin = '';
   if (hasConnexion) {
     try {
-      await page.locator('input').nth(0).fill('22900000009');
+      await page.locator('input').nth(0).fill('01 00 00 00 09');
       await page.locator('input[type="password"]').fill(DEMO_MDP);
       await page.getByText('Se connecter', { exact: true }).click();
       await page.waitForTimeout(10000);

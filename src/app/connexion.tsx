@@ -9,7 +9,7 @@ import { useTheme } from '../theme/useTheme';
 import { FONT_TITLE } from '../theme/typography';
 import { useAuth, AutreComptePendingError } from '../lib/AuthSession';
 import { MOT_DE_PASSE_OUBLIE_TEXTE } from '../lib/config';
-import { masquerTel } from '../lib/identifiant';
+import { masquerTel, formatTelAffiche } from '../lib/identifiant';
 import {
   listerComptesRecents,
   oublierCompte,
@@ -21,7 +21,7 @@ export default function ConnexionScreen() {
   const { colors } = useTheme();
   const { signIn } = useAuth();
 
-  const [tel, setTel] = useState('229');
+  const [tel, setTel] = useState('');
   const [motDePasse, setMotDePasse] = useState('');
   const [erreur, setErreur] = useState<string | null>(null);
   const [envoi, setEnvoi] = useState(false);
@@ -57,7 +57,7 @@ export default function ConnexionScreen() {
   };
 
   const choisirRecent = (c: CompteRecent) => {
-    setTel(c.telDigits.startsWith('229') ? c.telDigits : `229${c.telDigits}`);
+    setTel(formatTelAffiche(c.telDigits) || c.telDigits);
     setMotDePasse('');
     setErreur(null);
   };
@@ -114,6 +114,8 @@ export default function ConnexionScreen() {
             value={tel}
             onChangeText={setTel}
             keyboardType="phone-pad"
+            placeholder="01 97 00 00 00"
+            placeholderTextColor={colors.muted}
             style={[styles.input, { borderColor: colors.line, color: colors.ink, backgroundColor: colors.bg }]}
           />
         </View>

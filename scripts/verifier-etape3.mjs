@@ -1,36 +1,18 @@
 #!/usr/bin/env node
 /**
  * Vérifie la synchro étape 3 : deux « appareils » SQLite + Supabase compte test.
- * Usage : node --env-file=.env scripts/verifier-etape3.mjs
+ * Usage : node scripts/verifier-etape3.mjs
  */
 import { readFileSync, existsSync, unlinkSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 import { createClient } from '@supabase/supabase-js';
+import { loadTestEnv } from './lib/env-test.mjs';
+import { telVersIdentifiant } from './lib/tel.mjs';
 
-function loadEnv(path) {
-  if (!existsSync(path)) return {};
-  return Object.fromEntries(
-    readFileSync(path, 'utf8')
-      .trim()
-      .split('\n')
-      .filter((l) => l && !l.startsWith('#'))
-      .map((l) => {
-        const i = l.indexOf('=');
-        return [l.slice(0, i).trim(), l.slice(i + 1).trim()];
-      })
-  );
-}
 
-const env = { ...loadEnv('.env'), ...loadEnv('.env.admin') };
-const url = (env.EXPO_PUBLIC_SUPABASE_URL || env.SUPABASE_URL || '').replace(/\/+$/, '');
-const anon = env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+const { url, anon, service } = loadTestEnv();
 
-function telVersIdentifiant(tel) {
-  let d = String(tel).replace(/\D/g, '');
-  if (!d.startsWith('229')) d = '229' + d;
-  return `${d}@boutique-maman.app`;
-}
 
 const SCHEMA = `
 PRAGMA foreign_keys = ON;

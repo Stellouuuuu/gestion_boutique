@@ -1,34 +1,16 @@
 #!/usr/bin/env node
 /**
  * Vérifie étape 4 : rôle vendeuse (RLS), code invitation, retrait de membre.
- * Usage : node --env-file=.env scripts/verifier-etape4.mjs
+ * Usage : node scripts/verifier-etape4.mjs
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
+import { loadTestEnv } from './lib/env-test.mjs';
+import { telVersIdentifiant } from './lib/tel.mjs';
 
-function loadEnv(path) {
-  if (!existsSync(path)) return {};
-  return Object.fromEntries(
-    readFileSync(path, 'utf8')
-      .trim()
-      .split('\n')
-      .filter((l) => l && !l.startsWith('#'))
-      .map((l) => {
-        const i = l.indexOf('=');
-        return [l.slice(0, i).trim(), l.slice(i + 1).trim()];
-      })
-  );
-}
 
-const env = { ...loadEnv('.env'), ...loadEnv('.env.admin') };
-const url = (env.EXPO_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
-const anon = env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+const { url, anon, service } = loadTestEnv();
 
-function telVersIdentifiant(tel) {
-  let d = String(tel).replace(/\D/g, '');
-  if (!d.startsWith('229')) d = '229' + d;
-  return `${d}@boutique-maman.app`;
-}
 
 const results = [];
 function ok(name, pass, detail = '') {

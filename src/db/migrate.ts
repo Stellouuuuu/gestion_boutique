@@ -1,12 +1,12 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
-import { SCHEMA_SQL, SCHEMA_VERSION } from './schema';
+import { SCHEMA_SQL, SCHEMA_VERSION } from './schema.ts';
 
 const VERSION_KEY = 'schema_version';
 
 /**
- * Schéma v2 : pas de migration des anciennes données (aucune donnée réelle hors ligne).
- * On drop les tables métier et on repart de zéro ; le téléchargement Supabase refill.
- * settings (PIN, boutique) est conservé.
+ * Montée de version **additive uniquement** : jamais de DROP TABLE.
+ * Toutes les lignes (y compris a_envoyer = 1) sont conservées.
+ * Les migrations futures doivent être des ALTER TABLE ADD COLUMN / CREATE TABLE IF NOT EXISTS.
  */
 export async function migrateDatabase(db: SQLiteDatabase): Promise<void> {
   await db.execAsync(`
@@ -22,23 +22,31 @@ export async function migrateDatabase(db: SQLiteDatabase): Promise<void> {
   );
   const version = row ? Number(row.value) : 0;
 
-  if (version < SCHEMA_VERSION) {
-    await db.execAsync(`
-      PRAGMA foreign_keys = OFF;
-      DROP TABLE IF EXISTS inventaire_lignes;
-      DROP TABLE IF EXISTS inventaires;
-      DROP TABLE IF EXISTS mouvements;
-      DROP TABLE IF EXISTS articles;
-      DROP TABLE IF EXISTS synchro;
-      PRAGMA foreign_keys = ON;
-    `);
-    await db.execAsync(SCHEMA_SQL);
+  // Schéma courant (idempotent : CREATE IF NOT EXISTS + indexes)
+  await db.execAsync(SCHEMA_SQL);
+
+  // Migrations additives passées / futures (exemples de colonnes déjà dans SCHEMA_SQL)
+  if (version < 2) {
+    await ensureColumn(db, 'articles', 'prix_achat', 'INTEGER');
+    await ensureColumn(db, 'mouvements', 'cout_unitaire', 'INTEGER');
+  }
+
+  if (version !== SCHEMA_VERSION) {
     await db.runAsync(
       `INSERT INTO settings (key, value) VALUES (?, ?)
        ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
       [VERSION_KEY, String(SCHEMA_VERSION)]
     );
-  } else {
-    await db.execAsync(SCHEMA_SQL);
   }
+}
+
+async function ensureColumn(
+  db: SQLiteDatabase,
+  table: string,
+  column: string,
+  typeSql: string
+): Promise<void> {
+  const cols = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
+  if (cols.some((c) => c.name === column)) return;
+  await db.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} ${typeSql}`);
 }

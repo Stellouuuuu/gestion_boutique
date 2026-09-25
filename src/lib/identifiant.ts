@@ -4,10 +4,15 @@
  * `telVersIdentifiant()` dans scripts/creer-compte-maman.mjs : si les deux
  * divergent, Maman ne peut plus se connecter.
  *
- * Chiffres seulement, préfixe 229 ajouté s'il manque.
+ * Chiffres seulement ; retire un préfixe 229 s'il existe ; si le reste fait
+ * 8 chiffres (ancien format béninois), ajoute « 01 » devant ; puis préfixe 229.
+ * Ex. 97504737, 0197504737, 01 97 50 47 37, +229 01 97 50 47 37
+ *   → 2290197504737@boutique-maman.app
  */
 export function telVersIdentifiant(tel: string): string {
   let d = String(tel).replace(/\D/g, '');
+  if (d.startsWith('229')) d = d.slice(3);
+  if (d.length === 8) d = '01' + d;
   if (!d.startsWith('229')) d = '229' + d;
   return `${d}@boutique-maman.app`;
 }

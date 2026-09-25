@@ -7,21 +7,31 @@ import {
   telVersIdentifiant,
 } from './identifiant.ts';
 
+const ATTENDU = '2290197504737@boutique-maman.app';
+
 describe('telVersIdentifiant', () => {
-  it('un numéro saisi avec espaces et sans préfixe donne le même identifiant qu\'avec le préfixe 229', () => {
+  it('normalise 8 chiffres en ajoutant 01 (format béninois 2024+)', () => {
+    assert.equal(telVersIdentifiant('97504737'), ATTENDU);
+  });
+
+  it('accepte déjà 10 chiffres locaux', () => {
+    assert.equal(telVersIdentifiant('0197504737'), ATTENDU);
+  });
+
+  it('accepte un numéro espacé', () => {
+    assert.equal(telVersIdentifiant('01 97 50 47 37'), ATTENDU);
+  });
+
+  it('accepte +229 avec espaces', () => {
+    assert.equal(telVersIdentifiant('+229 01 97 50 47 37'), ATTENDU);
+  });
+
+  it('ne double pas le préfixe 229', () => {
+    assert.equal(telVersIdentifiant('2290197504737'), ATTENDU);
+  });
+
+  it('un numéro saisi avec ou sans 229 donne le même identifiant', () => {
     assert.equal(telVersIdentifiant('01 97 00 00 01'), telVersIdentifiant('2290197000001'));
-  });
-
-  it('ajoute le préfixe 229 quand il manque', () => {
-    assert.equal(telVersIdentifiant('0197000001'), '2290197000001@boutique-maman.app');
-  });
-
-  it('ne double pas le préfixe 229 quand il est déjà présent', () => {
-    assert.equal(telVersIdentifiant('2290197000001'), '2290197000001@boutique-maman.app');
-  });
-
-  it('retire tout ce qui n\'est pas un chiffre', () => {
-    assert.equal(telVersIdentifiant('+229 01-97-00-00-01'), '2290197000001@boutique-maman.app');
   });
 });
 

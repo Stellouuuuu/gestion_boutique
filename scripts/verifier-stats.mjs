@@ -1,34 +1,20 @@
 #!/usr/bin/env node
 /**
  * Vérifie cohérence stats ↔ bilans sur Boutique démo + perf 50k mouvements.
- * Usage : node --env-file=.env.admin scripts/verifier-stats.mjs
+ * Usage : node scripts/verifier-stats.mjs
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 import { createClient } from '@supabase/supabase-js';
+import { loadTestEnv } from './lib/env-test.mjs';
+import { telVersIdentifiant } from './lib/tel.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-function loadEnv(path) {
-  if (!existsSync(path)) return {};
-  return Object.fromEntries(
-    readFileSync(path, 'utf8')
-      .trim()
-      .split('\n')
-      .filter((l) => l && !l.startsWith('#'))
-      .map((l) => {
-        const i = l.indexOf('=');
-        return [l.slice(0, i).trim(), l.slice(i + 1).trim()];
-      })
-  );
-}
 
-const env = { ...loadEnv(resolve(ROOT, '.env')), ...loadEnv(resolve(ROOT, '.env.admin')) };
-const url = (env.SUPABASE_URL || env.EXPO_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
-const anon = env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
-const service = env.SUPABASE_SERVICE_ROLE_KEY;
+const { url, anon, service } = loadTestEnv();
 
 const results = [];
 function ok(name, pass, detail = '') {
@@ -74,7 +60,7 @@ const sb = createClient(url, anon || service, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 const { error: authErr } = await sb.auth.signInWithPassword({
-  email: '22900000009@boutique-maman.app',
+  email: telVersIdentifiant('00 00 00 09'),
   password: 'demo1234',
 });
 if (authErr) {

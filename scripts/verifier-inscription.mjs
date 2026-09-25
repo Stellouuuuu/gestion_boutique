@@ -1,46 +1,20 @@
 #!/usr/bin/env node
 /**
  * Tests inscription libre : créer boutique, numéro déjà pris, renommage, isolation RLS.
- * Usage : node --env-file=.env.admin scripts/verifier-inscription.mjs
- * Prérequis : exécuter docs/sql/inscription-libre-rls.sql dans Supabase
- *   (active pgcrypto + policy b_modifier + recreate creer_boutique).
+ * Usage : node scripts/verifier-inscription.mjs
+Prérequis : coller docs/schema-complet.sql (ou docs/sql/inscription-libre-rls.sql si le schéma de base est déjà là) dans le projet TEST.
  */
-import { readFileSync, existsSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createClient } from '@supabase/supabase-js';
 import { randomBytes, randomUUID } from 'node:crypto';
+import { loadTestEnv } from './lib/env-test.mjs';
+import { telVersIdentifiant } from './lib/tel.mjs';
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-
-function loadEnv(path) {
-  if (!existsSync(path)) return {};
-  return Object.fromEntries(
-    readFileSync(path, 'utf8')
-      .trim()
-      .split('\n')
-      .filter((l) => l && !l.startsWith('#'))
-      .map((l) => {
-        const i = l.indexOf('=');
-        return [l.slice(0, i).trim(), l.slice(i + 1).trim()];
-      })
-  );
-}
-
-const env = { ...loadEnv(resolve(ROOT, '.env')), ...loadEnv(resolve(ROOT, '.env.admin')) };
-const url = (env.SUPABASE_URL || env.EXPO_PUBLIC_SUPABASE_URL || '').replace(/\/+$/, '');
-const anon = env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
-const service = env.SUPABASE_SERVICE_ROLE_KEY;
+const { url, anon, service } = loadTestEnv();
 if (!url || !anon || !service) {
   console.error('Variables Supabase manquantes');
   process.exit(1);
 }
 
-function telVersIdentifiant(tel) {
-  let d = String(tel).replace(/\D/g, '');
-  if (!d.startsWith('229')) d = '229' + d;
-  return `${d}@boutique-maman.app`;
-}
 
 const results = [];
 function check(name, pass, detail = '') {
