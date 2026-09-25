@@ -1,8 +1,10 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
+import NetInfo from '@react-native-community/netinfo';
 import { useSQLiteContext } from 'expo-sqlite';
 import { supabase } from './supabase';
 import { telVersIdentifiant } from './identifiant';
+import { doitPurgerApresSignedOut, isLocallyAuthenticated as calcLocalAuth } from './authSecurity';
 import { fetchMembre, type Membre } from '../db/remote';
 import { countPending } from '../db/syncStatus';
 import { getSetting, setSetting, deleteSetting, SETTINGS_KEYS } from '../db/settings';
@@ -54,6 +56,15 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
   const [session, setSession] = useState<Session | null>(null);
   const [membre, setMembre] = useState<Membre | null>(null);
 
+  const purgerCacheLocal = useCallback(async () => {
+    await Promise.all([
+      deleteSetting(db, SETTINGS_KEYS.boutiqueId),
+      deleteSetting(db, SETTINGS_KEYS.role),
+      deleteSetting(db, SETTINGS_KEYS.membreNom),
+    ]);
+    setMembre(null);
+  }, [db]);
+
   /** Lecture locale, rapide et hors-ligne — débloque l'écran sans attendre le réseau. */
   const chargerMembreLocal = useCallback(async (): Promise<Membre | null> => {
     const [boutiqueId, role, nom] = await Promise.all([
@@ -92,9 +103,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     let active = true;
     (async () => {
-      // 1. Cache local d'abord → l'accueil peut s'afficher sans réseau.
       await chargerMembreLocal();
-      // 2. Session persistée (même expirée) : getSession lit le storage, ne force pas le réseau.
       try {
         const { data } = await supabase.auth.getSession();
         if (!active) return;
@@ -111,11 +120,23 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     const { data: sub } = supabase.auth.onAuthStateChange((event, newSession) => {
       if (event === 'SIGNED_OUT') {
         setSession(null);
-        if (signOutIntentionnel) {
-          signOutIntentionnel = false;
-          setMembre(null);
-        }
-        // Sinon : échec de refresh hors ligne / transient → on garde le membre local.
+        const intentionnel = signOutIntentionnel;
+        if (intentionnel) signOutIntentionnel = false;
+        void (async () => {
+          let isOnline: boolean | null = null;
+          try {
+            const net = await NetInfo.fetch();
+            if (net.isConnected === false) isOnline = false;
+            else if (net.isConnected === true) isOnline = true;
+            else isOnline = null;
+          } catch {
+            isOnline = null;
+          }
+          if (doitPurgerApresSignedOut({ intentionnel, isOnline })) {
+            await purgerCacheLocal();
+          }
+          // Sinon : hors ligne / session expirée → on garde le membre, Accueil + vente OK.
+        })();
         return;
       }
       setSession(newSession);
@@ -163,21 +184,16 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       throw new PendingSyncError(pending.ventes, pending.total);
     }
     signOutIntentionnel = true;
-    await Promise.all([
-      deleteSetting(db, SETTINGS_KEYS.boutiqueId),
-      deleteSetting(db, SETTINGS_KEYS.role),
-      deleteSetting(db, SETTINGS_KEYS.membreNom),
-    ]);
-    setMembre(null);
+    await purgerCacheLocal();
     setSession(null);
     try {
       await supabase.auth.signOut();
     } catch {
       // Hors ligne : le cache local est déjà vidé ; on est déconnecté pour l'app.
     }
-  }, [db]);
+  }, [db, purgerCacheLocal]);
 
-  const isLocallyAuthenticated = session != null || membre != null;
+  const isLocallyAuthenticated = calcLocalAuth(session, membre);
 
   return (
     <AuthContext.Provider

@@ -9,6 +9,7 @@ import { BigButton } from '../components/BigButton';
 import { formatDateAujourdhui, formatFCFA } from '../lib/format';
 import { totalVentesDuJour, countArticlesFinis } from '../db/mouvements';
 import { countArticles } from '../db/articles';
+import { getInventaireEnCours } from '../db/inventaires';
 import { telechargerBoutiqueSiVide } from '../db/remote';
 import { getSetting, SETTINGS_KEYS } from '../db/settings';
 import { useAdminSession } from '../lib/AdminSession';
@@ -23,6 +24,7 @@ export default function HomeScreen() {
   const { indicateur, refreshIndicateur } = useSync();
   const [totalJour, setTotalJour] = useState(0);
   const [finis, setFinis] = useState(0);
+  const [inventaireEnCours, setInventaireEnCours] = useState(false);
   const [pinReady, setPinReady] = useState<boolean | null>(null);
   /** boutiqueId pour laquelle le téléchargement initial (si vide) est terminé. */
   const [articlesReadyFor, setArticlesReadyFor] = useState<string | null>(null);
@@ -86,20 +88,22 @@ export default function HomeScreen() {
     useCallback(() => {
       let active = true;
       (async () => {
-        const [totaux, nbFinis] = await Promise.all([
+        const [totaux, nbFinis, inv] = await Promise.all([
           totalVentesDuJour(db),
           countArticlesFinis(db),
+          membre?.role === 'proprietaire' ? getInventaireEnCours(db) : Promise.resolve(null),
         ]);
         if (active) {
           setTotalJour(totaux.total);
           setFinis(nbFinis);
+          setInventaireEnCours(!!inv);
         }
         await refreshIndicateur();
       })();
       return () => {
         active = false;
       };
-    }, [db, refreshIndicateur])
+    }, [db, refreshIndicateur, membre?.role])
   );
 
   const articlesReady = !!membre && articlesReadyFor === membre.boutiqueId;
@@ -153,6 +157,17 @@ export default function HomeScreen() {
       >
         {indicateur.label}
       </Text>
+
+      {membre?.role === 'proprietaire' && inventaireEnCours ? (
+        <Pressable
+          onPress={() => router.push('/bilans/inventaires')}
+          style={[styles.invBanner, { backgroundColor: colors.warnSoft }]}
+        >
+          <Text style={{ color: colors.warn, fontWeight: '700', textAlign: 'center' }}>
+            Inventaire en cours : reprendre
+          </Text>
+        </Pressable>
+      ) : null}
 
       <View style={styles.big}>
         <BigButton
@@ -222,6 +237,12 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     marginTop: -4,
     textAlign: 'center',
+  },
+  invBanner: {
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginBottom: 14,
   },
   big: { gap: 14 },
   gestion: {
