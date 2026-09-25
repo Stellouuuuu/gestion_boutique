@@ -12,6 +12,7 @@ import { SCHEMA_SQL } from './schema.ts';
 import {
   doitPurgerApresSignedOut,
   isLocallyAuthenticated,
+  peutConnecterAvecPending,
 } from '../lib/authSecurity.ts';
 
 describe('sécurité a) hors ligne session expirée', () => {
@@ -86,5 +87,20 @@ describe('sécurité c) mdp changé ailleurs → Connexion', () => {
 
   it('purge si déconnexion volontaire', () => {
     assert.equal(doitPurgerApresSignedOut({ intentionnel: true, isOnline: false }), true);
+  });
+
+  it('bloque un autre compte si a_envoyer>0', () => {
+    const block = peutConnecterAvecPending({
+      pendingTotal: 3,
+      lastUserId: 'alice',
+      newUserId: 'bob',
+    });
+    assert.equal(block.ok, false);
+    const okSame = peutConnecterAvecPending({
+      pendingTotal: 3,
+      lastUserId: 'alice',
+      newUserId: 'alice',
+    });
+    assert.equal(okSame.ok, true);
   });
 });

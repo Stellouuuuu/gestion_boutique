@@ -6,7 +6,7 @@ import { PasswordField } from '../components/PasswordField';
 import { Button } from '../components/Button';
 import { useTheme } from '../theme/useTheme';
 import { FONT_TITLE } from '../theme/typography';
-import { useAuth } from '../lib/AuthSession';
+import { useAuth, AutreComptePendingError } from '../lib/AuthSession';
 import { MOT_DE_PASSE_OUBLIE_TEXTE } from '../lib/config';
 
 export default function ConnexionScreen() {
@@ -28,10 +28,10 @@ export default function ConnexionScreen() {
     setErreur(null);
     try {
       await signIn(tel, motDePasse);
-      // src/app/index.tsx décide ensuite s'il faut aller vers /bienvenue (pas encore de PIN local).
       router.replace('/');
-    } catch {
-      setErreur('Numéro ou mot de passe incorrect.');
+    } catch (e) {
+      if (e instanceof AutreComptePendingError) setErreur(e.message);
+      else setErreur('Numéro ou mot de passe incorrect.');
     } finally {
       setEnvoi(false);
     }

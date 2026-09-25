@@ -7,6 +7,22 @@ export function formatFCFA(n: number): string {
   return `${withSeparators} F`;
 }
 
+/** Axe court pour graphiques : "12 k", "1,2 M". */
+export function formatAxeCourt(n: number): string {
+  const abs = Math.abs(n);
+  if (abs >= 1_000_000) {
+    const m = abs / 1_000_000;
+    const s = m >= 10 ? String(Math.round(m)) : m.toFixed(1).replace('.', ',');
+    return `${n < 0 ? '-' : ''}${s} M`;
+  }
+  if (abs >= 1000) {
+    const k = abs / 1000;
+    const s = k >= 10 ? String(Math.round(k)) : k.toFixed(1).replace('.', ',');
+    return `${n < 0 ? '-' : ''}${s} k`;
+  }
+  return String(Math.round(n));
+}
+
 const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
 
 export function formatDateAujourdhui(d: Date = new Date()): string {

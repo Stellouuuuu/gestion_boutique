@@ -4,7 +4,11 @@ import NetInfo from '@react-native-community/netinfo';
 import { useSQLiteContext } from 'expo-sqlite';
 import { supabase } from './supabase';
 import { telVersIdentifiant } from './identifiant';
-import { doitPurgerApresSignedOut, isLocallyAuthenticated as calcLocalAuth } from './authSecurity';
+import {
+  doitPurgerApresSignedOut,
+  isLocallyAuthenticated as calcLocalAuth,
+  peutConnecterAvecPending,
+} from './authSecurity';
 import { fetchMembre, type Membre } from '../db/remote';
 import { countPending } from '../db/syncStatus';
 import { getSetting, setSetting, deleteSetting, SETTINGS_KEYS } from '../db/settings';
@@ -29,26 +33,40 @@ export class PendingSyncError extends Error {
   }
 }
 
+export class AutreComptePendingError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AutreComptePendingError';
+  }
+}
+
 interface AuthContextValue {
-  /** Vrai tant qu'on n'a pas déterminé s'il y a une session (et, si oui, la boutique). */
   loading: boolean;
   session: Session | null;
   membre: Membre | null;
-  /**
-   * Connectée pour la navigation : session Supabase OU cache boutique local.
-   * Hors ligne / jeton expiré : on reste sur l'accueil tant que le cache existe.
-   */
   isLocallyAuthenticated: boolean;
   signIn: (tel: string, motDePasse: string) => Promise<void>;
   rejoindre: (code: string, nom: string, tel: string, motDePasse: string) => Promise<void>;
-  /** Refuse s'il reste des lignes a_envoyer (PendingSyncError). */
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/** Déconnexion volontaire en cours : autorise le nettoyage du membre sur SIGNED_OUT. */
 let signOutIntentionnel = false;
+
+/**
+ * Purge uniquement le cache « qui est connecté » (settings membre).
+ * Ne touche JAMAIS articles / mouvements / inventaires (a_envoyer conservé).
+ */
+export async function purgerCacheMembreSeulement(
+  db: Parameters<typeof deleteSetting>[0]
+): Promise<void> {
+  await Promise.all([
+    deleteSetting(db, SETTINGS_KEYS.boutiqueId),
+    deleteSetting(db, SETTINGS_KEYS.role),
+    deleteSetting(db, SETTINGS_KEYS.membreNom),
+  ]);
+}
 
 export function AuthSessionProvider({ children }: PropsWithChildren) {
   const db = useSQLiteContext();
@@ -57,15 +75,10 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
   const [membre, setMembre] = useState<Membre | null>(null);
 
   const purgerCacheLocal = useCallback(async () => {
-    await Promise.all([
-      deleteSetting(db, SETTINGS_KEYS.boutiqueId),
-      deleteSetting(db, SETTINGS_KEYS.role),
-      deleteSetting(db, SETTINGS_KEYS.membreNom),
-    ]);
+    await purgerCacheMembreSeulement(db);
     setMembre(null);
   }, [db]);
 
-  /** Lecture locale, rapide et hors-ligne — débloque l'écran sans attendre le réseau. */
   const chargerMembreLocal = useCallback(async (): Promise<Membre | null> => {
     const [boutiqueId, role, nom] = await Promise.all([
       getSetting(db, SETTINGS_KEYS.boutiqueId),
@@ -80,7 +93,6 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     return null;
   }, [db]);
 
-  /** Confirme/rafraîchit depuis Supabase ; échoue silencieusement hors ligne (on garde le cache). */
   const rafraichirMembreDistant = useCallback(
     async (userId: string): Promise<void> => {
       try {
@@ -91,10 +103,31 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
             setSetting(db, SETTINGS_KEYS.boutiqueId, m.boutiqueId),
             setSetting(db, SETTINGS_KEYS.role, m.role),
             setSetting(db, SETTINGS_KEYS.membreNom, m.nom),
+            setSetting(db, SETTINGS_KEYS.lastUserId, userId),
           ]);
         }
       } catch {
-        // Hors ligne ou erreur réseau : on garde les informations déjà en cache local.
+        // Hors ligne : on garde le cache.
+      }
+    },
+    [db]
+  );
+
+  /** Après login : refuse si un autre compte a laissé des a_envoyer. */
+  const verifierPasAutreCompte = useCallback(
+    async (newUserId: string) => {
+      const [pending, lastUserId] = await Promise.all([
+        countPending(db),
+        getSetting(db, SETTINGS_KEYS.lastUserId),
+      ]);
+      const check = peutConnecterAvecPending({
+        pendingTotal: pending.total,
+        lastUserId,
+        newUserId,
+      });
+      if (!check.ok) {
+        await supabase.auth.signOut().catch(() => {});
+        throw new AutreComptePendingError(check.message);
       }
     },
     [db]
@@ -112,7 +145,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
           void rafraichirMembreDistant(data.session.user.id);
         }
       } catch {
-        // Storage / réseau : on garde le membre local déjà chargé.
+        // ignore
       }
       if (active) setLoading(false);
     })();
@@ -133,9 +166,9 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
             isOnline = null;
           }
           if (doitPurgerApresSignedOut({ intentionnel, isOnline })) {
+            // last_user_id et a_envoyer restent — reconnexion même compte = push OK.
             await purgerCacheLocal();
           }
-          // Sinon : hors ligne / session expirée → on garde le membre, Accueil + vente OK.
         })();
         return;
       }
@@ -151,13 +184,17 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const signIn = useCallback(async (tel: string, motDePasse: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: telVersIdentifiant(tel),
-      password: motDePasse,
-    });
-    if (error) throw error;
-  }, []);
+  const signIn = useCallback(
+    async (tel: string, motDePasse: string) => {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: telVersIdentifiant(tel),
+        password: motDePasse,
+      });
+      if (error) throw error;
+      if (data.user) await verifierPasAutreCompte(data.user.id);
+    },
+    [verifierPasAutreCompte]
+  );
 
   const rejoindre = useCallback(
     async (code: string, nom: string, tel: string, motDePasse: string) => {
@@ -166,8 +203,12 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
         data: { session: dejaConnecte },
       } = await supabase.auth.getSession();
       if (!dejaConnecte || dejaConnecte.user.email !== email) {
-        const { error: errSignUp } = await supabase.auth.signUp({ email, password: motDePasse });
+        const { data, error: errSignUp } = await supabase.auth.signUp({
+          email,
+          password: motDePasse,
+        });
         if (errSignUp) throw errSignUp;
+        if (data.user) await verifierPasAutreCompte(data.user.id);
       }
       const { error: errJoin } = await supabase.rpc('rejoindre_boutique', {
         p_code: code.trim(),
@@ -175,7 +216,7 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       });
       if (errJoin) throw errJoin;
     },
-    []
+    [verifierPasAutreCompte]
   );
 
   const signOut = useCallback(async () => {
@@ -184,12 +225,13 @@ export function AuthSessionProvider({ children }: PropsWithChildren) {
       throw new PendingSyncError(pending.ventes, pending.total);
     }
     signOutIntentionnel = true;
+    await deleteSetting(db, SETTINGS_KEYS.lastUserId);
     await purgerCacheLocal();
     setSession(null);
     try {
       await supabase.auth.signOut();
     } catch {
-      // Hors ligne : le cache local est déjà vidé ; on est déconnecté pour l'app.
+      // Hors ligne OK
     }
   }, [db, purgerCacheLocal]);
 

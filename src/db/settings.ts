@@ -5,6 +5,8 @@ export const SETTINGS_KEYS = {
   boutiqueId: 'boutique_id',
   role: 'role',
   membreNom: 'membre_nom',
+  /** Dernier user_id authentifié — pour bloquer un autre compte si a_envoyer > 0. */
+  lastUserId: 'last_user_id',
 } as const;
 
 export async function getSetting(db: SQLiteDatabase, key: string): Promise<string | null> {
