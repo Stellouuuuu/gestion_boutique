@@ -1,20 +1,30 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-export type SyncTable = 'articles' | 'mouvements' | 'inventaires' | 'inventaire_lignes';
+export type SyncTable =
+  | 'articles'
+  | 'mouvements'
+  | 'inventaires'
+  | 'inventaire_lignes'
+  | 'lots_photo'
+  | 'alias_articles';
 
 export const SYNC_TABLES: SyncTable[] = [
   'articles',
   'mouvements',
   'inventaires',
   'inventaire_lignes',
+  'lots_photo',
+  'alias_articles',
 ];
 
-/** Ordre d'envoi : parents avant enfants. */
+/** Ordre d'envoi : parents avant enfants. lots_photo avant mouvements (lot_id). */
 export const SYNC_PUSH_ORDER: SyncTable[] = [
   'articles',
+  'lots_photo',
   'mouvements',
   'inventaires',
   'inventaire_lignes',
+  'alias_articles',
 ];
 
 export async function getDernierPull(
@@ -47,7 +57,7 @@ export interface PendingCounts {
 
 /** Lignes locales pas encore envoyées (tous types). */
 export async function countPending(db: SQLiteDatabase): Promise<PendingCounts> {
-  const [ventes, articles, mouvements, inventaires, lignes] = await Promise.all([
+  const [ventes, articles, mouvements, inventaires, lignes, lots, aliases] = await Promise.all([
     db.getFirstAsync<{ n: number }>(
       `SELECT COUNT(*) as n FROM mouvements WHERE a_envoyer = 1 AND type = 'vente' AND annule = 0`
     ),
@@ -57,9 +67,16 @@ export async function countPending(db: SQLiteDatabase): Promise<PendingCounts> {
     db.getFirstAsync<{ n: number }>(
       'SELECT COUNT(*) as n FROM inventaire_lignes WHERE a_envoyer = 1'
     ),
+    db.getFirstAsync<{ n: number }>('SELECT COUNT(*) as n FROM lots_photo WHERE a_envoyer = 1'),
+    db.getFirstAsync<{ n: number }>('SELECT COUNT(*) as n FROM alias_articles WHERE a_envoyer = 1'),
   ]);
   const total =
-    (articles?.n ?? 0) + (mouvements?.n ?? 0) + (inventaires?.n ?? 0) + (lignes?.n ?? 0);
+    (articles?.n ?? 0) +
+    (mouvements?.n ?? 0) +
+    (inventaires?.n ?? 0) +
+    (lignes?.n ?? 0) +
+    (lots?.n ?? 0) +
+    (aliases?.n ?? 0);
   return { ventes: ventes?.n ?? 0, total };
 }
 

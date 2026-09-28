@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { Header } from '../components/Header';
 import { ScreenScroll } from '../components/ScreenScroll';
 import { Button } from '../components/Button';
@@ -14,6 +15,8 @@ import { useToast } from '../components/Toast';
 import { formatTelAffiche } from '../lib/identifiant';
 import { getErrorMessage } from '../lib/errors';
 import { changerMotDePasse } from '../db/membres';
+import { estimerTaillePhotosLocales } from '../db/lotsPhoto';
+import { supabase } from '../lib/supabase';
 
 export default function MonCompteScreen() {
   const { colors } = useTheme();
@@ -32,11 +35,35 @@ export default function MonCompteScreen() {
   const [confirmDeconnexion, setConfirmDeconnexion] = useState(false);
   const [confirmChanger, setConfirmChanger] = useState(false);
   const [blocage, setBlocage] = useState<string | null>(null);
+  const [espacePhotos, setEspacePhotos] = useState('—');
+  const [appelsIaJour, setAppelsIaJour] = useState('—');
+  const db = useSQLiteContext();
 
   useFocusEffect(
     useCallback(() => {
       setTelAffiche(formatTelAffiche(session?.user?.email ?? ''));
-    }, [session])
+      void (async () => {
+        const octets = await estimerTaillePhotosLocales(db);
+        const ko = Math.round(octets / 1000);
+        setEspacePhotos(ko < 1000 ? `${ko} Ko` : `${(ko / 1000).toFixed(1)} Mo`);
+      })();
+      void (async () => {
+        if (!membre?.boutiqueId) {
+          setAppelsIaJour('—');
+          return;
+        }
+        const jour = new Date().toISOString().slice(0, 10);
+        const { data } = await supabase
+          .from('quotas_photo')
+          .select('nb, nb_appels_ia')
+          .eq('boutique_id', membre.boutiqueId)
+          .eq('jour', jour)
+          .maybeSingle();
+        const photos = data?.nb ?? 0;
+        const appels = data?.nb_appels_ia ?? 0;
+        setAppelsIaJour(`${appels} appel${appels === 1 ? '' : 's'} IA (${photos} photo${photos === 1 ? '' : 's'})`);
+      })();
+    }, [session, db, membre?.boutiqueId])
   );
 
   const executerSortie = async () => {
@@ -93,6 +120,8 @@ export default function MonCompteScreen() {
         <InfoRow label="Boutique" value={membre?.boutiqueNom || '—'} />
         <InfoRow label="Rôle" value={roleLabel} />
         <InfoRow label="Numéro" value={telAffiche || '—'} />
+        <InfoRow label="Photos de feuilles (estim.)" value={espacePhotos} />
+        <InfoRow label="Lecture photo aujourd’hui" value={appelsIaJour} />
       </View>
 
       <View style={[styles.card, { backgroundColor: colors.card, marginTop: 16 }]}>

@@ -34,6 +34,8 @@ export interface Mouvement {
   annule: number; // 0 | 1
   annule_le: string | null;
   cree_par: string | null;
+  source?: 'manuel' | 'photo';
+  lot_id?: string | null;
   cree_le: string;
   modifie_le: string;
   a_envoyer: number; // 0 | 1

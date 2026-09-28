@@ -49,7 +49,10 @@ export function loadTestEnv() {
     );
     process.exit(1);
   }
-  const env = { ...loadEnvFile(testPath), ...process.env };
+  const fromFile = loadEnvFile(testPath);
+  // .env.test prime sur process.env pour les clés Supabase (le shell Cursor
+  // peut injecter EXPO_PUBLIC_* de la prod / d’un autre projet).
+  const env = { ...process.env, ...fromFile };
   const url = normalizeUrl(env.SUPABASE_URL || env.EXPO_PUBLIC_SUPABASE_URL);
   const prodUrl = normalizeUrl(prod.SUPABASE_URL || prod.EXPO_PUBLIC_SUPABASE_URL);
   const anon = (env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '').trim();

@@ -4,5 +4,6 @@
     "strict": true,
     "allowImportingTsExtensions": true,
     "types": ["node"]
-  }
+  },
+  "exclude": ["supabase/functions/**", "node_modules"]
 }

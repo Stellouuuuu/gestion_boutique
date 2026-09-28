@@ -17,8 +17,27 @@ import type { Article, Categorie } from '../db/types';
 type Mode = 'vente' | 'entree';
 
 export default function PickScreen() {
-  const { mode: modeParam } = useLocalSearchParams<{ mode: string }>();
+  const {
+    mode: modeParam,
+    retourFeuille,
+    ligneKey,
+    sections,
+    lignes,
+    dateSuggeree,
+    totalEcrit,
+    photoUri,
+  } = useLocalSearchParams<{
+    mode: string;
+    retourFeuille?: string;
+    ligneKey?: string;
+    sections?: string;
+    lignes?: string;
+    dateSuggeree?: string;
+    totalEcrit?: string;
+    photoUri?: string;
+  }>();
   const mode: Mode = modeParam === 'entree' ? 'entree' : 'vente';
+  const pourFeuille = retourFeuille === '1' && !!ligneKey;
   const db = useSQLiteContext();
   const { colors } = useTheme();
 
@@ -39,6 +58,21 @@ export default function PickScreen() {
   );
 
   const onPressArticle = (article: Article) => {
+    if (pourFeuille) {
+      router.replace({
+        pathname: '/verifier-feuille',
+        params: {
+          sections: sections ?? '',
+          lignes: lignes ?? '',
+          dateSuggeree: dateSuggeree ?? '',
+          totalEcrit: totalEcrit ?? '',
+          photoUri: photoUri ?? '',
+          articlePick: String(article.id),
+          ligneKey: String(ligneKey),
+        },
+      });
+      return;
+    }
     if (mode === 'vente' && article.prix_detail == null) {
       setPrixManquant(article);
       return;
@@ -57,7 +91,15 @@ export default function PickScreen() {
         showAlphabetBar={query.trim().length === 0}
         ListHeaderComponent={
           <View>
-            <Header title={mode === 'vente' ? 'Qu’avez-vous vendu ?' : 'Qu’est-ce qui est arrivé ?'} />
+            <Header
+              title={
+                pourFeuille
+                  ? 'Choisir l’article'
+                  : mode === 'vente'
+                    ? 'Qu’avez-vous vendu ?'
+                    : 'Qu’est-ce qui est arrivé ?'
+              }
+            />
             <CategoryTabs
               value={cat}
               onChange={(c) => {
@@ -66,6 +108,11 @@ export default function PickScreen() {
               }}
             />
             <SearchBar value={query} onChangeText={setQuery} />
+            {mode === 'vente' && !pourFeuille && process.env.EXPO_PUBLIC_PHOTO_IA === 'true' ? (
+              <Button variant="indigo-outline" onPress={() => router.push('/vente-photo')}>
+                Depuis une photo de ma feuille
+              </Button>
+            ) : null}
           </View>
         }
       />

@@ -1,0 +1,52 @@
+{
+  "projet": "https://ivqbjgfxbymiizfjhygv.supabase.co",
+  "boutique_id": "db88ec62-fe85-4548-8e8e-920c4f99db70",
+  "compte": "2290199000001@boutique-maman.app",
+  "evalue_le": "2026-09-27T10:18:30.880Z",
+  "feuilles": [
+    {
+      "fichier": "1f4330f9-1f17-4501-a643-0dd1b532612b.JPG",
+      "ok": false,
+      "http": 503,
+      "erreur": "Edge Function returned a non-2xx status code",
+      "detail": "gemini 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a",
+      "code": "quota",
+      "modele": null,
+      "nb_appels_ia": 366,
+      "retry_delay": null,
+      "essais_resume": "gemini:gemini-3.8-flash HTTP 503/429 ×92 · gemini:gemini-flash-latest HTTP 503/429 ×92 · gemini:gemini-2.5-flash HTTP 404 ×91 · gemini:gemini-2.5-flash-lite HTTP 404 ×91",
+      "duree_ms": 56800,
+      "lignes": [],
+      "score": {
+        "echec": true
+      }
+    }
+  ],
+  "score_global": {
+    "article": {
+      "j": 0,
+      "t": 0,
+      "taux": 0
+    },
+    "quantite": {
+      "j": 0,
+      "t": 0,
+      "taux": 0
+    },
+    "montant": {
+      "j": 0,
+      "t": 0,
+      "taux": 0
+    },
+    "ligne_complete": {
+      "j": 0,
+      "t": 0,
+      "taux": 0
+    },
+    "total_section": {
+      "j": 0,
+      "t": 0,
+      "taux": 0
+    }
+  }
+}

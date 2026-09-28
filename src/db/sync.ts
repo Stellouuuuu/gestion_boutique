@@ -80,7 +80,7 @@ async function pushTable(
     const skipped = foreign?.n ?? 0;
     const rows = await db.getAllAsync<Record<string, unknown>>(
       `SELECT id, boutique_id, article_id, type, quantite, tarif, prix_unitaire, montant_normal,
-              montant_paye, cout_unitaire, annule, annule_le, cree_par, cree_le
+              montant_paye, cout_unitaire, annule, annule_le, cree_par, source, lot_id, cree_le
        FROM mouvements WHERE a_envoyer = 1 AND boutique_id = ?`,
       [boutiqueId]
     );
@@ -117,6 +117,8 @@ async function pushTable(
           annule: boolFromSqlite(r.annule),
           annule_le: r.annule_le,
           cree_par,
+          source: (r.source as string) || 'manuel',
+          lot_id: r.lot_id ?? null,
           cree_le: r.cree_le,
         });
       }
@@ -127,6 +129,72 @@ async function pushTable(
         `UPDATE mouvements SET a_envoyer = 0 WHERE id IN (${ids.map(() => '?').join(',')})`,
         ids
       );
+    }
+    return skipped;
+  }
+
+  if (table === 'lots_photo') {
+    const foreign = await db.getFirstAsync<{ n: number }>(
+      `SELECT COUNT(*) as n FROM lots_photo WHERE a_envoyer = 1 AND boutique_id != ?`,
+      [boutiqueId]
+    );
+    const skipped = foreign?.n ?? 0;
+    const rows = await db.getAllAsync<Record<string, unknown>>(
+      `SELECT id, boutique_id, date_feuille, nb_lignes, total, photo_path, lecture_ia, resultat_valide,
+              cree_par, cree_le, modifie_le, annule
+       FROM lots_photo WHERE a_envoyer = 1 AND boutique_id = ?`,
+      [boutiqueId]
+    );
+    for (const lot of chunks(rows, BATCH)) {
+      if (lot.length === 0) continue;
+      const payload = lot.map((r) => ({
+        id: r.id,
+        boutique_id: r.boutique_id,
+        date_feuille: r.date_feuille,
+        nb_lignes: r.nb_lignes,
+        total: r.total,
+        photo_path: r.photo_path,
+        lecture_ia: r.lecture_ia ? JSON.parse(String(r.lecture_ia)) : null,
+        resultat_valide: r.resultat_valide ? JSON.parse(String(r.resultat_valide)) : null,
+        cree_par: r.cree_par,
+        cree_le: r.cree_le,
+        modifie_le: r.modifie_le,
+        annule: boolFromSqlite(r.annule),
+      }));
+      const { error } = await supabase.from('lots_photo').upsert(payload, { onConflict: 'id' });
+      if (error) throw error;
+      const ids = lot.map((r) => r.id as string);
+      await db.runAsync(
+        `UPDATE lots_photo SET a_envoyer = 0 WHERE id IN (${ids.map(() => '?').join(',')})`,
+        ids
+      );
+    }
+    return skipped;
+  }
+
+  if (table === 'alias_articles') {
+    const foreign = await db.getFirstAsync<{ n: number }>(
+      `SELECT COUNT(*) as n FROM alias_articles WHERE a_envoyer = 1 AND boutique_id != ?`,
+      [boutiqueId]
+    );
+    const skipped = foreign?.n ?? 0;
+    const rows = await db.getAllAsync<Record<string, unknown>>(
+      `SELECT boutique_id, texte_norm, article_id, cree_le, modifie_le
+       FROM alias_articles WHERE a_envoyer = 1 AND boutique_id = ?`,
+      [boutiqueId]
+    );
+    for (const lot of chunks(rows, BATCH)) {
+      if (lot.length === 0) continue;
+      const { error } = await supabase
+        .from('alias_articles')
+        .upsert(lot, { onConflict: 'boutique_id,texte_norm' });
+      if (error) throw error;
+      for (const r of lot) {
+        await db.runAsync(
+          `UPDATE alias_articles SET a_envoyer = 0 WHERE boutique_id = ? AND texte_norm = ?`,
+          [r.boutique_id as string, r.texte_norm as string]
+        );
+      }
     }
     return skipped;
   }
@@ -402,6 +470,98 @@ async function pullInventaireLignes(
   return maxMod;
 }
 
+async function pullLotsPhoto(
+  db: SQLiteDatabase,
+  boutiqueId: string,
+  since: string
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('lots_photo')
+    .select(
+      'id, boutique_id, date_feuille, nb_lignes, total, photo_path, lecture_ia, resultat_valide, cree_par, cree_le, modifie_le, annule'
+    )
+    .eq('boutique_id', boutiqueId)
+    .gt('modifie_le', since);
+  if (error) throw error;
+  if (!data?.length) return null;
+  let maxMod: string | null = null;
+  for (const l of data) {
+    if (!maxMod || l.modifie_le > maxMod) maxMod = l.modifie_le;
+    const local = await db.getFirstAsync<{ a_envoyer: number; boutique_id: string }>(
+      'SELECT a_envoyer, boutique_id FROM lots_photo WHERE id = ?',
+      [l.id]
+    );
+    if (local?.a_envoyer === 1) continue;
+    if (local && local.boutique_id !== l.boutique_id) continue;
+    await db.runAsync(
+      `INSERT INTO lots_photo
+         (id, boutique_id, date_feuille, nb_lignes, total, photo_path, lecture_ia, resultat_valide,
+          cree_par, cree_le, modifie_le, annule, a_envoyer)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+       ON CONFLICT(id) DO UPDATE SET
+         date_feuille = excluded.date_feuille,
+         nb_lignes = excluded.nb_lignes,
+         total = excluded.total,
+         photo_path = excluded.photo_path,
+         lecture_ia = excluded.lecture_ia,
+         resultat_valide = excluded.resultat_valide,
+         annule = excluded.annule,
+         modifie_le = excluded.modifie_le,
+         a_envoyer = 0`,
+      [
+        l.id,
+        l.boutique_id,
+        l.date_feuille,
+        l.nb_lignes,
+        l.total,
+        l.photo_path,
+        l.lecture_ia ? JSON.stringify(l.lecture_ia) : null,
+        l.resultat_valide ? JSON.stringify(l.resultat_valide) : null,
+        l.cree_par,
+        l.cree_le,
+        l.modifie_le,
+        l.annule ? 1 : 0,
+      ]
+    );
+  }
+  return maxMod;
+}
+
+async function pullAliasArticles(
+  db: SQLiteDatabase,
+  boutiqueId: string,
+  since: string
+): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('alias_articles')
+    .select('boutique_id, texte_norm, article_id, cree_le, modifie_le')
+    .eq('boutique_id', boutiqueId)
+    .gt('modifie_le', since);
+  if (error) throw error;
+  if (!data?.length) return null;
+
+  let maxMod: string | null = null;
+  for (const a of data) {
+    if (!maxMod || a.modifie_le > maxMod) maxMod = a.modifie_le;
+    const local = await db.getFirstAsync<{ a_envoyer: number }>(
+      `SELECT a_envoyer FROM alias_articles WHERE boutique_id = ? AND texte_norm = ?`,
+      [a.boutique_id, a.texte_norm]
+    );
+    if (local?.a_envoyer === 1) continue;
+    await db.runAsync(
+      `INSERT INTO alias_articles
+         (boutique_id, texte_norm, article_id, cree_le, modifie_le, a_envoyer)
+       VALUES (?, ?, ?, ?, ?, 0)
+       ON CONFLICT(boutique_id, texte_norm) DO UPDATE SET
+         article_id = excluded.article_id,
+         modifie_le = excluded.modifie_le,
+         a_envoyer = 0`,
+      [a.boutique_id, a.texte_norm, a.article_id, a.cree_le, a.modifie_le]
+    );
+  }
+  return maxMod;
+}
+
 async function pullTable(
   db: SQLiteDatabase,
   boutiqueId: string,
@@ -411,8 +571,10 @@ async function pullTable(
   const since = minusSkew(dernier);
   let maxMod: string | null = null;
   if (table === 'articles') maxMod = await pullArticles(db, boutiqueId, since);
+  else if (table === 'lots_photo') maxMod = await pullLotsPhoto(db, boutiqueId, since);
   else if (table === 'mouvements') maxMod = await pullMouvements(db, boutiqueId, since);
   else if (table === 'inventaires') maxMod = await pullInventaires(db, boutiqueId, since);
+  else if (table === 'alias_articles') maxMod = await pullAliasArticles(db, boutiqueId, since);
   else maxMod = await pullInventaireLignes(db, boutiqueId, since);
   if (maxMod) await setDernierPull(db, table, maxMod);
 }

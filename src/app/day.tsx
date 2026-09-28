@@ -16,11 +16,18 @@ import {
   type MouvementAvecArticle,
   type TotalDuJour,
 } from '../db/mouvements';
+import { annulerLotPhoto, listLotsDuJour, type LotPhoto } from '../db/lotsPhoto';
+
+function aujourdhuiLocal(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
 export default function DayScreen() {
   const db = useSQLiteContext();
   const { colors } = useTheme();
   const [mouvements, setMouvements] = useState<MouvementAvecArticle[]>([]);
+  const [lots, setLots] = useState<LotPhoto[]>([]);
   const [totaux, setTotaux] = useState<TotalDuJour>({
     total: 0,
     totalMeches: 0,
@@ -28,11 +35,18 @@ export default function DayScreen() {
     nbVentes: 0,
   });
   const [toCancel, setToCancel] = useState<MouvementAvecArticle | null>(null);
+  const [lotToCancel, setLotToCancel] = useState<LotPhoto | null>(null);
 
   const load = useCallback(async () => {
-    const [m, t] = await Promise.all([listMouvementsDuJour(db), totalVentesDuJour(db)]);
+    const jour = aujourdhuiLocal();
+    const [m, t, l] = await Promise.all([
+      listMouvementsDuJour(db),
+      totalVentesDuJour(db),
+      listLotsDuJour(db, jour),
+    ]);
     setMouvements(m);
     setTotaux(t);
+    setLots(l);
   }, [db]);
 
   useFocusEffect(
@@ -48,9 +62,17 @@ export default function DayScreen() {
     load();
   };
 
+  const doCancelLot = async () => {
+    if (!lotToCancel) return;
+    await annulerLotPhoto(db, lotToCancel.id);
+    setLotToCancel(null);
+    load();
+  };
+
   const ventes = mouvements.filter((m) => m.type === 'vente');
   const entrees = mouvements.filter((m) => m.type === 'entree');
   const ventesActives = ventes.filter((m) => !m.annule);
+  const ventesSansLot = ventes.filter((m) => !m.lot_id);
 
   return (
     <ScreenScroll>
@@ -71,6 +93,32 @@ export default function DayScreen() {
         </View>
       </View>
 
+      {lots.length > 0 ? (
+        <>
+          <Text style={[styles.sec, { color: colors.muted, fontFamily: FONT_TITLE }]}>
+            Lots photo ({lots.length})
+          </Text>
+          <View style={{ gap: 8, marginBottom: 8 }}>
+            {lots.map((lot) => (
+              <View key={lot.id} style={[styles.mv, { backgroundColor: colors.card }]}>
+                <View style={styles.mvText}>
+                  <Text style={[styles.mvName, { color: colors.ink }]}>
+                    Feuille · {lot.nb_lignes} ventes
+                  </Text>
+                  <Text style={{ color: colors.muted, fontSize: 15 }}>
+                    {formatFCFA(lot.total)}
+                    {lot.photo_path ? ' · photo jointe' : ''}
+                  </Text>
+                </View>
+                <Pressable onPress={() => setLotToCancel(lot)}>
+                  <Text style={{ color: colors.bad, fontWeight: '700' }}>Annuler ce lot</Text>
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        </>
+      ) : null}
+
       <Text style={[styles.sec, { color: colors.muted, fontFamily: FONT_TITLE }]}>
         Ventes ({ventesActives.length})
       </Text>
@@ -78,9 +126,14 @@ export default function DayScreen() {
         <Text style={[styles.empty, { color: colors.muted }]}>Pas encore de vente.</Text>
       ) : (
         <View style={{ gap: 8 }}>
-          {ventes.map((m) => (
+          {ventesSansLot.map((m) => (
             <MouvementRow key={m.id} m={m} onErreur={() => setToCancel(m)} />
           ))}
+          {ventes
+            .filter((m) => m.lot_id)
+            .map((m) => (
+              <MouvementRow key={m.id} m={m} onErreur={() => setToCancel(m)} />
+            ))}
         </View>
       )}
 
@@ -113,6 +166,19 @@ export default function DayScreen() {
         onSafe={() => setToCancel(null)}
         dangerLabel="Oui, annuler la ligne"
         onConfirmDanger={doCancel}
+      />
+      <ConfirmDialog
+        visible={lotToCancel != null}
+        title="Annuler tout ce lot ?"
+        description={
+          lotToCancel
+            ? `${lotToCancel.nb_lignes} ventes · ${formatFCFA(lotToCancel.total)}. Les articles reviennent dans le stock.`
+            : undefined
+        }
+        safeLabel="Non, garder"
+        onSafe={() => setLotToCancel(null)}
+        dangerLabel="Oui, annuler le lot"
+        onConfirmDanger={() => void doCancelLot()}
       />
     </ScreenScroll>
   );

@@ -13,6 +13,8 @@ export async function purgerDonneesBoutiqueLocale(
     await db.runAsync('DELETE FROM inventaire_lignes WHERE boutique_id = ?', [boutiqueId]);
     await db.runAsync('DELETE FROM inventaires WHERE boutique_id = ?', [boutiqueId]);
     await db.runAsync('DELETE FROM mouvements WHERE boutique_id = ?', [boutiqueId]);
+    await db.runAsync('DELETE FROM lots_photo WHERE boutique_id = ?', [boutiqueId]);
+    await db.runAsync('DELETE FROM alias_articles WHERE boutique_id = ?', [boutiqueId]);
     await db.runAsync('DELETE FROM articles WHERE boutique_id = ?', [boutiqueId]);
   });
 }
@@ -25,6 +27,8 @@ export async function purgerToutesDonneesMetierLocales(
     await db.runAsync('DELETE FROM inventaire_lignes');
     await db.runAsync('DELETE FROM inventaires');
     await db.runAsync('DELETE FROM mouvements');
+    await db.runAsync('DELETE FROM lots_photo');
+    await db.runAsync('DELETE FROM alias_articles');
     await db.runAsync('DELETE FROM articles');
   });
 }

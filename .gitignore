@@ -43,3 +43,5 @@ yarn-error.*
 /ios
 /android
 boutique-maman-etape2(1).zip
+backups/
+supabase/.temp/

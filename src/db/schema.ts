@@ -1,5 +1,5 @@
-/** Schéma local v2 : UUID partout, stock calculé, prêt pour synchro + bilans. */
-export const SCHEMA_VERSION = 2;
+/** Schéma local v4 : lots photo + alias manuscrits. */
+export const SCHEMA_VERSION = 4;
 
 export const SCHEMA_SQL = `
 PRAGMA journal_mode = WAL;
@@ -24,6 +24,32 @@ CREATE TABLE IF NOT EXISTS articles (
   a_envoyer INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS lots_photo (
+  id TEXT PRIMARY KEY NOT NULL,
+  boutique_id TEXT NOT NULL,
+  date_feuille TEXT NOT NULL,
+  nb_lignes INTEGER NOT NULL DEFAULT 0,
+  total INTEGER NOT NULL DEFAULT 0,
+  photo_path TEXT,
+  lecture_ia TEXT,
+  resultat_valide TEXT,
+  cree_par TEXT,
+  cree_le TEXT NOT NULL,
+  modifie_le TEXT NOT NULL,
+  annule INTEGER NOT NULL DEFAULT 0,
+  a_envoyer INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS alias_articles (
+  boutique_id TEXT NOT NULL,
+  texte_norm TEXT NOT NULL,
+  article_id TEXT NOT NULL,
+  cree_le TEXT NOT NULL,
+  modifie_le TEXT NOT NULL,
+  a_envoyer INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (boutique_id, texte_norm)
+);
+
 CREATE TABLE IF NOT EXISTS mouvements (
   id TEXT PRIMARY KEY NOT NULL,
   boutique_id TEXT NOT NULL,
@@ -38,6 +64,8 @@ CREATE TABLE IF NOT EXISTS mouvements (
   annule INTEGER NOT NULL DEFAULT 0,
   annule_le TEXT,
   cree_par TEXT,
+  source TEXT NOT NULL DEFAULT 'manuel' CHECK (source IN ('manuel','photo')),
+  lot_id TEXT,
   cree_le TEXT NOT NULL,
   modifie_le TEXT NOT NULL,
   a_envoyer INTEGER NOT NULL DEFAULT 0
@@ -82,6 +110,8 @@ CREATE INDEX IF NOT EXISTS idx_mouvements_article ON mouvements(article_id);
 CREATE INDEX IF NOT EXISTS idx_mouvements_cree_le ON mouvements(cree_le);
 CREATE INDEX IF NOT EXISTS idx_mouvements_article_cree ON mouvements(article_id, cree_le);
 CREATE INDEX IF NOT EXISTS idx_mouvements_boutique_modifie ON mouvements(boutique_id, modifie_le);
+CREATE INDEX IF NOT EXISTS idx_lots_photo_boutique ON lots_photo(boutique_id, modifie_le);
+CREATE INDEX IF NOT EXISTS idx_alias_articles_boutique ON alias_articles(boutique_id, modifie_le);
 CREATE INDEX IF NOT EXISTS idx_inventaires_synchro ON inventaires(boutique_id, modifie_le);
 CREATE INDEX IF NOT EXISTS idx_invlignes_synchro ON inventaire_lignes(boutique_id, modifie_le);
 `;

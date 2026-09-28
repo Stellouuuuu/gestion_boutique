@@ -39,15 +39,19 @@ async function insertMouvement(
     montant_paye: number;
     cout_unitaire: number | null;
     cree_par: string | null;
+    source?: 'manuel' | 'photo';
+    lot_id?: string | null;
+    cree_le?: string;
   }
 ): Promise<Mouvement> {
   const now = new Date().toISOString();
   const id = newId();
+  const creeLe = values.cree_le ?? now;
   await db.runAsync(
     `INSERT INTO mouvements
        (id, boutique_id, article_id, type, quantite, tarif, prix_unitaire, montant_normal, montant_paye,
-        cout_unitaire, annule, cree_par, cree_le, modifie_le, a_envoyer)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, 1)`,
+        cout_unitaire, annule, cree_par, source, lot_id, cree_le, modifie_le, a_envoyer)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, 1)`,
     [
       id,
       values.boutique_id,
@@ -60,7 +64,9 @@ async function insertMouvement(
       values.montant_paye,
       values.cout_unitaire,
       values.cree_par,
-      now,
+      values.source ?? 'manuel',
+      values.lot_id ?? null,
+      creeLe,
       now,
     ]
   );
