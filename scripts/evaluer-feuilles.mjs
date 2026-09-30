@@ -5,127 +5,73 @@
  * Usage :
  *   node --env-file=.env.test scripts/evaluer-feuilles.mjs
  *   node --env-file=.env.test scripts/evaluer-feuilles.mjs --une-photo NOM.JPG
+ *   node --env-file=.env.test scripts/evaluer-feuilles.mjs --rejouer [--une-photo NOM]
  *
+ * --rejouer : score depuis docs/exemples-feuilles/reponses-ia/ (0 Gemini).
  * Crée si besoin un compte / boutique de test, envoie chaque JPEG/PNG de
  * docs/exemples-feuilles/ à la Edge Function lire-feuille, écrit
  * docs/exemples-feuilles/resultats.json et affiche un résumé compact
  * (modèle, HTTP, nb essais — pas le détail de chaque essai).
  */
 import { randomInt } from 'node:crypto';
-import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { resolve, dirname, extname } from 'node:path';
+import { readdirSync, readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { resolve, dirname, extname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createClient } from '@supabase/supabase-js';
 import { loadTestEnv } from './lib/env-test.mjs';
 import { telVersIdentifiant } from './lib/tel.mjs';
+import { scoreLignesAppariees } from './lib/scoreFeuille.mjs';
+import { runRejouer } from './lib/rejouerFeuilles.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = resolve(ROOT, 'docs/exemples-feuilles');
 const OUT = resolve(DIR, 'resultats.json');
 const ATTENDU_PATH = resolve(DIR, 'attendu.json');
+const REPONSES_IA = resolve(DIR, 'reponses-ia');
 /** Aligné sur supabase/functions/lire-feuille/cascade.ts */
 const VERSION_ATTENDUE = 'lire-feuille-v2-single-call';
 
-function normNom(s) {
-  return String(s ?? '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+function scoreLignes(lues, attendues) {
+  return scoreLignesAppariees(lues, attendues);
 }
 
-/** Apparie lignes lues ↔ attendu. Ambigu + orange → compte juste. */
-function scoreLignes(lues, attendues) {
-  const n = Math.max(lues.length, attendues.length);
-  const details = [];
-  let artJ = 0,
-    qJ = 0,
-    mJ = 0,
-    lignesCompletes = 0;
-  const fausses = [];
-
-  for (let i = 0; i < n; i++) {
-    const lu = lues[i];
-    const att = attendues[i];
-    if (!lu || !att) {
-      fausses.push({
-        i,
-        raison: !lu ? 'ligne manquante côté IA' : 'ligne en trop côté IA',
-        attendu: att || null,
-        lu: lu || null,
-      });
-      details.push({ i, ok: false });
-      continue;
-    }
-
-    const orange =
-      lu.confiance === 'basse' ||
-      !lu.article_propose ||
-      !!lu.chiffre_ambigu ||
-      (Array.isArray(lu.variantes) && lu.variantes.length > 1);
-
-    const artAtt = att.article == null ? null : normNom(att.article);
-    const artLu = lu.article_propose ? normNom(lu.article_propose) : null;
-    let artOk =
-      artAtt == null
-        ? artLu == null
-        : artLu != null && (artLu === artAtt || artLu.includes(artAtt) || artAtt.includes(artLu));
-    // Ambigu attendu + ligne orange → article considéré juste
-    if (att.chiffre_ambigu && orange) artOk = true;
-
-    const qAtt = att.quantite;
-    const qLu = lu.quantite;
-    let qOk =
-      qAtt == null || qAtt === ''
-        ? orange || att.chiffre_ambigu
-        : Number(qLu) === Number(qAtt);
-    if (att.chiffre_ambigu && orange) qOk = true;
-
-    const mAtt = att.montant;
-    const mLu = lu.montant_lu ?? lu.prix_lu;
-    let mOk =
-      mAtt == null || mAtt === ''
-        ? true
-        : mLu != null && Math.abs(Number(mLu) - Number(mAtt)) <= 1;
-    if (att.chiffre_ambigu && orange && !mOk) {
-      // montant toujours exigé sauf si vraiment illisible ; on garde mOk strict
-    }
-
-    if (artOk) artJ++;
-    if (qOk) qJ++;
-    if (mOk) mJ++;
-    const ok = artOk && qOk && mOk;
-    if (ok) lignesCompletes++;
-    else {
-      fausses.push({
-        i,
-        texte_lu: lu.texte_lu,
-        artOk,
-        qOk,
-        mOk,
-        orange,
-        lu: { article: lu.article_propose, quantite: qLu, montant: mLu, confiance: lu.confiance },
-        attendu: { article: att.article, quantite: qAtt, montant: mAtt },
-      });
-    }
-    details.push({ i, ok, artOk, qOk, mOk, orange });
-  }
-
-  const den = attendues.length || 1;
-  return {
-    article: { justes: artJ, total: attendues.length, taux: Math.round((1000 * artJ) / den) / 10 },
-    quantite: { justes: qJ, total: attendues.length, taux: Math.round((1000 * qJ) / den) / 10 },
-    montant: { justes: mJ, total: attendues.length, taux: Math.round((1000 * mJ) / den) / 10 },
-    ligne_complete: {
-      justes: lignesCompletes,
-      total: attendues.length,
-      taux: Math.round((1000 * lignesCompletes) / den) / 10,
-    },
-    fausses,
-    details,
-  };
+function sauvegarderReponseIa(fichier, data) {
+  mkdirSync(REPONSES_IA, { recursive: true });
+  const stem = basename(fichier, extname(fichier));
+  const path = resolve(REPONSES_IA, `${stem}.json`);
+  const section =
+    Array.isArray(data.sections) && data.sections.length ? data.sections[0] : null;
+  const lignesSrc = section?.lignes || data.lignes || [];
+  writeFileSync(
+    path,
+    JSON.stringify(
+      {
+        _source: 'evaluer-feuilles après appel lire-feuille',
+        fichier,
+        modele: data.modele ?? null,
+        evalue_le: new Date().toISOString(),
+        sections: [
+          {
+            date_lue: section?.date_lue ?? null,
+            date_iso: section?.date_iso ?? data.date_suggeree ?? null,
+            date_doute: section?.date_doute ?? false,
+            total_ecrit: section?.total_ecrit ?? data.total_ecrit ?? null,
+            lignes: lignesSrc.map((l) => ({
+              texte_lu: l.texte_lu,
+              quantite: l.quantite,
+              montant_lu: l.montant_lu ?? l.prix_lu ?? null,
+              tarif: l.tarif ?? null,
+              chiffre_ambigu: !!l.chiffre_ambigu,
+              barree: !!l.barree,
+            })),
+          },
+        ],
+      },
+      null,
+      2
+    )
+  );
+  console.log(`  (réponse IA sauvée : ${path})`);
 }
 const TEL = '01 99 00 00 01';
 const MDP = 'test1234';
@@ -153,6 +99,17 @@ function parseUnePhotoArg(argv) {
   return nom;
 }
 const filtreUnePhoto = parseUnePhotoArg(process.argv.slice(2));
+
+if (process.argv.includes('--rejouer')) {
+  await runRejouer({
+    dir: DIR,
+    out: OUT,
+    attenduPath: ATTENDU_PATH,
+    reponsesIa: REPONSES_IA,
+    filtreUnePhoto,
+  });
+  process.exit(0);
+}
 
 /** --max-appels N : plafond d’appels lire-feuille dans ce run (défaut 1). */
 function parseMaxAppels(argv) {
@@ -505,6 +462,7 @@ for (const f of images) {
       `    • « ${l.texte_lu} » ${art}  qté=${l.quantite}  montant=${l.montant_lu ?? '—'}  [${l.confiance}]`
     );
   }
+  sauvegarderReponseIa(f, data);
   console.log('');
 }
 
@@ -567,16 +525,27 @@ if (existsSync(ATTENDU_PATH)) {
       `    article ${sc.article.justes}/${sc.article.total} (${sc.article.taux} %) · qté ${sc.quantite.justes}/${sc.quantite.total} (${sc.quantite.taux} %) · montant ${sc.montant.justes}/${sc.montant.total} (${sc.montant.taux} %)`
     );
     console.log(
-      `    ligne complète ${sc.ligne_complete.justes}/${sc.ligne_complete.total} (${sc.ligne_complete.taux} %) · total section ${totOk ? 'OK' : `≠ ${att.total_ecrit}`} · date ${dateOk ? 'OK' : `≠ ${att.date_iso}`}`
+      `    ligne complète ${sc.ligne_complete.justes}/${sc.ligne_complete.total} (${sc.ligne_complete.taux} %) · en trop ${sc.en_trop?.length ?? 0} · manquantes ${sc.manquantes?.length ?? 0} · total section ${totOk ? 'OK' : `≠ ${att.total_ecrit}`} · date ${dateOk ? 'OK' : `≠ ${att.date_iso}`}`
     );
     if (att.ecart_total_attendu) {
       console.log('    (écart somme/total écrit attendu — l’app doit le signaler)');
     }
-    if (sc.fausses.length) {
-      console.log(`    lignes fausses (${sc.fausses.length}) :`);
-      for (const f of sc.fausses.slice(0, 12)) {
+    if (sc.en_trop?.length) {
+      for (const e of sc.en_trop) {
+        console.log(`      + en trop « ${e.texte_lu} » q=${e.quantite} m=${e.montant}`);
+      }
+    }
+    if (sc.manquantes?.length) {
+      for (const e of sc.manquantes) {
+        console.log(`      − manquante « ${e.texte_lu} » → ${e.article}`);
+      }
+    }
+    const faussesPaires = (sc.fausses || []).filter((x) => !x.raison);
+    if (faussesPaires.length) {
+      console.log(`    paires incorrectes (${faussesPaires.length}) :`);
+      for (const f of faussesPaires.slice(0, 12)) {
         console.log(
-          `      #${f.i} « ${f.texte_lu || f.raison || ''} » art=${f.artOk} q=${f.qOk} m=${f.mOk} → lu ${JSON.stringify(f.lu?.article)}/${f.lu?.quantite}/${f.lu?.montant} attendu ${JSON.stringify(f.attendu?.article)}/${f.attendu?.quantite}/${f.attendu?.montant}`
+          `      « ${f.texte_lu || ''} » art=${f.artOk} q=${f.qOk} m=${f.mOk} → lu ${JSON.stringify(f.lu?.article)}/${f.lu?.quantite}/${f.lu?.montant} attendu ${JSON.stringify(f.attendu?.article)}/${f.attendu?.quantite}/${f.attendu?.montant}`
         );
       }
     }

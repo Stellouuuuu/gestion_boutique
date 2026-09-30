@@ -41,6 +41,8 @@ type LigneBrute = {
   montant_lu?: number | null;
   tarif?: string | null;
   chiffre_ambigu?: boolean;
+  /** Ligne rayée / barrée sur la feuille — à ignorer. */
+  barree?: boolean;
   article_id?: string | null;
 };
 
@@ -85,7 +87,8 @@ const ABBREV: Record<string, string> = {
   mec: 'meche',
 };
 
-function normaliser(s: string): string {
+/** Normalisation catalogue / fuzzy (sans retirer les chiffres utiles du nom). */
+function normaliserNom(s: string): string {
   let t = String(s || '')
     .toLowerCase()
     .normalize('NFD')
@@ -95,6 +98,31 @@ function normaliser(s: string): string {
     .trim();
   return t
     .split(' ')
+    .filter(Boolean)
+    .map((w) => ABBREV[w] || w)
+    .join(' ');
+}
+
+/** Clé d’alias : sans accents, sans quantités type 1P / 02 / ½. */
+function normaliserAlias(s: string): string {
+  let t = String(s || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/½/g, ' 1/2 ')
+    .replace(/(\w)-(\w)/g, '$1$2')
+    .replace(/[^a-z0-9\s/]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  t = t
+    .replace(/\b\d+p\b/g, ' ')
+    .replace(/\b1\/2\b/g, ' ')
+    .replace(/\s+\d{1,2}$/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return t
+    .split(' ')
+    .filter(Boolean)
     .map((w) => ABBREV[w] || w)
     .join(' ');
 }
@@ -125,7 +153,7 @@ function rapprocher(
   score: number;
   variantes: Array<{ id: string; nom: string; score: number }>;
 } {
-  const q = normaliser(texte);
+  const q = normaliserNom(texte);
   if (!q) return { id: null, score: 0, variantes: [] };
   const unit =
     opts?.montant != null && opts?.quantite && opts.quantite > 0
@@ -136,7 +164,7 @@ function rapprocher(
 
   const scored: Array<{ id: string; nom: string; score: number }> = [];
   for (const a of catalogue) {
-    const n = normaliser(a.nom);
+    const n = normaliserNom(a.nom);
     let score = 0;
     if (n === q) score = 1;
     else if (n.includes(q) || q.includes(n)) {
@@ -237,13 +265,14 @@ Tu extrais UNIQUEMENT ce qui est écrit. Tu ne corriges pas les noms d’article
 STRUCTURE
 - Une page peut contenir plusieurs sections. Une section commence à une date manuscrite (formats usuels : JJ/MM/AA, ou « Ce JJ/MM/AA ») et se termine au « Total » suivant de cette section.
 - Ignore les titres de type inventaire (avant / après) et tout texte AU-DESSUS de la date de la section (reste d’une autre page, sous-total précédent).
-- Ignore les lignes clairement barrées / rayées.
+- Si une ligne est clairement barrée / rayée : renvoie-la quand même avec barree=true (le serveur l’ignorera). Ne l’omets pas silencieusement si tu la lis.
 - Si plusieurs sections sont visibles, renvoie-les toutes dans "sections" (ordre haut → bas).
 
 COLONNES (par ligne de vente)
 - Colonne 1 = texte manuscrit de l’article, tel quel (faute d’orthographe comprise).
 - Colonne 2 = quantité. Entier si lisible. Si le chiffre est une fraction, une lettre collée au chiffre, raturé ou repassé → chiffre_ambigu=true ; mets la meilleure estimation entière possible (≥ 1) sans règle magique du type « telle lettre = tel nombre ».
 - Colonne 3 = MONTANT TOTAL de la ligne en FCFA (pas le prix unitaire). Les séparateurs de milliers (point, tiret, espace) sont à convertir en nombre entier.
+- barree = true si la ligne est rayée / barrée, sinon false.
 - total_ecrit = le total manuscrit de CETTE section (même conversion des séparateurs).
 
 DATE
@@ -255,7 +284,7 @@ DATE
 Ne renvoie PAS d’identifiant catalogue ni de nom « corrigé ». Le serveur fera le rapprochement.
 
 Réponds UNIQUEMENT en JSON :
-{"sections":[{"date_lue":"JJ/MM/AA","date_iso":"YYYY-MM-DD","total_ecrit":0,"lignes":[{"texte_lu":"...","quantite":1,"montant_lu":0,"tarif":null,"chiffre_ambigu":false}]}]}
+{"sections":[{"date_lue":"JJ/MM/AA","date_iso":"YYYY-MM-DD","total_ecrit":0,"lignes":[{"texte_lu":"...","quantite":1,"montant_lu":0,"tarif":null,"chiffre_ambigu":false,"barree":false}]}]}
 tarif : "detail", "gros" ou null si la feuille ne l’indique pas. quantite ≥ 1. montant_lu entier ≥ 0. N’invente aucune ligne absente de la photo.`;
 
 async function httpGemini(model: string, imageB64: string, mime: string) {
@@ -528,7 +557,9 @@ Deno.serve(async (req) => {
       const assaini = assainirDate(dateIso);
       dateIso = assaini.iso;
 
-      const lignes = (sec.lignes || []).map((l) => {
+      const lignes = (sec.lignes || [])
+        .filter((l) => !l.barree)
+        .map((l) => {
         const texte = String(l.texte_lu || '').trim();
         const ambigu = !!l.chiffre_ambigu;
         const montant =
@@ -539,7 +570,7 @@ Deno.serve(async (req) => {
         let score = 0;
         let variantes: Array<{ id: string; nom: string }> = [];
         let confForceBasse = false;
-        const aliasId = aliases.get(normaliser(texte));
+        const aliasId = aliases.get(normaliserAlias(texte));
         if (aliasId && byId[aliasId]) {
           articleId = aliasId;
           score = 0.99;
@@ -574,6 +605,7 @@ Deno.serve(async (req) => {
           confiance: conf,
           quantite_suggeree: qSugg,
           chiffre_ambigu: ambigu,
+          barree: false,
         };
       });
 

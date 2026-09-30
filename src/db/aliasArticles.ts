@@ -3,7 +3,7 @@
  */
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { notifyLocalDataChange } from '../lib/syncBus.ts';
-import { normaliserNom } from '../lib/rapprochementNoms.ts';
+import { normaliserTexteAlias } from '../lib/rapprochementNoms.ts';
 import { getSetting, SETTINGS_KEYS } from './settings.ts';
 
 export async function trouverAlias(
@@ -12,7 +12,7 @@ export async function trouverAlias(
 ): Promise<string | null> {
   const boutiqueId = await getSetting(db, SETTINGS_KEYS.boutiqueId);
   if (!boutiqueId) return null;
-  const n = normaliserNom(texteLu);
+  const n = normaliserTexteAlias(texteLu);
   if (!n) return null;
   const row = await db.getFirstAsync<{ article_id: string }>(
     `SELECT article_id FROM alias_articles WHERE boutique_id = ? AND texte_norm = ?`,
@@ -28,7 +28,7 @@ export async function enregistrerAlias(
 ): Promise<void> {
   const boutiqueId = await getSetting(db, SETTINGS_KEYS.boutiqueId);
   if (!boutiqueId) return;
-  const n = normaliserNom(texteLu);
+  const n = normaliserTexteAlias(texteLu);
   if (!n || !articleId) return;
   const now = new Date().toISOString();
   await db.runAsync(

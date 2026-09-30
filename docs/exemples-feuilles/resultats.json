@@ -1,52 +1,819 @@
 {
   "projet": "https://ivqbjgfxbymiizfjhygv.supabase.co",
   "boutique_id": "db88ec62-fe85-4548-8e8e-920c4f99db70",
-  "compte": "2290199000001@boutique-maman.app",
-  "evalue_le": "2026-09-27T10:18:30.880Z",
+  "mode": "rejouer",
+  "evalue_le": "2026-09-30T05:22:50.366Z",
+  "version_attendue": "lire-feuille-v2-single-call",
   "feuilles": [
     {
       "fichier": "1f4330f9-1f17-4501-a643-0dd1b532612b.JPG",
-      "ok": false,
-      "http": 503,
-      "erreur": "Edge Function returned a non-2xx status code",
-      "detail": "gemini 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-a",
-      "code": "quota",
-      "modele": null,
-      "nb_appels_ia": 366,
-      "retry_delay": null,
-      "essais_resume": "gemini:gemini-3.8-flash HTTP 503/429 ×92 · gemini:gemini-flash-latest HTTP 503/429 ×92 · gemini:gemini-2.5-flash HTTP 404 ×91 · gemini:gemini-2.5-flash-lite HTTP 404 ×91",
-      "duree_ms": 56800,
-      "lignes": [],
+      "ok": true,
+      "date_suggeree": "2026-09-22",
+      "date_doute": false,
+      "total_ecrit": 12100,
+      "nb_sections": 1,
+      "modele": "gemini:gemini-3.5-flash-lite",
+      "nb_appels_ia": 0,
+      "essais_resume": "rejouer (0 Gemini)",
+      "duree_ms": null,
+      "nb_lignes": 19,
+      "lignes": [
+        {
+          "texte_lu": "Méga",
+          "article_id": null,
+          "article_propose": "Méga détail",
+          "quantite": 3,
+          "tarif": null,
+          "montant_lu": 1500,
+          "prix_lu": 1500,
+          "confiance": "basse",
+          "chiffre_ambigu": false,
+          "variantes": null,
+          "via": "ressemblance",
+          "barree": false
+        },
+        {
+          "texte_lu": "Limé",
+          "article_id": null,
+          "article_propose": "Limé en fer",
+          "quantite": 2,
+          "tarif": null,
+          "montant_lu": 200,
+          "prix_lu": 200,
+          "confiance": "basse",
+          "chiffre_ambigu": false,
+          "variantes": null,
+          "via": "ressemblance",
+          "barree": false
+        },
+        {
+          "texte_lu": "chauchou perle",
+          "article_id": null,
+          "article_propose": "Chouchou pince",
+          "quantite": 3,
+          "tarif": null,
+          "montant_lu": 250,
+          "prix_lu": 250,
+          "confiance": "basse",
+          "chiffre_ambigu": true,
+          "variantes": [
+            {
+              "id": "a6dc33ab-16a9-4469-a9a5-b846d64757ba",
+              "nom": "Chouchou pince",
+              "score": 0.6428571428571429
+            },
+            {
+              "id": "426b2e96-7c99-406f-8abc-33f416ff8773",
+              "nom": "Chouchou perle nœud",
+              "score": 0.6157894736842106
+            },
+            {
+              "id": "4d5116e6-3cad-45cc-8f5e-942ffad43843",
+              "nom": "Chouchou perle grand",
+              "score": 0.5850000000000001
+            }
+          ],
+          "via": "ressemblance",
+          "barree": false
+        },
+        {
+          "texte_lu": "Méga",
+          "article_id": null,
+          "article_propose": "Méga détail",
+          "quantite": 1,
+          "tarif": null,
+          "montant_lu": 500,
+          "prix_lu": 500,
+          "confiance": "basse",
+          "chiffre_ambigu": true,
+          "variantes": null,
+          "via": "ressemblance",
+          "barree": false
+        },
+        {
+          "texte_lu": "Gel Petit",
+          "article_id": null,
+          "article_propose": "FIL Petit",
+          "quantite": 8,
+          "tarif": null,
+          "montant_lu": 1200,
+          "prix_lu": 1200,
+          "confiance": "basse",
+          "chiffre_ambigu": true,
+          "variantes": [
+            {
+              "id": "8b891770-de65-44af-ab2b-3bff2fbfbc0c",
+              "nom": "FIL Petit",
+              "score": 0.7000000000000001
+            },
+            {
+              "id": "81585dd2-223e-4495-8e9f-12c599b8ed1c",
+              "nom": "Gel pétals petit",
+              "score": 0.6510416666666666
+            },
+            {
+              "id": "7f7753c8-216f-48d8-b1f5-4296c7cd5ebd",
+              "nom": "Soleil petit",
+              "score": 0.6000000000000001
+            }
+          ],
+          "via": "ressemblance",
+          "barree": false
+        },
+        {
+          "texte_lu": "Pétal + Passion",
+          "article_id": null,
+          "article_propose": "Passion",
+          "quantite": 3,
+          "tarif": null,
+          "montant_lu": 1000,
+          "prix_lu": 1000,
+          "confiance": "basse",
+          "chiffre_ambigu": false,
+          "variantes": null,
+          "via": "ressemblance",
+          "barree": false
+        },
+        {
+          "texte_lu": "Super Glue",
+          "article_id": "ccd5f415-3b83-4d07-9f61-1f303fa14fc4",
+          "article_propose": "Super glue",
+          "quantite": 1,
+          "tarif": null,
+          "montant_lu": 1000,
+          "prix_lu": 1000,
+          "confiance": "basse",
+          "chiffre_ambigu": true,
+          "variantes": null,
+          "via": "alias",
+          "barree": false
+        },
+        {
+          "texte_lu": "Pied de biche",
+          "article_id": "857cf560-df98-4da3-bbc5-3ff255973f0c",
+          "article_propose": "Taille ongle",
+          "quantite": 6,
+          "tarif": null,
+          "montant_lu": 500,
+          "prix_lu": 500,
+          "confiance": "basse",
+          "chiffre_ambigu": true,
+          "variantes": null,
+          "via": "alias",
+          "barree": false
+        },
+        {
+          "texte_lu": "Soleil Pt",
+          "article_id": "7f7753c8-216f-48d8-b1f5-4296c7cd5ebd",
+          "article_propose": "Soleil petit",
+          "quantite": 1,
+          "tarif": null,
+          "montant_lu": 300,
+          "prix_lu": 300,
+          "confiance": "haute",
+          "chiffre_ambigu": false,
+          "variantes": null,
+          "via": "ressemblance",
+          "barree": false
+        },
+        {
+          "texte_lu": "super Glue",
+          "article_id": "ccd5f415-3b83-4d07-9f61-1f303fa14fc4",
+          "article_propose": "Super glue",
+          "quantite": 1,
+          "tarif": null,
+          "montant_lu": 100,
+          "prix_lu": 100,
+          "confiance": "haute",
+          "chiffre_ambigu": false,
+          "variantes": null,
+          "via": "alias",
+          "barree": false
+        },
+        {
+          "texte_lu": "boule ceris",
+          "article_id": null,
+          "article_propose": "Bougie petit",
+          "quantite": 1,
+          "tarif": null,
+          "montant_lu": 200,
+          "prix_lu": 200,
+          "confiance": "basse",
+          "chiffre_ambigu": false,
+          "variantes": null,
+          "via": "ressemblance",
+          "barree": false
+        },
+        {
+          "texte_lu": "ABC",
+          "article_id": "2950bcab-010a-43d1-9ea1-3fdc5d08372c",
+          "article_propose": "Produit ABC petit",
+          "quantite": 3,
+          "tarif": null,
+          "montant_lu": 1250,
+          "prix_lu": 1250,
+          "confiance": "haute",
+          "chiffre_ambigu": false,
+          "variantes": null,
+          "via": "alias",
+          "barree": false
+        },
+        {
+          "texte_lu": "Cyndie",
+          "article_id": null,
+          "article_propose": "Pommade cyndie",
+          "quantite": 1,
+          "tarif": null,
+          "montant_lu": 500,
+          "prix_lu": 500,
+          "confiance": "basse",
+          "chiffre_ambigu": false,
+          "variantes": null,
+          "via": "ressemblance",
+          "barree": false
+        },
+        {
+          "texte_lu": "super blanc",
+          "article_id": null,
+          "article_propose": "Super glue",
+          "quantite": 1,
+          "tarif": null,
+          "montant_lu": 200,
+          "prix_lu": 200,
+          "confiance": "basse",
+          "chiffre_ambigu": false,
+          "variantes": null,
+          "via": "ressemblance",
+          "barree": false
+        },
+        {
+          "texte_lu": "tam-tam",
+          "article_id": "c4f46ef7-816a-4240-ba1d-4af0b1237105",
+          "article_propose": "Tam-tam got 26",
+          "quantite": 1,
+          "tarif": null,
+          "montant_lu": 600,
+          "prix_lu": 600,
+          "confiance": "haute",
+          "chiffre_ambigu": false,
+          "variantes": null,
+          "via": "alias",
+          "barree": false
+        },
+        {
+          "texte_lu": "Peigne Petit",
+          "article_id": "cab3f25e-a435-40a4-84ee-d9f73935ab4e",
+          "article_propose": "Peigne afro petit de 100",
+          "quantite": 1,
+          "tarif": null,
+          "montant_lu": 100,
+          "prix_lu": 100,
+          "confiance": "basse",
+          "chiffre_ambigu": true,
+          "variantes": null,
+          "via": "alias",
+          "barree": false
+        },
+        {
+          "texte_lu": "tam-tam",
+          "article_id": "c4f46ef7-816a-4240-ba1d-4af0b1237105",
+          "article_propose": "Tam-tam got 26",
+          "quantite": 1,
+          "tarif": null,
+          "montant_lu": 600,
+          "prix_lu": 600,
+          "confiance": "haute",
+          "chiffre_ambigu": false,
+          "variantes": null,
+          "via": "alias",
+          "barree": false
+        },
+        {
+          "texte_lu": "super glu",
+          "article_id": "ccd5f415-3b83-4d07-9f61-1f303fa14fc4",
+          "article_propose": "Super glue",
+          "quantite": 1,
+          "tarif": null,
+          "montant_lu": 100,
+          "prix_lu": 100,
+          "confiance": "haute",
+          "chiffre_ambigu": false,
+          "variantes": null,
+          "via": "ressemblance",
+          "barree": false
+        },
+        {
+          "texte_lu": "Vernis (12-100)",
+          "article_id": null,
+          "article_propose": "Fer à lisser petit",
+          "quantite": 1,
+          "tarif": null,
+          "montant_lu": 2200,
+          "prix_lu": 2200,
+          "confiance": "basse",
+          "chiffre_ambigu": false,
+          "variantes": null,
+          "via": "ressemblance",
+          "barree": false
+        }
+      ],
       "score": {
-        "echec": true
+        "article": {
+          "justes": 8,
+          "total": 18,
+          "taux": 44.4
+        },
+        "quantite": {
+          "justes": 18,
+          "total": 18,
+          "taux": 100
+        },
+        "montant": {
+          "justes": 18,
+          "total": 18,
+          "taux": 100
+        },
+        "ligne_complete": {
+          "justes": 8,
+          "total": 18,
+          "taux": 44.4
+        },
+        "en_trop": [
+          {
+            "texte_lu": "Peigne Petit",
+            "quantite": 1,
+            "montant": 100
+          }
+        ],
+        "manquantes": [],
+        "fausses": [
+          {
+            "i": 0,
+            "j": 0,
+            "score_appariement": 5,
+            "texte_lu": "Méga",
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "lu": {
+              "article": "Méga détail",
+              "quantite": 3,
+              "montant": 1500,
+              "confiance": "basse"
+            },
+            "attendu": {
+              "article": null,
+              "texte_lu": "Méga",
+              "quantite": 3,
+              "montant": 1500
+            }
+          },
+          {
+            "i": 1,
+            "j": 1,
+            "score_appariement": 5,
+            "texte_lu": "Limé",
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "lu": {
+              "article": "Limé en fer",
+              "quantite": 2,
+              "montant": 200,
+              "confiance": "basse"
+            },
+            "attendu": {
+              "article": null,
+              "texte_lu": "Limé",
+              "quantite": 2,
+              "montant": 200
+            }
+          },
+          {
+            "i": 3,
+            "j": 3,
+            "score_appariement": 5,
+            "texte_lu": "Méga",
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "lu": {
+              "article": "Méga détail",
+              "quantite": 1,
+              "montant": 500,
+              "confiance": "basse"
+            },
+            "attendu": {
+              "article": null,
+              "texte_lu": "Méga",
+              "quantite": 1,
+              "montant": 500
+            }
+          },
+          {
+            "i": 4,
+            "j": 4,
+            "score_appariement": 5,
+            "texte_lu": "Gel Petit",
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "lu": {
+              "article": "FIL Petit",
+              "quantite": 8,
+              "montant": 1200,
+              "confiance": "basse"
+            },
+            "attendu": {
+              "article": "Gel pétals petit",
+              "texte_lu": "Gel Petit",
+              "quantite": 8,
+              "montant": 1200
+            }
+          },
+          {
+            "i": 5,
+            "j": 5,
+            "score_appariement": 5,
+            "texte_lu": "Pétal + Passion",
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "lu": {
+              "article": "Passion",
+              "quantite": 3,
+              "montant": 1000,
+              "confiance": "basse"
+            },
+            "attendu": {
+              "article": null,
+              "texte_lu": "Pétal + Passion",
+              "quantite": 3,
+              "montant": 1000
+            }
+          },
+          {
+            "i": 7,
+            "j": 7,
+            "score_appariement": 5,
+            "texte_lu": "Pied de biche",
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "lu": {
+              "article": "Taille ongle",
+              "quantite": 6,
+              "montant": 500,
+              "confiance": "basse"
+            },
+            "attendu": {
+              "article": null,
+              "texte_lu": "Pied de biche",
+              "quantite": 6,
+              "montant": 500
+            }
+          },
+          {
+            "i": 10,
+            "j": 10,
+            "score_appariement": 5,
+            "texte_lu": "boule ceris",
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "lu": {
+              "article": "Bougie petit",
+              "quantite": 1,
+              "montant": 200,
+              "confiance": "basse"
+            },
+            "attendu": {
+              "article": null,
+              "texte_lu": "boule ceris",
+              "quantite": 1,
+              "montant": 200
+            }
+          },
+          {
+            "i": 13,
+            "j": 13,
+            "score_appariement": 5,
+            "texte_lu": "super blanc",
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "lu": {
+              "article": "Super glue",
+              "quantite": 1,
+              "montant": 200,
+              "confiance": "basse"
+            },
+            "attendu": {
+              "article": null,
+              "texte_lu": "super blanc",
+              "quantite": 1,
+              "montant": 200
+            }
+          },
+          {
+            "i": 2,
+            "j": 2,
+            "score_appariement": 4.51,
+            "texte_lu": "chauchou perle",
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "lu": {
+              "article": "Chouchou pince",
+              "quantite": 3,
+              "montant": 250,
+              "confiance": "basse"
+            },
+            "attendu": {
+              "article": "Chouchou perle petit",
+              "texte_lu": "chouchou Perle",
+              "quantite": 3,
+              "montant": 250
+            }
+          },
+          {
+            "i": 18,
+            "j": 17,
+            "score_appariement": 3.83,
+            "texte_lu": "Vernis (12-100)",
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "lu": {
+              "article": "Fer à lisser petit",
+              "quantite": 1,
+              "montant": 2200,
+              "confiance": "basse"
+            },
+            "attendu": {
+              "article": "Vernis couleur",
+              "texte_lu": "Vernis",
+              "quantite": 1,
+              "montant": 2200
+            }
+          },
+          {
+            "i": 15,
+            "raison": "ligne en trop côté IA",
+            "texte_lu": "Peigne Petit",
+            "lu": {
+              "texte_lu": "Peigne Petit",
+              "article_id": "cab3f25e-a435-40a4-84ee-d9f73935ab4e",
+              "article_propose": "Peigne afro petit de 100",
+              "quantite": 1,
+              "tarif": null,
+              "montant_lu": 100,
+              "prix_lu": 100,
+              "confiance": "basse",
+              "chiffre_ambigu": true,
+              "variantes": null,
+              "via": "alias",
+              "barree": false
+            },
+            "attendu": null
+          }
+        ],
+        "details": [
+          {
+            "i": 0,
+            "j": 0,
+            "ok": false,
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "score_appariement": 5
+          },
+          {
+            "i": 1,
+            "j": 1,
+            "ok": false,
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "score_appariement": 5
+          },
+          {
+            "i": 3,
+            "j": 3,
+            "ok": false,
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "score_appariement": 5
+          },
+          {
+            "i": 4,
+            "j": 4,
+            "ok": false,
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "score_appariement": 5
+          },
+          {
+            "i": 5,
+            "j": 5,
+            "ok": false,
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "score_appariement": 5
+          },
+          {
+            "i": 6,
+            "j": 6,
+            "ok": true,
+            "artOk": true,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "score_appariement": 5
+          },
+          {
+            "i": 7,
+            "j": 7,
+            "ok": false,
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "score_appariement": 5
+          },
+          {
+            "i": 8,
+            "j": 8,
+            "ok": true,
+            "artOk": true,
+            "qOk": true,
+            "mOk": true,
+            "orange": false,
+            "score_appariement": 5
+          },
+          {
+            "i": 9,
+            "j": 9,
+            "ok": true,
+            "artOk": true,
+            "qOk": true,
+            "mOk": true,
+            "orange": false,
+            "score_appariement": 5
+          },
+          {
+            "i": 10,
+            "j": 10,
+            "ok": false,
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "score_appariement": 5
+          },
+          {
+            "i": 11,
+            "j": 11,
+            "ok": true,
+            "artOk": true,
+            "qOk": true,
+            "mOk": true,
+            "orange": false,
+            "score_appariement": 5
+          },
+          {
+            "i": 12,
+            "j": 12,
+            "ok": true,
+            "artOk": true,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "score_appariement": 5
+          },
+          {
+            "i": 13,
+            "j": 13,
+            "ok": false,
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "score_appariement": 5
+          },
+          {
+            "i": 14,
+            "j": 14,
+            "ok": true,
+            "artOk": true,
+            "qOk": true,
+            "mOk": true,
+            "orange": false,
+            "score_appariement": 5
+          },
+          {
+            "i": 16,
+            "j": 15,
+            "ok": true,
+            "artOk": true,
+            "qOk": true,
+            "mOk": true,
+            "orange": false,
+            "score_appariement": 5
+          },
+          {
+            "i": 17,
+            "j": 16,
+            "ok": true,
+            "artOk": true,
+            "qOk": true,
+            "mOk": true,
+            "orange": false,
+            "score_appariement": 5
+          },
+          {
+            "i": 2,
+            "j": 2,
+            "ok": false,
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "score_appariement": 4.507142857142857
+          },
+          {
+            "i": 18,
+            "j": 17,
+            "ok": false,
+            "artOk": false,
+            "qOk": true,
+            "mOk": true,
+            "orange": true,
+            "score_appariement": 3.8346153846153848
+          },
+          {
+            "i": 15,
+            "ok": false,
+            "raison": "en_trop"
+          }
+        ],
+        "total_section": {
+          "ok": true,
+          "lu": 12100,
+          "attendu": 12100
+        },
+        "date": {
+          "ok": true,
+          "lu": "2026-09-22",
+          "attendu": "2026-09-22"
+        },
+        "ecart_total_attendu": true
       }
     }
   ],
   "score_global": {
     "article": {
-      "j": 0,
-      "t": 0,
-      "taux": 0
+      "j": 8,
+      "t": 18,
+      "taux": 44.4
     },
     "quantite": {
-      "j": 0,
-      "t": 0,
-      "taux": 0
+      "j": 18,
+      "t": 18,
+      "taux": 100
     },
     "montant": {
-      "j": 0,
-      "t": 0,
-      "taux": 0
+      "j": 18,
+      "t": 18,
+      "taux": 100
     },
     "ligne_complete": {
-      "j": 0,
-      "t": 0,
-      "taux": 0
+      "j": 8,
+      "t": 18,
+      "taux": 44.4
     },
     "total_section": {
-      "j": 0,
-      "t": 0,
-      "taux": 0
+      "j": 1,
+      "t": 1,
+      "taux": 100
     }
   }
 }

@@ -1,0 +1,169 @@
+{
+  "_source": "resultats.json après appel gemini-3.5-flash-lite du 2026-09-30",
+  "_note": "Réponse IA (champs lus) sans re-matching articles — pour --rejouer",
+  "fichier": "1f4330f9-1f17-4501-a643-0dd1b532612b.JPG",
+  "modele": "gemini:gemini-3.5-flash-lite",
+  "evalue_le": "2026-09-30T05:05:45.777Z",
+  "sections": [
+    {
+      "date_lue": null,
+      "date_iso": "2026-09-22",
+      "date_doute": false,
+      "total_ecrit": 12100,
+      "lignes": [
+        {
+          "texte_lu": "Méga",
+          "quantite": 3,
+          "montant_lu": 1500,
+          "tarif": null,
+          "chiffre_ambigu": false,
+          "barree": false
+        },
+        {
+          "texte_lu": "Limé",
+          "quantite": 2,
+          "montant_lu": 200,
+          "tarif": null,
+          "chiffre_ambigu": false,
+          "barree": false
+        },
+        {
+          "texte_lu": "chauchou perle",
+          "quantite": 3,
+          "montant_lu": 250,
+          "tarif": null,
+          "chiffre_ambigu": true,
+          "barree": false
+        },
+        {
+          "texte_lu": "Méga",
+          "quantite": 1,
+          "montant_lu": 500,
+          "tarif": null,
+          "chiffre_ambigu": true,
+          "barree": false
+        },
+        {
+          "texte_lu": "Gel Petit",
+          "quantite": 8,
+          "montant_lu": 1200,
+          "tarif": null,
+          "chiffre_ambigu": true,
+          "barree": false
+        },
+        {
+          "texte_lu": "Pétal + Passion",
+          "quantite": 3,
+          "montant_lu": 1000,
+          "tarif": null,
+          "chiffre_ambigu": false,
+          "barree": false
+        },
+        {
+          "texte_lu": "Super Glue",
+          "quantite": 1,
+          "montant_lu": 1000,
+          "tarif": null,
+          "chiffre_ambigu": true,
+          "barree": false
+        },
+        {
+          "texte_lu": "Pied de biche",
+          "quantite": 6,
+          "montant_lu": 500,
+          "tarif": null,
+          "chiffre_ambigu": true,
+          "barree": false
+        },
+        {
+          "texte_lu": "Soleil Pt",
+          "quantite": 1,
+          "montant_lu": 300,
+          "tarif": null,
+          "chiffre_ambigu": false,
+          "barree": false
+        },
+        {
+          "texte_lu": "super Glue",
+          "quantite": 1,
+          "montant_lu": 100,
+          "tarif": null,
+          "chiffre_ambigu": false,
+          "barree": false
+        },
+        {
+          "texte_lu": "boule ceris",
+          "quantite": 1,
+          "montant_lu": 200,
+          "tarif": null,
+          "chiffre_ambigu": false,
+          "barree": false
+        },
+        {
+          "texte_lu": "ABC",
+          "quantite": 3,
+          "montant_lu": 1250,
+          "tarif": null,
+          "chiffre_ambigu": false,
+          "barree": false
+        },
+        {
+          "texte_lu": "Cyndie",
+          "quantite": 1,
+          "montant_lu": 500,
+          "tarif": null,
+          "chiffre_ambigu": false,
+          "barree": false
+        },
+        {
+          "texte_lu": "super blanc",
+          "quantite": 1,
+          "montant_lu": 200,
+          "tarif": null,
+          "chiffre_ambigu": false,
+          "barree": false
+        },
+        {
+          "texte_lu": "tam-tam",
+          "quantite": 1,
+          "montant_lu": 600,
+          "tarif": null,
+          "chiffre_ambigu": false,
+          "barree": false
+        },
+        {
+          "texte_lu": "Peigne Petit",
+          "quantite": 1,
+          "montant_lu": 100,
+          "tarif": null,
+          "chiffre_ambigu": true,
+          "barree": false
+        },
+        {
+          "texte_lu": "tam-tam",
+          "quantite": 1,
+          "montant_lu": 600,
+          "tarif": null,
+          "chiffre_ambigu": false,
+          "barree": false
+        },
+        {
+          "texte_lu": "super glu",
+          "quantite": 1,
+          "montant_lu": 100,
+          "tarif": null,
+          "chiffre_ambigu": false,
+          "barree": false
+        },
+        {
+          "texte_lu": "Vernis (12-100)",
+          "quantite": 1,
+          "montant_lu": 2200,
+          "tarif": null,
+          "chiffre_ambigu": false,
+          "barree": false
+        }
+      ]
+    }
+  ]
+}

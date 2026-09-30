@@ -1,0 +1,596 @@
+{
+  "boutique_id": "db88ec62-fe85-4548-8e8e-920c4f99db70",
+  "crees": [
+    {
+      "texte_norm": "ceres",
+      "article": "Ceres"
+    },
+    {
+      "texte_norm": "culy",
+      "article": "Xpression curly"
+    },
+    {
+      "texte_norm": "durable",
+      "article": "Durable"
+    },
+    {
+      "texte_norm": "janet",
+      "article": "Janet"
+    },
+    {
+      "texte_norm": "xpression",
+      "article": "X-pression détail"
+    },
+    {
+      "texte_norm": "bouncy",
+      "article": "Bouncy kinky"
+    },
+    {
+      "texte_norm": "curly",
+      "article": "Xpression curly"
+    },
+    {
+      "texte_norm": "fashion froyal",
+      "article": "Fashion Royal"
+    },
+    {
+      "texte_norm": "leine",
+      "article": "Leine"
+    },
+    {
+      "texte_norm": "multi",
+      "article": "Multi"
+    },
+    {
+      "texte_norm": "schaly",
+      "article": "Shary"
+    },
+    {
+      "texte_norm": "4 flowers",
+      "article": "4 flowers"
+    },
+    {
+      "texte_norm": "filet saubient",
+      "article": "Filet soutien closure"
+    },
+    {
+      "texte_norm": "bande noir",
+      "article": "Bande noir"
+    },
+    {
+      "texte_norm": "dallas moyen",
+      "article": "Dallas moyen 3/2300"
+    },
+    {
+      "texte_norm": "dissolvant petit",
+      "article": "Dissolvant petit"
+    },
+    {
+      "texte_norm": "sprait",
+      "article": "Like à sec G"
+    },
+    {
+      "texte_norm": "faux cil",
+      "article": "Faux cils détail"
+    },
+    {
+      "texte_norm": "perle",
+      "article": "Perle de 500"
+    },
+    {
+      "texte_norm": "like",
+      "article": "Like à mousse petit"
+    },
+    {
+      "texte_norm": "pommade",
+      "article": "Dallas petit"
+    },
+    {
+      "texte_norm": "avocado",
+      "article": "Avocado grand 3"
+    },
+    {
+      "texte_norm": "like a mousse",
+      "article": "Like à mousse petit"
+    },
+    {
+      "texte_norm": "peigne petit",
+      "article": "Peigne afro petit de 100"
+    },
+    {
+      "texte_norm": "cache visage",
+      "article": "Cache visage"
+    },
+    {
+      "texte_norm": "colle",
+      "article": "Colle petit 500/1350"
+    },
+    {
+      "texte_norm": "dissolvant grand",
+      "article": "Dissolvant grand"
+    },
+    {
+      "texte_norm": "champoing",
+      "article": "Champoing tokpa petit"
+    },
+    {
+      "texte_norm": "chiffon",
+      "article": "Lime chiffon"
+    },
+    {
+      "texte_norm": "like a mousse p",
+      "article": "Like à mousse petit"
+    },
+    {
+      "texte_norm": "boite a produit",
+      "article": "Boîte de produit"
+    },
+    {
+      "texte_norm": "sprite",
+      "article": "Like à sec G"
+    },
+    {
+      "texte_norm": "barrette grand",
+      "article": "Barrette grand"
+    },
+    {
+      "texte_norm": "soleil grand",
+      "article": "Soleil grand"
+    },
+    {
+      "texte_norm": "produit",
+      "article": "Produit ABC petit"
+    },
+    {
+      "texte_norm": "perle de 500",
+      "article": "Perle de 500"
+    },
+    {
+      "texte_norm": "soleil",
+      "article": "Soleil petit"
+    },
+    {
+      "texte_norm": "super glue",
+      "article": "Super glue"
+    },
+    {
+      "texte_norm": "dissolvant",
+      "article": "Dissolvant petit"
+    },
+    {
+      "texte_norm": "gel grand",
+      "article": "Gel pétal grand"
+    },
+    {
+      "texte_norm": "l uodais",
+      "article": "Huile Luôdaïs carton"
+    },
+    {
+      "texte_norm": "lime en chiffon",
+      "article": "Lime chiffon"
+    },
+    {
+      "texte_norm": "lime blanc",
+      "article": "Lime en bois blanc"
+    },
+    {
+      "texte_norm": "ongle de 250",
+      "article": "Ongle de 250"
+    },
+    {
+      "texte_norm": "coton",
+      "article": "Coton petit"
+    },
+    {
+      "texte_norm": "peigne",
+      "article": "Peigne afro"
+    },
+    {
+      "texte_norm": "fil grand",
+      "article": "Fil Grand"
+    },
+    {
+      "texte_norm": "teinte sobam",
+      "article": "Teinte subaru 400/3000"
+    },
+    {
+      "texte_norm": "produit abc et bo16",
+      "article": "Produit ABC petit"
+    },
+    {
+      "texte_norm": "dallas petit",
+      "article": "Dallas petit"
+    },
+    {
+      "texte_norm": "mousse",
+      "article": "Like à mousse Grand"
+    },
+    {
+      "texte_norm": "teinte chinois",
+      "article": "Teinte chinois"
+    },
+    {
+      "texte_norm": "neutra",
+      "article": "Vernis neutre"
+    },
+    {
+      "texte_norm": "ongle de 100",
+      "article": "Ongle blanc 3/250"
+    },
+    {
+      "texte_norm": "tamtam couleur",
+      "article": "Tam tam couleur"
+    },
+    {
+      "texte_norm": "bo16",
+      "article": "Produit BO-16"
+    },
+    {
+      "texte_norm": "elan",
+      "article": "Champoing élan"
+    },
+    {
+      "texte_norm": "herbal",
+      "article": "Pommade Herbal"
+    },
+    {
+      "texte_norm": "lime chiffon",
+      "article": "Lime chiffon"
+    },
+    {
+      "texte_norm": "faux cil complet",
+      "article": "Faux cil complet"
+    },
+    {
+      "texte_norm": "perle de 3000",
+      "article": "Perle de 3000 (demi)"
+    },
+    {
+      "texte_norm": "subaru",
+      "article": "Teinte subaru 400/3000"
+    },
+    {
+      "texte_norm": "tictoc",
+      "article": "Champoing Tip Top"
+    },
+    {
+      "texte_norm": "taille ongle",
+      "article": "Taille ongle"
+    },
+    {
+      "texte_norm": "sabam",
+      "article": "Teinte subaru 400/3000"
+    },
+    {
+      "texte_norm": "mayonnaise mega",
+      "article": "Mayonnaise petit"
+    },
+    {
+      "texte_norm": "koko",
+      "article": "Boucle en fer"
+    },
+    {
+      "texte_norm": "perle cheveux",
+      "article": "Boucle en fer"
+    },
+    {
+      "texte_norm": "lac a mousse et huile",
+      "article": "Lac à huile"
+    },
+    {
+      "texte_norm": "dallas",
+      "article": "Dallas petit"
+    },
+    {
+      "texte_norm": "lac et mousse petit",
+      "article": "Like à mousse petit"
+    },
+    {
+      "texte_norm": "bassam petit",
+      "article": "Champoing tokpa petit"
+    },
+    {
+      "texte_norm": "champoing grand",
+      "article": "Champoing tokpa grand"
+    },
+    {
+      "texte_norm": "crochet rose",
+      "article": "Crochet long"
+    },
+    {
+      "texte_norm": "peigne a queue",
+      "article": "Peigne grand à queue"
+    },
+    {
+      "texte_norm": "passion",
+      "article": "Passion"
+    },
+    {
+      "texte_norm": "petal gel petit",
+      "article": "Gel pétals petit"
+    },
+    {
+      "texte_norm": "tamtam",
+      "article": "Tam-tam got 26"
+    },
+    {
+      "texte_norm": "chouchou 500",
+      "article": "Chouchou de 500"
+    },
+    {
+      "texte_norm": "gel petals petit",
+      "article": "Gel pétals petit"
+    },
+    {
+      "texte_norm": "abc",
+      "article": "Produit ABC petit"
+    },
+    {
+      "texte_norm": "brosse grand",
+      "article": "Brosse grand"
+    },
+    {
+      "texte_norm": "colle ikt",
+      "article": "Gomme"
+    },
+    {
+      "texte_norm": "l oodais",
+      "article": "Huile Luôdaïs carton"
+    },
+    {
+      "texte_norm": "petal",
+      "article": "Pétal one grand"
+    },
+    {
+      "texte_norm": "koko ou perle cheveux",
+      "article": "Boucle en fer"
+    },
+    {
+      "texte_norm": "neutre",
+      "article": "Vernis neutre"
+    },
+    {
+      "texte_norm": "ciseaux petit",
+      "article": "Ciseau de 250"
+    },
+    {
+      "texte_norm": "pied de biche",
+      "article": "Taille ongle"
+    },
+    {
+      "texte_norm": "cruset",
+      "article": "Teinte cruset 3/1200"
+    },
+    {
+      "texte_norm": "damado",
+      "article": "Dermatol"
+    },
+    {
+      "texte_norm": "secret",
+      "article": "Secret"
+    },
+    {
+      "texte_norm": "chouchou enfant",
+      "article": "Chouchou de 100 (enfant)"
+    },
+    {
+      "texte_norm": "ballon",
+      "article": "Ballon de 1300"
+    }
+  ],
+  "ambigus": [
+    {
+      "texte_norm": "ongle",
+      "articles": [
+        {
+          "id": "a185dce3-2e36-4268-b595-8fa8ed0ef18f",
+          "nom": "Ongle couleur 150",
+          "exemple_ecrit": "ongle"
+        },
+        {
+          "id": "ef131130-b5d7-47a3-a1e6-d4cc528c2922",
+          "nom": "Ongle de 250",
+          "exemple_ecrit": "ongle"
+        },
+        {
+          "id": "3341d916-74c2-49cd-a590-f4ccb769d232",
+          "nom": "Ongle blanc 3/250",
+          "exemple_ecrit": "ongle"
+        }
+      ]
+    },
+    {
+      "texte_norm": "mega",
+      "articles": [
+        {
+          "id": "f734f673-3a67-42d4-9b7e-370bc5554145",
+          "nom": "Méga détail",
+          "exemple_ecrit": "Méga"
+        },
+        {
+          "id": "55a542cc-e6f6-4371-8346-4d6e1500adc4",
+          "nom": "Méga en carton de 12",
+          "exemple_ecrit": "Méga"
+        }
+      ]
+    },
+    {
+      "texte_norm": "petals",
+      "articles": [
+        {
+          "id": "81585dd2-223e-4495-8e9f-12c599b8ed1c",
+          "nom": "Gel pétals petit",
+          "exemple_ecrit": "Petals"
+        },
+        {
+          "id": "2ab331d4-f179-41df-836b-8ffdba6da44e",
+          "nom": "Pétal one grand",
+          "exemple_ecrit": "Petals"
+        }
+      ]
+    }
+  ],
+  "skips_article_introuvable": [
+    {
+      "ecrit": "conde 1P",
+      "articleNom": "Corde noir (paquet de 12)"
+    },
+    {
+      "ecrit": "conde 02",
+      "articleNom": "Corde noir (pièce)"
+    },
+    {
+      "ecrit": "Conde noir 1P",
+      "articleNom": "Corde noir (paquet de 12)"
+    },
+    {
+      "ecrit": "Mèva",
+      "articleNom": "Produit Méva"
+    },
+    {
+      "ecrit": "Conde noir 1P½",
+      "articleNom": "Corde noir (paquet de 12)"
+    },
+    {
+      "ecrit": "Conde noir 1P½",
+      "articleNom": "Corde noir (pièce)"
+    },
+    {
+      "ecrit": "Conde noir 1P",
+      "articleNom": "Corde noir (paquet de 12)"
+    },
+    {
+      "ecrit": "Conde noir 2P",
+      "articleNom": "Corde noir (paquet de 12)"
+    },
+    {
+      "ecrit": "Conde noir 4P",
+      "articleNom": "Corde noir (paquet de 12)"
+    },
+    {
+      "ecrit": "Conde noir ½",
+      "articleNom": "Corde noir (pièce)"
+    },
+    {
+      "ecrit": "Conde noir 1P",
+      "articleNom": "Corde noir (paquet de 12)"
+    },
+    {
+      "ecrit": "Conde noir 1P",
+      "articleNom": "Corde noir (paquet de 12)"
+    },
+    {
+      "ecrit": "Conde noir 1",
+      "articleNom": "Corde noir (pièce)"
+    },
+    {
+      "ecrit": "Conde noir ½",
+      "articleNom": "Corde noir (pièce)"
+    },
+    {
+      "ecrit": "Conde noir 2P",
+      "articleNom": "Corde noir (paquet de 12)"
+    },
+    {
+      "ecrit": "Conde noir ½",
+      "articleNom": "Corde noir (pièce)"
+    },
+    {
+      "ecrit": "Conde noir 1P",
+      "articleNom": "Corde noir (paquet de 12)"
+    },
+    {
+      "ecrit": "Conde noir 1P",
+      "articleNom": "Corde noir (paquet de 12)"
+    },
+    {
+      "ecrit": "Conde noir ½",
+      "articleNom": "Corde noir (pièce)"
+    },
+    {
+      "ecrit": "Conde noir 1P",
+      "articleNom": "Corde noir (paquet de 12)"
+    },
+    {
+      "ecrit": "Conde noir 2",
+      "articleNom": "Corde noir (pièce)"
+    },
+    {
+      "ecrit": "Conde noir 1P",
+      "articleNom": "Corde noir (paquet de 12)"
+    },
+    {
+      "ecrit": "Conde noir 4",
+      "articleNom": "Corde noir (pièce)"
+    },
+    {
+      "ecrit": "Filet SS",
+      "articleNom": "Filet de 500f"
+    },
+    {
+      "ecrit": "élastique",
+      "articleNom": "Elastique (pièce)"
+    },
+    {
+      "ecrit": "élastique",
+      "articleNom": "Elastique (pièce)"
+    },
+    {
+      "ecrit": "Filet frontal closure",
+      "articleNom": "Filet de 500f"
+    },
+    {
+      "ecrit": "élastique",
+      "articleNom": "Elastique (paquet de 12)"
+    },
+    {
+      "ecrit": "élastique",
+      "articleNom": "Elastique (pièce)"
+    },
+    {
+      "ecrit": "Filet fin",
+      "articleNom": "Filet de 100f"
+    },
+    {
+      "ecrit": "Filet perruque",
+      "articleNom": "Filet de 500f"
+    },
+    {
+      "ecrit": "Beva",
+      "articleNom": "Produit Méva"
+    },
+    {
+      "ecrit": "élastique",
+      "articleNom": "Elastique (paquet de 12)"
+    },
+    {
+      "ecrit": "élastique",
+      "articleNom": "Elastique (pièce)"
+    },
+    {
+      "ecrit": "élastique",
+      "articleNom": "Elastique (paquet de 12)"
+    },
+    {
+      "ecrit": "Filet perruque",
+      "articleNom": "Filet de 100f"
+    },
+    {
+      "ecrit": "Filet fin",
+      "articleNom": "Filet de 100f"
+    },
+    {
+      "ecrit": "Beva",
+      "articleNom": "Produit Méva"
+    },
+    {
+      "ecrit": "Chouchou de 200",
+      "articleNom": "Chouchou de 200"
+    },
+    {
+      "ecrit": "élastique",
+      "articleNom": "Elastique (pièce)"
+    }
+  ],
+  "nb_upsert": 94
+}
