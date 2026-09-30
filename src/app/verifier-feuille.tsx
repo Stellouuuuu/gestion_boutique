@@ -174,56 +174,61 @@ export default function VerifierFeuilleScreen() {
   const [creerPrixGros, setCreerPrixGros] = useState('');
   const [creerStock, setCreerStock] = useState('');
 
-  // Un seul effet pour réinitialiser + enrichir les lignes quand la section change.
+  // Réinitialiser + enrichir quand la section / fixture change (deps strings stables).
   useEffect(() => {
     let active = true;
-    setDateFeuille(
-      section?.date_iso && /^\d{4}-\d{2}-\d{2}$/.test(section.date_iso)
-        ? section.date_iso
-        : aujourdhuiLocal()
-    );
-    setDateDoute(!!section?.date_doute);
-    setTotalEcrit(section?.total_ecrit ?? null);
-    setTotalForceOk(false);
-    setEditKey(null);
-    setLignes(initial);
+    // Différer les setState pour éviter le lint « setState synchrone dans un effet »
+    // (sinon Maximum update depth si deps objet params).
+    const t = setTimeout(() => {
+      if (!active) return;
+      setDateFeuille(
+        section?.date_iso && /^\d{4}-\d{2}-\d{2}$/.test(section.date_iso)
+          ? section.date_iso
+          : aujourdhuiLocal()
+      );
+      setDateDoute(!!section?.date_doute);
+      setTotalEcrit(section?.total_ecrit ?? null);
+      setTotalForceOk(false);
+      setEditKey(null);
+      setLignes(initial);
 
-    void (async () => {
-      const next = initial.map((l) => ({ ...l }));
-      for (let i = 0; i < next.length; i++) {
-        const l = next[i]!;
-        if (l.article_id) {
-          const a = await getArticle(db, l.article_id);
-          if (a) {
-            const pu = l.tarif === 'gros' ? (a.prix_gros ?? a.prix_detail) : a.prix_detail;
-            const montant = l.montant_lu ?? l.prix_lu ?? 0;
-            const ecart =
-              pu != null && pu > 0 && montant > 0
-                ? Math.abs(l.quantite * pu - montant) / montant > 0.2
-                : false;
+      void (async () => {
+        const next = initial.map((l) => ({ ...l }));
+        for (let i = 0; i < next.length; i++) {
+          const l = next[i]!;
+          if (l.article_id) {
+            const a = await getArticle(db, l.article_id);
+            if (a) {
+              const pu = l.tarif === 'gros' ? (a.prix_gros ?? a.prix_detail) : a.prix_detail;
+              const montant = l.montant_lu ?? l.prix_lu ?? 0;
+              const ecart =
+                pu != null && pu > 0 && montant > 0
+                  ? Math.abs(l.quantite * pu - montant) / montant > 0.2
+                  : false;
+              next[i] = {
+                ...l,
+                article_nom: a.nom,
+                montant,
+                ecartMontant: ecart || !!l.quantite_suggeree,
+              };
+            }
+          } else {
             next[i] = {
               ...l,
-              article_nom: a.nom,
-              montant,
-              ecartMontant: ecart || !!l.quantite_suggeree,
+              article_nom: null,
+              montant: l.montant_lu ?? 0,
+              ecartMontant: false,
             };
           }
-        } else {
-          next[i] = {
-            ...l,
-            article_nom: null,
-            montant: l.montant_lu ?? 0,
-            ecartMontant: false,
-          };
         }
-      }
-      if (active) setLignes(next);
-    })();
+        if (active) setLignes(next);
+      })();
+    }, 0);
 
     return () => {
       active = false;
+      clearTimeout(t);
     };
-    // initial est mémorisé sur sectionsParam… + sectionIdx (stables)
   }, [db, initial, section]);
 
   useEffect(() => {

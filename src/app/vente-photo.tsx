@@ -123,7 +123,7 @@ export default function VentePhotoScreen() {
             Photographiez la feuille manuscrite. Vérifiez ensuite chaque ligne avant d’enregistrer.
           </Text>
           {erreur ? <Text style={[styles.err, { color: colors.bad }]}>{erreur}</Text> : null}
-          {erreur && (photoUri || photoRef.current) ? (
+          {erreur && photoUri ? (
             <>
               <Button variant="sell" onPress={relancer}>
                 Réessayer

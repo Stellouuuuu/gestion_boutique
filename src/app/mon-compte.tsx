@@ -63,7 +63,7 @@ export default function MonCompteScreen() {
         const appels = data?.nb_appels_ia ?? 0;
         setAppelsIaJour(`${appels} appel${appels === 1 ? '' : 's'} IA (${photos} photo${photos === 1 ? '' : 's'})`);
       })();
-    }, [session, db, membre?.boutiqueId])
+    }, [session, db, membre])
   );
 
   const executerSortie = async () => {

@@ -17,7 +17,11 @@
       "android": {
         "buildType": "apk"
       },
-      "environment": "preview"
+      "environment": "preview",
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_PHOTO_IA": "true"
+      }
     },
     "production": {
       "autoIncrement": true,
