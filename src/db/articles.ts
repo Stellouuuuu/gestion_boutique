@@ -28,6 +28,18 @@ export async function listArticles(
   return db.getAllAsync<Article>(sql, [boutiqueId, categorie]);
 }
 
+/** Tous les articles actifs de la boutique (recherche feuille). */
+export async function listArticlesActifs(db: SQLiteDatabase): Promise<Article[]> {
+  const boutiqueId = await getSetting(db, SETTINGS_KEYS.boutiqueId);
+  if (!boutiqueId) return [];
+  return db.getAllAsync<Article>(
+    `SELECT ${ARTICLE_SELECT_WITH_STOCK} FROM articles a
+     WHERE a.boutique_id = ? AND a.actif = 1
+     ORDER BY a.nom COLLATE NOCASE`,
+    [boutiqueId]
+  );
+}
+
 export async function listArticlesSansPrix(db: SQLiteDatabase): Promise<Article[]> {
   const boutiqueId = await getSetting(db, SETTINGS_KEYS.boutiqueId);
   if (!boutiqueId) return [];

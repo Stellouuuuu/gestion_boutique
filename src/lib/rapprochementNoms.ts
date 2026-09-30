@@ -222,7 +222,7 @@ export function rapprocherArticle(
   }
 
   const tailleQ = tailleIndice(texteLu);
-  const scored: Array<{ id: string; nom: string; score: number }> = [];
+  const scored: Array<{ id: string; nom: string; score: number; tailleA?: string }> = [];
   for (const a of catalogue) {
     const artTokens = tokensDistinctifs(a.nom);
     if (!artTokens.length) continue;
@@ -248,11 +248,11 @@ export function rapprocherArticle(
     }
     if (tailleQ && tailleA === tailleQ) score = Math.min(1, score + 0.18);
     if (tailleQ && !tailleA) score -= 0.12;
-    scored.push({ id: a.id, nom: a.nom, score, tailleA });
+    scored.push({ id: a.id, nom: a.nom, score, tailleA: tailleA ?? undefined });
   }
   let pool = scored;
-  if (tailleQ && scored.some((s) => (s as { tailleA?: string }).tailleA === tailleQ)) {
-    pool = scored.filter((s) => (s as { tailleA?: string }).tailleA === tailleQ);
+  if (tailleQ && scored.some((s) => s.tailleA === tailleQ)) {
+    pool = scored.filter((s) => s.tailleA === tailleQ);
   }
   pool.sort((a, b) => b.score - a.score);
   const top = pool.filter((s) => s.score >= 0.7).slice(0, 3);

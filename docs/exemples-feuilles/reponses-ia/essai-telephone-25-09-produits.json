@@ -1,0 +1,698 @@
+{
+  "_note": "Rejeu hors Gemini : textes du xlsx 25/09 + matching TEST. Réponse brute téléphone non persistée. Score vs « Article dans l’app » du xlsx : 23 justes / 1 FAUX (Taille ongle → original) / 0 null. Total 13 750.",
+  "fichier": "essai-telephone-25-09-produits",
+  "date_iso": "2026-09-25",
+  "total_ecrit": 13750,
+  "somme_lignes": 13750,
+  "sections": [
+    {
+      "date_lue": "25/09/26",
+      "date_iso": "2026-09-25",
+      "date_doute": false,
+      "total_ecrit": 13750,
+      "lignes": [
+        {
+          "texte_lu": "Tic-Toc",
+          "article_id": "1ee9042c-26f9-42ce-a257-609f95602375",
+          "article_nom": "Champoing Tip Top",
+          "quantite": 1,
+          "montant_lu": 400,
+          "prix_lu": 400,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Méga",
+          "article_id": "7d35a9eb-356a-4a8a-b601-bf29ffcaa987",
+          "article_nom": "Méga détail",
+          "quantite": 1,
+          "montant_lu": 500,
+          "prix_lu": 500,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Taille ongle",
+          "article_id": "6193be3c-57ef-455d-bde4-22b931d61b8e",
+          "article_nom": "Taille ongle",
+          "quantite": 6,
+          "montant_lu": 500,
+          "prix_lu": 500,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Filet perruque",
+          "article_id": "f882b868-3113-419f-94cb-9c59c6650fc3",
+          "article_nom": "Filet de 100f",
+          "quantite": 2,
+          "montant_lu": 200,
+          "prix_lu": 200,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Sabam",
+          "article_id": "aa691481-5eac-40b9-a3bf-d09eaa666819",
+          "article_nom": "Teinte subaru 400/3000",
+          "quantite": 1,
+          "montant_lu": 300,
+          "prix_lu": 300,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Mayonnaise Méga",
+          "article_id": "e2bf006c-0163-4e86-bddd-7624ede7fddf",
+          "article_nom": "Mayonnaise petit",
+          "quantite": 1,
+          "montant_lu": 1000,
+          "prix_lu": 1000,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Koko",
+          "article_id": "c03ff947-f569-4df5-89e2-d0f733f350a6",
+          "article_nom": "Boucle en fer",
+          "quantite": 1,
+          "montant_lu": 200,
+          "prix_lu": 200,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Perle cheveux",
+          "article_id": "c03ff947-f569-4df5-89e2-d0f733f350a6",
+          "article_nom": "Boucle en fer",
+          "quantite": 1,
+          "montant_lu": 200,
+          "prix_lu": 200,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "ongle de 250",
+          "article_id": "aadbeea1-aa19-4521-9f20-6bd5bc4d28ca",
+          "article_nom": "Ongle de 250",
+          "quantite": 1,
+          "montant_lu": 250,
+          "prix_lu": 250,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Taille ongle",
+          "article_id": "4417f0d4-3e45-4786-bb77-eed6190896b7",
+          "article_nom": "Taille ongle original",
+          "quantite": 1,
+          "montant_lu": 100,
+          "prix_lu": 100,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Teinte chinois",
+          "article_id": "ce705c63-431c-47fe-b8dc-966127660135",
+          "article_nom": "Teinte chinois",
+          "quantite": 1,
+          "montant_lu": 100,
+          "prix_lu": 100,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Lac à mousse et huile",
+          "article_id": "28f2017d-79cb-4235-b3e0-348dcdb1ea34",
+          "article_nom": "Lac à huile",
+          "quantite": 2,
+          "montant_lu": 3200,
+          "prix_lu": 3200,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Dallas",
+          "article_id": "b5e322c1-d66f-4a07-a85b-1a8e9d3a1d07",
+          "article_nom": "Dallas petit",
+          "quantite": 6,
+          "montant_lu": 1100,
+          "prix_lu": 1100,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Lac et mousse petit",
+          "article_id": "cbbe0abf-cf73-4efa-a506-f5fa29515d2e",
+          "article_nom": "Like à mousse petit",
+          "quantite": 2,
+          "montant_lu": 1700,
+          "prix_lu": 1700,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Bassam petit",
+          "article_id": "4fbf5ce0-07ef-4638-ac94-c7fcee735025",
+          "article_nom": "Champoing tokpa petit",
+          "quantite": 1,
+          "montant_lu": 200,
+          "prix_lu": 200,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Champoing gr",
+          "article_id": "14788859-40a5-4b07-92c4-db33b72328a2",
+          "article_nom": "Champoing tokpa grand",
+          "quantite": 1,
+          "montant_lu": 400,
+          "prix_lu": 400,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "ongle de 250",
+          "article_id": "aadbeea1-aa19-4521-9f20-6bd5bc4d28ca",
+          "article_nom": "Ongle de 250",
+          "quantite": 2,
+          "montant_lu": 500,
+          "prix_lu": 500,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "L'uôdais",
+          "article_id": "814590d8-fc37-44cf-a799-82ee257f8f92",
+          "article_nom": "Huile Luôdaïs carton",
+          "quantite": 1,
+          "montant_lu": 850,
+          "prix_lu": 850,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Filet fin",
+          "article_id": "f882b868-3113-419f-94cb-9c59c6650fc3",
+          "article_nom": "Filet de 100f",
+          "quantite": 6,
+          "montant_lu": 500,
+          "prix_lu": 500,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Crochet rose",
+          "article_id": "9a8dd16e-e3a2-4de2-883e-f9ddfc45ca11",
+          "article_nom": "Crochet long",
+          "quantite": 2,
+          "montant_lu": 500,
+          "prix_lu": 500,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "ongle de 250",
+          "article_id": "aadbeea1-aa19-4521-9f20-6bd5bc4d28ca",
+          "article_nom": "Ongle de 250",
+          "quantite": 1,
+          "montant_lu": 250,
+          "prix_lu": 250,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Perle cheveux",
+          "article_id": "c03ff947-f569-4df5-89e2-d0f733f350a6",
+          "article_nom": "Boucle en fer",
+          "quantite": 1,
+          "montant_lu": 200,
+          "prix_lu": 200,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Peigne à queue",
+          "article_id": "a5db6e14-e893-45e1-b4fc-e64fc369913e",
+          "article_nom": "Peigne grand à queue",
+          "quantite": 1,
+          "montant_lu": 200,
+          "prix_lu": 200,
+          "tarif": "detail",
+          "confiance": "haute"
+        },
+        {
+          "texte_lu": "Passion",
+          "article_id": "ba199bc6-f77f-413a-8ab2-afaaacd3fef8",
+          "article_nom": "Passion",
+          "quantite": 1,
+          "montant_lu": 400,
+          "prix_lu": 400,
+          "tarif": "detail",
+          "confiance": "haute"
+        }
+      ]
+    }
+  ],
+  "score": {
+    "article": {
+      "justes": 23,
+      "faux": 1,
+      "null_ok": 0,
+      "total": 24,
+      "taux_justes": 95.8,
+      "taux_faux": 4.2,
+      "taux_null": 0
+    },
+    "quantite": {
+      "justes": 24,
+      "total": 24,
+      "taux": 100
+    },
+    "montant": {
+      "justes": 24,
+      "total": 24,
+      "taux": 100
+    },
+    "ligne_complete": {
+      "justes": 23,
+      "total": 24,
+      "taux": 95.8
+    },
+    "en_trop": [],
+    "manquantes": [],
+    "tableau": [
+      {
+        "texte_lu": "Tic-Toc",
+        "quantite": 1,
+        "montant": 400,
+        "article_attendu": "Champoing Tip Top",
+        "article_propose": "Champoing Tip Top",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Méga",
+        "quantite": 1,
+        "montant": 500,
+        "article_attendu": "Méga détail",
+        "article_propose": "Méga détail",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Taille ongle",
+        "quantite": 6,
+        "montant": 500,
+        "article_attendu": "Taille ongle",
+        "article_propose": "Taille ongle",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Filet perruque",
+        "quantite": 2,
+        "montant": 200,
+        "article_attendu": "Filet de 100f",
+        "article_propose": "Filet de 100f",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Sabam",
+        "quantite": 1,
+        "montant": 300,
+        "article_attendu": "Teinte subaru 400/3000",
+        "article_propose": "Teinte subaru 400/3000",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Mayonnaise Méga",
+        "quantite": 1,
+        "montant": 1000,
+        "article_attendu": "Mayonnaise petit",
+        "article_propose": "Mayonnaise petit",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Koko",
+        "quantite": 1,
+        "montant": 200,
+        "article_attendu": "Boucle en fer",
+        "article_propose": "Boucle en fer",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Perle cheveux",
+        "quantite": 1,
+        "montant": 200,
+        "article_attendu": "Boucle en fer",
+        "article_propose": "Boucle en fer",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "ongle de 250",
+        "quantite": 1,
+        "montant": 250,
+        "article_attendu": "Ongle de 250",
+        "article_propose": "Ongle de 250",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Taille ongle",
+        "quantite": 1,
+        "montant": 100,
+        "article_attendu": "Taille ongle",
+        "article_propose": "Taille ongle original",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Teinte chinois",
+        "quantite": 1,
+        "montant": 100,
+        "article_attendu": "Teinte chinois",
+        "article_propose": "Teinte chinois",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Lac à mousse et huile",
+        "quantite": 2,
+        "montant": 3200,
+        "article_attendu": "Lac à huile",
+        "article_propose": "Lac à huile",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Dallas",
+        "quantite": 6,
+        "montant": 1100,
+        "article_attendu": "Dallas petit",
+        "article_propose": "Dallas petit",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Lac et mousse petit",
+        "quantite": 2,
+        "montant": 1700,
+        "article_attendu": "Like à mousse petit",
+        "article_propose": "Like à mousse petit",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Bassam petit",
+        "quantite": 1,
+        "montant": 200,
+        "article_attendu": "Champoing tokpa petit",
+        "article_propose": "Champoing tokpa petit",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Champoing gr",
+        "quantite": 1,
+        "montant": 400,
+        "article_attendu": "Champoing tokpa grand",
+        "article_propose": "Champoing tokpa grand",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "ongle de 250",
+        "quantite": 2,
+        "montant": 500,
+        "article_attendu": "Ongle de 250",
+        "article_propose": "Ongle de 250",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "L'uôdais",
+        "quantite": 1,
+        "montant": 850,
+        "article_attendu": "Huile Luôdaïs carton",
+        "article_propose": "Huile Luôdaïs carton",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Filet fin",
+        "quantite": 6,
+        "montant": 500,
+        "article_attendu": "Filet de 100f",
+        "article_propose": "Filet de 100f",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Crochet rose",
+        "quantite": 2,
+        "montant": 500,
+        "article_attendu": "Crochet long",
+        "article_propose": "Crochet long",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "ongle de 250",
+        "quantite": 1,
+        "montant": 250,
+        "article_attendu": "Ongle de 250",
+        "article_propose": "Ongle de 250",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Perle cheveux",
+        "quantite": 1,
+        "montant": 200,
+        "article_attendu": "Boucle en fer",
+        "article_propose": "Boucle en fer",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Peigne à queue",
+        "quantite": 1,
+        "montant": 200,
+        "article_attendu": "Peigne grand à queue",
+        "article_propose": "Peigne grand à queue",
+        "classe_article": "juste"
+      },
+      {
+        "texte_lu": "Passion",
+        "quantite": 1,
+        "montant": 400,
+        "article_attendu": "Passion",
+        "article_propose": "Passion",
+        "classe_article": "juste"
+      }
+    ],
+    "fausses": [],
+    "details": [
+      {
+        "i": 0,
+        "j": 0,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 1,
+        "j": 1,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 2,
+        "j": 2,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 3,
+        "j": 3,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 4,
+        "j": 4,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 5,
+        "j": 5,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 6,
+        "j": 6,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 7,
+        "j": 7,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 8,
+        "j": 8,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 9,
+        "j": 9,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 10,
+        "j": 10,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 11,
+        "j": 11,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 12,
+        "j": 12,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 13,
+        "j": 13,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 14,
+        "j": 14,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 15,
+        "j": 15,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 16,
+        "j": 16,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 17,
+        "j": 17,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 18,
+        "j": 18,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 19,
+        "j": 19,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 20,
+        "j": 20,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 21,
+        "j": 21,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 22,
+        "j": 22,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      },
+      {
+        "i": 23,
+        "j": 23,
+        "classe_article": "juste",
+        "artOk": true,
+        "qOk": true,
+        "mOk": true,
+        "score_appariement": 5
+      }
+    ]
+  }
+}

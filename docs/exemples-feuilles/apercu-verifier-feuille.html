@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=390, initial-scale=1" />
+<title>Aperçu vérifier feuille</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: #F3F4F8; color: #1a1a2e; }
+  .phone { width: 390px; margin: 16px auto; background: #fff; border-radius: 24px; overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,.15); min-height: 780px; position: relative; padding-bottom: 160px; }
+  header { padding: 18px 16px 10px; font-size: 22px; font-weight: 800; }
+  .date { padding: 0 16px 10px; font-size: 18px; font-weight: 700; color: #444; }
+  .row { display: flex; align-items: center; gap: 8px; padding: 14px 16px;
+    border-bottom: 1px solid #e5e7ef; font-size: 17px; }
+  .dot { width: 22px; font-size: 20px; }
+  .ok { color: #1B7F3A; } .warn { color: #c47a00; }
+  .nom { flex: 1; font-weight: 700; line-height: 1.25; }
+  .nom.unk { font-style: italic; font-weight: 600; color: #555; }
+  .qte { color: #666; font-weight: 700; min-width: 36px; text-align: right; }
+  .mt { font-weight: 800; min-width: 88px; text-align: right; }
+  .add { margin: 12px 16px; border: 2px solid #27306B; background: #eef0f8; border-radius: 14px;
+    padding: 16px; text-align: center; color: #27306B; font-weight: 800; font-size: 18px; }
+  .footer { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid #e5e7ef;
+    padding: 12px 16px 20px; }
+  .totaux { display: flex; margin-bottom: 10px; }
+  .totaux > div { flex: 1; }
+  .totaux .lab { font-size: 13px; font-weight: 700; color: #666; }
+  .totaux .val { font-size: 22px; font-weight: 800; }
+  .bad { color: #b00020; }
+  .btn { display: block; width: 100%; border: 0; border-radius: 14px; padding: 16px;
+    background: #27306B; color: #fff; font-size: 18px; font-weight: 800; }
+  .sheet { margin: 24px auto; width: 390px; background: #fff; border-radius: 22px; padding: 18px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.15); }
+  .sheet h2 { margin: 0 0 8px; font-size: 22px; }
+  .field { width: 100%; border: 1px solid #ccc; border-radius: 12px; padding: 12px 14px; font-size: 18px; margin: 6px 0 12px; }
+  label { font-weight: 800; font-size: 16px; }
+  .suggest { padding: 12px 0; border-bottom: 1px solid #eee; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="phone" id="list">
+  <header>Vérifier la feuille</header>
+  <div class="date">Date · 25/09/2026</div>
+  <div id="rows"></div>
+  <div class="add">+ Ajouter une ligne</div>
+  <div class="footer">
+    <div class="totaux">
+      <div><div class="lab">Total des lignes</div><div class="val" id="somme">—</div></div>
+      <div style="text-align:right"><div class="lab">Total écrit sur la feuille</div><div class="val" id="ecrit">—</div></div>
+    </div>
+    <button class="btn">Enregistrer (24)</button>
+  </div>
+</div>
+
+<div class="sheet" id="edit">
+  <h2>Modifier la ligne</h2>
+  <div style="color:#666;margin-bottom:10px">Lu sur la feuille : « Sabam »</div>
+  <label>Article</label>
+  <input class="field" value="sab" />
+  <div class="suggest">Teinte subaru 400/3000</div>
+  <div class="suggest">Sabam (autre)</div>
+  <button class="btn" style="background:#fff;color:#27306B;border:2px solid #27306B;margin:10px 0">Créer un nouvel article</button>
+  <label>Quantité</label>
+  <div style="font-size:22px;font-weight:800;margin:8px 0">1</div>
+  <label>Tarif</label>
+  <div style="display:flex;gap:10px;margin:8px 0 12px">
+    <div style="flex:1;text-align:center;padding:14px;border-radius:12px;background:#27306B;color:#fff;font-weight:800">Détail</div>
+    <div style="flex:1;text-align:center;padding:14px;border-radius:12px;border:1px solid #ccc;font-weight:800">Gros</div>
+  </div>
+  <label>Montant (F)</label>
+  <input class="field" value="300" />
+  <button class="btn">Valider</button>
+</div>
+
+<div class="sheet">
+  <h2>Nouvel article</h2>
+  <label>Nom</label><input class="field" value="Sabam" />
+  <label>Catégorie</label>
+  <div style="display:flex;gap:10px;margin:8px 0 12px">
+    <div style="flex:1;text-align:center;padding:14px;border-radius:12px;background:#27306B;color:#fff;font-weight:800">Produits</div>
+    <div style="flex:1;text-align:center;padding:14px;border-radius:12px;border:1px solid #ccc;font-weight:800">Mèches</div>
+  </div>
+  <label>Prix détail</label><input class="field" value="300" />
+  <label>Prix gros</label><input class="field" value="300" />
+  <label>Stock actuel en boutique</label><input class="field" value="1" />
+  <button class="btn">Créer et utiliser</button>
+</div>
+
+<script>
+fetch('./reponses-ia/essai-telephone-25-09-produits.json').then(r=>r.json()).then(fix=>{
+  const lignes = fix.sections[0].lignes;
+  const somme = lignes.reduce((s,l)=>s+(l.montant_lu||0),0);
+  document.getElementById('somme').textContent = somme.toLocaleString('fr-FR') + ' F';
+  document.getElementById('ecrit').textContent = (fix.total_ecrit||0).toLocaleString('fr-FR') + ' F';
+  const bad = somme !== fix.total_ecrit;
+  if (bad) {
+    document.getElementById('somme').classList.add('bad');
+    document.getElementById('ecrit').classList.add('bad');
+  }
+  const root = document.getElementById('rows');
+  for (const l of lignes) {
+    const ok = !!l.article_id && l.confiance !== 'basse';
+    const div = document.createElement('div');
+    div.className = 'row';
+    const nom = l.article_nom || ((l.texte_lu||'') + ' ?');
+    div.innerHTML = `<span class="dot ${ok?'ok':'warn'}">${ok?'✓':'●'}</span>
+      <span class="nom ${l.article_nom?'':'unk'}">${nom}</span>
+      <span class="qte">×${l.quantite}</span>
+      <span class="mt">${(l.montant_lu||0).toLocaleString('fr-FR')} F</span>`;
+    root.appendChild(div);
+  }
+});
+</script>
+</body>
+</html>

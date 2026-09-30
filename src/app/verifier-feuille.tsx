@@ -1,12 +1,20 @@
 /**
  * Vérification des lignes lues sur une feuille photo.
+ * Liste compacte + panneau bas pour modifier / créer.
  */
-import { useEffect, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Header } from '../components/Header';
-import { ScreenScroll } from '../components/ScreenScroll';
 import { Button } from '../components/Button';
 import { Stepper } from '../components/Stepper';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -16,7 +24,7 @@ import { FONT_TITLE } from '../theme/typography';
 import { formatFCFA } from '../lib/format';
 import { useToast } from '../components/Toast';
 import { useAuth } from '../lib/AuthSession';
-import { createArticle, getArticle } from '../db/articles';
+import { createArticle, getArticle, listArticlesActifs } from '../db/articles';
 import { enregistrerAlias } from '../db/aliasArticles';
 import {
   enregistrerLotPhoto,
@@ -24,7 +32,7 @@ import {
   type LigneValidee,
 } from '../db/lotsPhoto';
 import type { LigneLectureIa, SectionFeuille } from '../lib/feuilleTypes';
-import type { Categorie, Tarif } from '../db/types';
+import type { Article, Categorie, Tarif } from '../db/types';
 
 type LigneEdit = LigneLectureIa & {
   key: string;
@@ -74,6 +82,12 @@ function parseSections(params: {
   }
 }
 
+function dateAffichee(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  if (!m) return iso;
+  return `${m[3]}/${m[2]}/${m[1]}`;
+}
+
 export default function VerifierFeuilleScreen() {
   const params = useLocalSearchParams<{
     sections?: string;
@@ -88,6 +102,7 @@ export default function VerifierFeuilleScreen() {
   const { colors } = useTheme();
   const { showToast } = useToast();
   const { session, membre } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const sectionsInit = useMemo(() => parseSections(params), [params]);
   const multi = sectionsInit.length > 1;
@@ -122,12 +137,19 @@ export default function VerifierFeuilleScreen() {
   const [warnDouble, setWarnDouble] = useState(false);
   const [warnTotal, setWarnTotal] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [creerOpen, setCreerOpen] = useState<LigneEdit | null>(null);
+
+  const [editKey, setEditKey] = useState<string | null>(null);
+  const [recherche, setRecherche] = useState('');
+  const [catalogue, setCatalogue] = useState<Article[]>([]);
+  const [montantEdit, setMontantEdit] = useState('');
+
+  const [creerOpen, setCreerOpen] = useState(false);
   const [creerNom, setCreerNom] = useState('');
   const [creerCat, setCreerCat] = useState<Categorie>('produits');
-  const [creerPrix, setCreerPrix] = useState('');
+  const [creerPrixDetail, setCreerPrixDetail] = useState('');
+  const [creerPrixGros, setCreerPrixGros] = useState('');
+  const [creerStock, setCreerStock] = useState('');
 
-  // Changer de section → recharger
   useEffect(() => {
     setLignes(initial);
     setDateFeuille(
@@ -138,9 +160,13 @@ export default function VerifierFeuilleScreen() {
     setDateDoute(!!section?.date_doute);
     setTotalEcrit(section?.total_ecrit ?? null);
     setTotalForceOk(false);
+    setEditKey(null);
   }, [initial, section]);
 
-  // Retour pick article
+  useEffect(() => {
+    void listArticlesActifs(db).then(setCatalogue);
+  }, [db]);
+
   useEffect(() => {
     const id = params.articlePick;
     const key = params.ligneKey;
@@ -152,7 +178,9 @@ export default function VerifierFeuilleScreen() {
       const montant = ligne?.montant_lu ?? ligne?.montant ?? 0;
       const pu = a.prix_detail ?? 0;
       const ecart =
-        pu > 0 && montant > 0 ? Math.abs((ligne?.quantite ?? 1) * pu - montant) / montant > 0.2 : false;
+        pu > 0 && montant > 0
+          ? Math.abs((ligne?.quantite ?? 1) * pu - montant) / montant > 0.2
+          : false;
       setLignes((prev) =>
         prev.map((l) =>
           l.key === key
@@ -162,9 +190,6 @@ export default function VerifierFeuilleScreen() {
                 article_nom: a.nom,
                 confiance: 'haute' as const,
                 ecartMontant: ecart,
-                quantite_suggeree: ecart
-                  ? Math.max(1, Math.round(montant / pu))
-                  : l.quantite_suggeree,
               }
             : l
         )
@@ -208,63 +233,150 @@ export default function VerifierFeuilleScreen() {
     };
   }, [db, initial]);
 
-  const orange = (l: LigneEdit) =>
-    l.confiance === 'basse' || !l.article_id || l.ecartMontant || !!l.chiffre_ambigu;
+  const orange = useCallback(
+    (l: LigneEdit) =>
+      l.confiance === 'basse' || !l.article_id || l.ecartMontant || !!l.chiffre_ambigu,
+    []
+  );
 
   const sommeLignes = lignes.reduce((s, l) => s + (l.montant || 0), 0);
   const totalMismatch =
     totalEcrit != null && totalEcrit > 0 && Math.abs(sommeLignes - totalEcrit) > 1;
   const bloqueLignes = lignes.some(orange);
   const bloqueTotal = totalMismatch && !totalForceOk;
-  const bloque = bloqueLignes || bloqueTotal;
   const nbOk = lignes.filter((l) => !orange(l)).length;
 
   const updateLigne = (key: string, patch: Partial<LigneEdit>) => {
     setLignes((prev) => prev.map((l) => (l.key === key ? { ...l, ...patch } : l)));
   };
 
-  const appliquerQteSuggeree = (l: LigneEdit) => {
-    if (l.quantite_suggeree == null) return;
-    updateLigne(l.key, {
-      quantite: l.quantite_suggeree,
-      confiance: 'haute',
-      ecartMontant: false,
-      quantite_suggeree: null,
-    });
+  const editLigne = editKey ? lignes.find((l) => l.key === editKey) ?? null : null;
+
+  const ouvrirEdit = (l: LigneEdit) => {
+    setEditKey(l.key);
+    setRecherche('');
+    setMontantEdit(String(l.montant || ''));
+    setCreerOpen(false);
   };
 
-  const ouvrirCreer = (l: LigneEdit) => {
-    setCreerNom(l.texte_lu || '');
-    setCreerCat('produits');
+  const fermerEdit = () => {
+    setEditKey(null);
+    setCreerOpen(false);
+    setRecherche('');
+  };
+
+  const choisirArticle = async (a: Article) => {
+    if (!editLigne) return;
+    const montant = editLigne.montant || 0;
+    const pu = editLigne.tarif === 'gros' ? (a.prix_gros ?? a.prix_detail) : a.prix_detail;
+    const ecart =
+      pu != null && pu > 0 && montant > 0
+        ? Math.abs(editLigne.quantite * pu - montant) / montant > 0.2
+        : false;
+    updateLigne(editLigne.key, {
+      article_id: a.id,
+      article_nom: a.nom,
+      confiance: 'haute',
+      ecartMontant: ecart,
+    });
+    if (editLigne.texte_lu) await enregistrerAlias(db, editLigne.texte_lu, a.id);
+    fermerEdit();
+  };
+
+  const ouvrirCreer = () => {
+    if (!editLigne) return;
     const pu =
-      l.quantite > 0 && l.montant > 0 ? Math.round(l.montant / l.quantite) : l.montant || 0;
-    setCreerPrix(String(pu || ''));
-    setCreerOpen(l);
+      editLigne.quantite > 0 && editLigne.montant > 0
+        ? Math.round(editLigne.montant / editLigne.quantite)
+        : editLigne.montant || 0;
+    setCreerNom(editLigne.texte_lu || '');
+    setCreerCat('produits');
+    setCreerPrixDetail(String(pu || ''));
+    setCreerPrixGros(String(pu || ''));
+    setCreerStock(String(editLigne.quantite || 1));
+    setCreerOpen(true);
   };
 
   const validerCreer = async () => {
-    if (!creerOpen) return;
-    const prix = Number(creerPrix) || null;
+    if (!editLigne) return;
+    const prixD = Number(creerPrixDetail) || null;
+    const prixG = Number(creerPrixGros) || prixD;
+    const stock = Math.max(0, Math.round(Number(creerStock) || 0));
+    if (!creerNom.trim()) {
+      showToast('Indiquez un nom');
+      return;
+    }
+    if (!Number.isFinite(stock)) {
+      showToast('Indiquez le stock actuel');
+      return;
+    }
     try {
       const a = await createArticle(db, {
-        nom: creerNom.trim() || creerOpen.texte_lu || 'Nouvel article',
+        nom: creerNom.trim(),
         categorie: creerCat,
-        prix_detail: prix,
-        prix_gros: null,
+        prix_detail: prixD,
+        prix_gros: prixG,
         prix_achat: null,
-        stock: 0,
+        stock,
       });
-      if (creerOpen.texte_lu) await enregistrerAlias(db, creerOpen.texte_lu, a.id);
-      updateLigne(creerOpen.key, {
+      const texteAlias = editLigne.texte_lu || creerNom.trim();
+      if (texteAlias) await enregistrerAlias(db, texteAlias, a.id);
+      updateLigne(editLigne.key, {
         article_id: a.id,
         article_nom: a.nom,
         confiance: 'haute',
         ecartMontant: false,
+        texte_lu: editLigne.texte_lu || a.nom,
       });
-      setCreerOpen(null);
+      setCatalogue(await listArticlesActifs(db));
+      setCreerOpen(false);
+      fermerEdit();
+      showToast('Article créé');
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Création impossible');
     }
+  };
+
+  const validerEdit = () => {
+    if (!editLigne) return;
+    const m = Math.round(Number(montantEdit));
+    if (!Number.isFinite(m) || m < 0) {
+      showToast('Montant incorrect');
+      return;
+    }
+    updateLigne(editLigne.key, {
+      montant: m,
+      montant_lu: m,
+      prix_lu: m,
+      confiance: editLigne.article_id ? 'haute' : editLigne.confiance,
+      ecartMontant: false,
+    });
+    fermerEdit();
+  };
+
+  const supprimerLigne = () => {
+    if (!editLigne) return;
+    setLignes((p) => p.filter((x) => x.key !== editLigne.key));
+    fermerEdit();
+  };
+
+  const ajouterLigne = () => {
+    const key = `n${Date.now()}`;
+    const l: LigneEdit = {
+      key,
+      texte_lu: '',
+      article_id: null,
+      article_nom: null,
+      quantite: 1,
+      tarif: 'detail',
+      montant_lu: 0,
+      prix_lu: 0,
+      confiance: 'basse',
+      montant: 0,
+      ecartMontant: false,
+    };
+    setLignes((p) => [...p, l]);
+    ouvrirEdit(l);
   };
 
   const lignesValides = (): LigneValidee[] =>
@@ -325,14 +437,21 @@ export default function VerifierFeuilleScreen() {
     }
   };
 
+  const q = recherche.trim().toLowerCase();
+  const suggestions = catalogue
+    .filter((a) => !q || a.nom.toLowerCase().includes(q))
+    .slice(0, 12);
+
+  const footerH = 150 + insets.bottom;
+
   return (
-    <ScreenScroll>
+    <View style={[styles.root, { backgroundColor: colors.bg, paddingBottom: footerH }]}>
       <Header title="Vérifier la feuille" onBack={() => router.back()} />
 
       {multi ? (
-        <View style={{ marginBottom: 12, gap: 8 }}>
-          <Text style={{ color: colors.muted, fontWeight: '700' }}>
-            Plusieurs jours sur la photo — choisissez la section :
+        <View style={{ paddingHorizontal: 16, marginBottom: 8, gap: 8 }}>
+          <Text style={{ color: colors.muted, fontWeight: '700', fontSize: 16 }}>
+            Plusieurs jours — choisissez :
           </Text>
           {sectionsInit.map((s, i) => (
             <Pressable
@@ -346,196 +465,336 @@ export default function VerifierFeuilleScreen() {
                 },
               ]}
             >
-              <Text style={{ color: colors.ink, fontWeight: '800' }}>
+              <Text style={{ color: colors.ink, fontWeight: '800', fontSize: 17 }}>
                 {s.date_lue || s.date_iso || `Section ${i + 1}`}
-                {s.total_ecrit != null ? ` · Total ${formatFCFA(s.total_ecrit)}` : ''}
-                {` · ${s.lignes?.length ?? 0} lignes`}
+                {s.total_ecrit != null ? ` · ${formatFCFA(s.total_ecrit)}` : ''}
               </Text>
             </Pressable>
           ))}
         </View>
       ) : null}
 
-      <Text style={[styles.label, { color: colors.muted }]}>Date de la feuille (AAAA-MM-JJ)</Text>
-      <TextInput
-        value={dateFeuille}
-        onChangeText={(t) => {
-          setDateFeuille(t);
-          setDateDoute(false);
-        }}
-        style={[
-          styles.input,
-          {
-            color: colors.ink,
-            borderColor: dateDoute ? colors.warn : colors.line,
-            backgroundColor: dateDoute ? colors.warnSoft : colors.card,
-          },
-        ]}
-        autoCapitalize="none"
-      />
+      <View style={styles.dateRow}>
+        <Text style={[styles.dateLabel, { color: colors.muted }]}>Date</Text>
+        <TextInput
+          value={dateFeuille}
+          onChangeText={(t) => {
+            setDateFeuille(t);
+            setDateDoute(false);
+          }}
+          style={[
+            styles.dateInput,
+            {
+              color: colors.ink,
+              borderColor: dateDoute ? colors.warn : colors.line,
+              backgroundColor: colors.card,
+              fontFamily: FONT_TITLE,
+            },
+          ]}
+          autoCapitalize="none"
+        />
+        <Text style={{ color: colors.ink, fontSize: 18, fontWeight: '700' }}>
+          {dateAffichee(dateFeuille)}
+        </Text>
+      </View>
       {dateDoute ? (
-        <Text style={{ color: colors.warn, fontWeight: '700', marginBottom: 8 }}>
-          Date ajustée (éloignée ou future) — vérifiez-la.
+        <Text style={{ color: colors.warn, fontWeight: '700', marginHorizontal: 16, marginBottom: 6 }}>
+          Vérifiez la date.
         </Text>
       ) : null}
 
-      {lignes.map((l) => {
-        const isOrange = orange(l);
-        return (
-          <View
-            key={l.key}
-            style={[
-              styles.card,
-              {
-                backgroundColor: isOrange ? colors.warnSoft : colors.card,
-                borderColor: isOrange ? colors.warn : colors.line,
-              },
-            ]}
+      <FlatList
+        style={{ flex: 1 }}
+        data={lignes}
+        keyExtractor={(l) => l.key}
+        contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 12 }}
+        ListFooterComponent={
+          <Pressable
+            onPress={ajouterLigne}
+            style={[styles.addBtn, { borderColor: colors.indigo, backgroundColor: colors.indigoSoft }]}
           >
-            {isOrange ? (
-              <Text style={{ color: colors.warn, fontWeight: '800', marginBottom: 6 }}>À vérifier</Text>
-            ) : null}
-            <Text style={{ color: colors.muted, fontSize: 14 }}>Lu : {l.texte_lu || '—'}</Text>
+            <Text style={{ color: colors.indigo, fontWeight: '800', fontSize: 18 }}>+ Ajouter une ligne</Text>
+          </Pressable>
+        }
+        renderItem={({ item: l }) => {
+          const isOrange = orange(l);
+          const label = l.article_nom
+            ? l.article_nom
+            : l.texte_lu
+              ? `${l.texte_lu} ?`
+              : 'Article ?';
+          return (
             <Pressable
-              onPress={() =>
-                router.push({
-                  pathname: '/pick',
-                  params: {
-                    mode: 'vente',
-                    retourFeuille: '1',
-                    ligneKey: l.key,
-                    sections: params.sections,
-                    lignes: params.lignes,
-                    dateSuggeree: dateFeuille,
-                    totalEcrit: totalEcrit != null ? String(totalEcrit) : '',
-                    photoUri: params.photoUri,
-                  },
-                })
-              }
+              onPress={() => ouvrirEdit(l)}
+              style={[styles.row, { borderBottomColor: colors.line }]}
+              accessibilityRole="button"
+              accessibilityLabel={`Modifier ${label}`}
             >
-              <Text style={[styles.articleNom, { color: colors.ink, fontFamily: FONT_TITLE }]}>
-                {l.article_nom || (l.article_id ? 'Article' : 'Article non trouvé')}
+              <Text style={{ fontSize: 22, width: 28, color: isOrange ? colors.warn : '#1B7F3A' }}>
+                {isOrange ? '●' : '✓'}
               </Text>
+              <Text
+                numberOfLines={2}
+                style={[
+                  styles.rowNom,
+                  {
+                    color: colors.ink,
+                    fontStyle: l.article_nom ? 'normal' : 'italic',
+                    fontWeight: l.article_nom ? '700' : '600',
+                  },
+                ]}
+              >
+                {label}
+              </Text>
+              <Text style={[styles.rowQte, { color: colors.muted }]}>×{l.quantite}</Text>
+              <Text style={[styles.rowMontant, { color: colors.ink }]}>{formatFCFA(l.montant)}</Text>
             </Pressable>
-            {!l.article_id ? (
-              <Pressable onPress={() => ouvrirCreer(l)}>
-                <Text style={{ color: colors.indigo, fontWeight: '800', marginBottom: 8 }}>
-                  Créer cet article
-                </Text>
-              </Pressable>
+          );
+        }}
+      />
+
+      <View
+        style={[
+          styles.footer,
+          {
+            backgroundColor: colors.card,
+            borderTopColor: colors.line,
+            paddingBottom: 12 + insets.bottom,
+          },
+        ]}
+      >
+        <View style={styles.totaux}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: colors.muted, fontSize: 14, fontWeight: '700' }}>Total des lignes</Text>
+            <Text
+              style={{
+                color: totalMismatch ? colors.bad : colors.ink,
+                fontSize: 22,
+                fontWeight: '800',
+                fontFamily: FONT_TITLE,
+              }}
+            >
+              {formatFCFA(sommeLignes)}
+            </Text>
+          </View>
+          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+            <Text style={{ color: colors.muted, fontSize: 14, fontWeight: '700' }}>
+              Total écrit sur la feuille
+            </Text>
+            <Text
+              style={{
+                color: totalMismatch ? colors.bad : colors.ink,
+                fontSize: 22,
+                fontWeight: '800',
+                fontFamily: FONT_TITLE,
+              }}
+            >
+              {totalEcrit != null ? formatFCFA(totalEcrit) : '—'}
+            </Text>
+          </View>
+        </View>
+        <Button
+          variant="sell"
+          disabled={bloqueLignes || nbOk === 0 || saving}
+          loading={saving}
+          onPress={() => void tenterEnregistrement()}
+        >
+          {bloqueLignes
+            ? 'Corrigez les lignes orange'
+            : bloqueTotal
+              ? 'Vérifier le total'
+              : `Enregistrer (${nbOk})`}
+        </Button>
+      </View>
+
+      <Sheet visible={!!editLigne && !creerOpen} onRequestClose={fermerEdit}>
+        {editLigne ? (
+          <View style={{ gap: 12, maxHeight: '85%' }}>
+            <Text style={{ fontSize: 22, fontWeight: '800', color: colors.ink, fontFamily: FONT_TITLE }}>
+              Modifier la ligne
+            </Text>
+            {editLigne.texte_lu ? (
+              <Text style={{ color: colors.muted, fontSize: 16 }}>
+                Lu sur la feuille : « {editLigne.texte_lu} »
+              </Text>
             ) : null}
+
+            <Text style={styles.fieldLabel}>Article</Text>
+            <TextInput
+              value={recherche}
+              onChangeText={setRecherche}
+              placeholder="Tapez quelques lettres…"
+              placeholderTextColor={colors.muted}
+              style={[styles.field, { color: colors.ink, borderColor: colors.line, backgroundColor: colors.bg }]}
+            />
+            <View style={{ maxHeight: 160 }}>
+              {suggestions.map((a) => (
+                <Pressable
+                  key={a.id}
+                  onPress={() => void choisirArticle(a)}
+                  style={[styles.suggest, { borderBottomColor: colors.line }]}
+                >
+                  <Text style={{ color: colors.ink, fontSize: 17, fontWeight: '700' }}>{a.nom}</Text>
+                </Pressable>
+              ))}
+            </View>
+            <Button variant="indigo-outline" onPress={ouvrirCreer}>
+              Créer un nouvel article
+            </Button>
+
+            <Text style={styles.fieldLabel}>Quantité</Text>
             <Stepper
-              value={l.quantite}
-              onChange={(q) => updateLigne(l.key, { quantite: q, confiance: 'haute', ecartMontant: false })}
+              value={editLigne.quantite}
+              onChange={(qte) =>
+                updateLigne(editLigne.key, { quantite: qte, confiance: 'haute', ecartMontant: false })
+              }
               min={1}
             />
-            {l.quantite_suggeree != null && l.quantite_suggeree !== l.quantite ? (
-              <Pressable onPress={() => appliquerQteSuggeree(l)}>
-                <Text style={{ color: colors.warn, fontWeight: '700', marginTop: 6 }}>
-                  Quantité proposée pour le montant : {l.quantite_suggeree} — appuyer pour appliquer
-                </Text>
-              </Pressable>
-            ) : null}
+
+            <Text style={styles.fieldLabel}>Tarif</Text>
             <View style={styles.tarifRow}>
               {(['detail', 'gros'] as const).map((t) => (
                 <Pressable
                   key={t}
-                  onPress={() => updateLigne(l.key, { tarif: t })}
+                  onPress={() => updateLigne(editLigne.key, { tarif: t })}
                   style={[
                     styles.tarifBtn,
                     {
-                      backgroundColor: l.tarif === t ? colors.indigo : colors.bg,
+                      backgroundColor: editLigne.tarif === t ? colors.indigo : colors.bg,
                       borderColor: colors.line,
                     },
                   ]}
                 >
-                  <Text style={{ color: l.tarif === t ? colors.onSolid : colors.ink, fontWeight: '700' }}>
+                  <Text
+                    style={{
+                      color: editLigne.tarif === t ? colors.onSolid : colors.ink,
+                      fontWeight: '800',
+                      fontSize: 17,
+                    }}
+                  >
                     {t === 'detail' ? 'Détail' : 'Gros'}
                   </Text>
                 </Pressable>
               ))}
             </View>
-            <Text style={[styles.montant, { color: colors.ink }]}>
-              Montant : {formatFCFA(l.montant)}
-            </Text>
-            <Pressable onPress={() => setLignes((p) => p.filter((x) => x.key !== l.key))}>
-              <Text style={{ color: colors.bad, fontWeight: '700', marginTop: 8 }}>
-                Supprimer cette ligne
-              </Text>
-            </Pressable>
+
+            <Text style={styles.fieldLabel}>Montant (F)</Text>
+            <TextInput
+              value={montantEdit}
+              onChangeText={setMontantEdit}
+              keyboardType="number-pad"
+              style={[styles.field, { color: colors.ink, borderColor: colors.line, backgroundColor: colors.bg }]}
+            />
+
+            <Button variant="sell" onPress={validerEdit}>
+              Valider
+            </Button>
+            <Button variant="ghost" onPress={supprimerLigne}>
+              Supprimer cette ligne
+            </Button>
           </View>
-        );
-      })}
-
-      <Button
-        variant="ghost"
-        onPress={() =>
-          setLignes((p) => [
-            ...p,
-            {
-              key: `n${Date.now()}`,
-              texte_lu: '',
-              article_id: null,
-              article_nom: null,
-              quantite: 1,
-              tarif: 'detail',
-              montant_lu: 0,
-              prix_lu: 0,
-              confiance: 'basse',
-              montant: 0,
-              ecartMontant: false,
-            },
-          ])
-        }
-      >
-        Ajouter une ligne oubliée
-      </Button>
-
-      <View style={[styles.total, { backgroundColor: colors.indigo }]}>
-        <Text style={{ color: colors.onSolid, fontSize: 16 }}>
-          Somme des lignes : {formatFCFA(sommeLignes)}
-        </Text>
-        <Text style={{ color: colors.onSolid, fontSize: 16, marginTop: 4 }}>
-          Total écrit : {totalEcrit != null ? formatFCFA(totalEcrit) : '—'}
-        </Text>
-        {totalMismatch ? (
-          <Text style={{ color: colors.warnSoft, fontWeight: '800', marginTop: 8 }}>
-            Les totaux ne correspondent pas
-          </Text>
         ) : null}
-      </View>
+      </Sheet>
 
-      <Button
-        variant="sell"
-        disabled={bloqueLignes || nbOk === 0 || saving}
-        loading={saving}
-        onPress={() => void tenterEnregistrement()}
-      >
-        {bloqueLignes
-          ? 'Corrigez les lignes orange'
-          : bloqueTotal
-            ? 'Vérifier le total'
-            : `Enregistrer ces ${nbOk} ventes`}
-      </Button>
+      <Sheet visible={creerOpen} onRequestClose={() => setCreerOpen(false)}>
+        <View style={{ gap: 12 }}>
+          <Text style={{ fontSize: 22, fontWeight: '800', color: colors.ink, fontFamily: FONT_TITLE }}>
+            Nouvel article
+          </Text>
+          <Text style={styles.fieldLabel}>Nom</Text>
+          <TextInput
+            value={creerNom}
+            onChangeText={setCreerNom}
+            style={[styles.field, { color: colors.ink, borderColor: colors.line, backgroundColor: colors.bg }]}
+          />
+          <Text style={styles.fieldLabel}>Catégorie</Text>
+          <View style={styles.tarifRow}>
+            {(
+              [
+                ['produits', 'Produits'],
+                ['meches', 'Mèches'],
+              ] as const
+            ).map(([id, lab]) => (
+              <Pressable
+                key={id}
+                onPress={() => setCreerCat(id)}
+                style={[
+                  styles.tarifBtn,
+                  {
+                    backgroundColor: creerCat === id ? colors.indigo : colors.bg,
+                    borderColor: colors.line,
+                  },
+                ]}
+              >
+                <Text
+                  style={{
+                    color: creerCat === id ? colors.onSolid : colors.ink,
+                    fontWeight: '800',
+                    fontSize: 17,
+                  }}
+                >
+                  {lab}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+          <Text style={styles.fieldLabel}>Prix détail</Text>
+          <TextInput
+            value={creerPrixDetail}
+            onChangeText={setCreerPrixDetail}
+            keyboardType="number-pad"
+            style={[styles.field, { color: colors.ink, borderColor: colors.line, backgroundColor: colors.bg }]}
+          />
+          <Text style={styles.fieldLabel}>Prix gros</Text>
+          <TextInput
+            value={creerPrixGros}
+            onChangeText={setCreerPrixGros}
+            keyboardType="number-pad"
+            style={[styles.field, { color: colors.ink, borderColor: colors.line, backgroundColor: colors.bg }]}
+          />
+          <Text style={styles.fieldLabel}>Stock actuel en boutique</Text>
+          <TextInput
+            value={creerStock}
+            onChangeText={setCreerStock}
+            keyboardType="number-pad"
+            style={[styles.field, { color: colors.ink, borderColor: colors.line, backgroundColor: colors.bg }]}
+          />
+          <Button variant="sell" onPress={() => void validerCreer()}>
+            Créer et utiliser
+          </Button>
+          <Button variant="ghost" onPress={() => setCreerOpen(false)}>
+            Annuler
+          </Button>
+        </View>
+      </Sheet>
 
+      <ConfirmDialog
+        visible={confirm}
+        title="Enregistrer le lot ?"
+        description={`${nbOk} ventes · ${formatFCFA(sommeLignes)}`}
+        safeLabel="Pas encore"
+        onSafe={() => setConfirm(false)}
+        dangerLabel="Oui, enregistrer"
+        onConfirmDanger={() => void enregistrer()}
+      />
       <ConfirmDialog
         visible={warnTotal}
         title="Totaux différents"
-        description={`Somme des lignes ${formatFCFA(sommeLignes)} · Total écrit ${formatFCFA(totalEcrit ?? 0)}. Corrigez les montants, ou confirmez quand même.`}
+        description={`Lignes ${formatFCFA(sommeLignes)} · Écrit ${formatFCFA(totalEcrit ?? 0)}`}
         safeLabel="Corriger"
         onSafe={() => setWarnTotal(false)}
         dangerLabel="Enregistrer quand même"
         onConfirmDanger={() => {
-          setWarnTotal(false);
           setTotalForceOk(true);
+          setWarnTotal(false);
           setConfirm(true);
         }}
       />
       <ConfirmDialog
         visible={warnDouble}
-        title="Cette feuille semble déjà enregistrée"
-        description="Un lot avec les mêmes articles, quantités et montants existe déjà pour cette date."
-        safeLabel="Non, ne pas enregistrer"
+        title="Lot semblable déjà enregistré"
+        description="Un lot proche existe déjà pour cette date."
+        safeLabel="Annuler"
         onSafe={() => setWarnDouble(false)}
         dangerLabel="Enregistrer quand même"
         onConfirmDanger={() => {
@@ -543,95 +802,72 @@ export default function VerifierFeuilleScreen() {
           setConfirm(true);
         }}
       />
-      <ConfirmDialog
-        visible={confirm}
-        title="Enregistrer le lot ?"
-        description={`${nbOk} ventes · ${formatFCFA(sommeLignes)}`}
-        safeLabel="Non, revenir"
-        onSafe={() => setConfirm(false)}
-        dangerLabel="Oui, enregistrer"
-        onConfirmDanger={() => void enregistrer()}
-      />
-
-      <Sheet visible={creerOpen != null} onRequestClose={() => setCreerOpen(null)}>
-        <Text style={[styles.articleNom, { color: colors.ink, fontFamily: FONT_TITLE }]}>
-          Créer cet article
-        </Text>
-        <Text style={[styles.label, { color: colors.muted }]}>Nom</Text>
-        <TextInput
-          value={creerNom}
-          onChangeText={setCreerNom}
-          style={[styles.input, { color: colors.ink, borderColor: colors.line, backgroundColor: colors.card }]}
-        />
-        <View style={styles.tarifRow}>
-          {(['produits', 'meches'] as const).map((c) => (
-            <Pressable
-              key={c}
-              onPress={() => setCreerCat(c)}
-              style={[
-                styles.tarifBtn,
-                {
-                  backgroundColor: creerCat === c ? colors.indigo : colors.bg,
-                  borderColor: colors.line,
-                },
-              ]}
-            >
-              <Text style={{ color: creerCat === c ? colors.onSolid : colors.ink, fontWeight: '700' }}>
-                {c === 'produits' ? 'Produits' : 'Mèches'}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-        <Text style={[styles.label, { color: colors.muted }]}>Prix détail (FCFA)</Text>
-        <TextInput
-          value={creerPrix}
-          onChangeText={setCreerPrix}
-          keyboardType="number-pad"
-          style={[styles.input, { color: colors.ink, borderColor: colors.line, backgroundColor: colors.card }]}
-        />
-        <Button variant="sell" onPress={() => void validerCreer()}>
-          Créer et associer
-        </Button>
-      </Sheet>
-    </ScreenScroll>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  label: { fontSize: 14, fontWeight: '700', marginTop: 8 },
-  input: {
+  root: { flex: 1 },
+  dateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+  },
+  dateLabel: { fontWeight: '700', fontSize: 16 },
+  dateInput: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 18,
+    minWidth: 130,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  rowNom: { flex: 1, fontSize: 18, lineHeight: 24 },
+  rowQte: { fontSize: 17, fontWeight: '700', minWidth: 36, textAlign: 'right' },
+  rowMontant: { fontSize: 17, fontWeight: '800', minWidth: 88, textAlign: 'right' },
+  addBtn: {
+    marginTop: 12,
+    borderWidth: 2,
+    borderRadius: 14,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  footer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderTopWidth: 1,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    gap: 10,
+  },
+  totaux: { flexDirection: 'row', gap: 12 },
+  sectionBtn: { borderWidth: 2, borderRadius: 14, padding: 14 },
+  fieldLabel: { fontWeight: '800', fontSize: 16 },
+  field: {
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 18,
-    marginBottom: 12,
   },
-  card: {
-    borderWidth: 2,
-    borderRadius: 16,
-    padding: 14,
-    marginBottom: 12,
-  },
-  articleNom: { fontSize: 22, fontWeight: '800', marginVertical: 8 },
-  tarifRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
+  suggest: { paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
+  tarifRow: { flexDirection: 'row', gap: 10 },
   tarifBtn: {
     flex: 1,
     borderWidth: 1,
     borderRadius: 12,
-    paddingVertical: 12,
+    paddingVertical: 14,
     alignItems: 'center',
-  },
-  montant: { fontSize: 20, fontWeight: '800', marginTop: 10 },
-  total: {
-    borderRadius: 16,
-    padding: 16,
-    marginVertical: 16,
-    alignItems: 'center',
-  },
-  sectionBtn: {
-    borderWidth: 2,
-    borderRadius: 12,
-    padding: 12,
   },
 });
