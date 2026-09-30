@@ -1,7 +1,6 @@
 import { Suspense, useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { SQLiteProvider } from 'expo-sqlite';
 import * as SplashScreen from 'expo-splash-screen';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -14,8 +13,8 @@ import {
   BricolageGrotesque_700Bold,
   BricolageGrotesque_800ExtraBold,
 } from '@expo-google-fonts/bricolage-grotesque';
-import { migrateDatabase } from '../db/migrate';
 import { AppErrorBoundary } from '../components/AppErrorBoundary';
+import { BoutiqueSQLiteProvider } from '../components/BoutiqueSQLiteProvider';
 import { ToastProvider } from '../components/Toast';
 import { AdminSessionProvider } from '../lib/AdminSession';
 import { AuthSessionProvider } from '../lib/AuthSession';
@@ -65,7 +64,7 @@ export default function RootLayout() {
     <AppErrorBoundary>
       <SafeAreaProvider>
         <Suspense fallback={<LoadingScreen />}>
-          <SQLiteProvider databaseName="boutique.db" onInit={migrateDatabase} useSuspense>
+          <BoutiqueSQLiteProvider fallback={<LoadingScreen />}>
             <AuthSessionProvider>
               <SyncSessionProvider>
                 <ToastProvider>
@@ -75,7 +74,7 @@ export default function RootLayout() {
                 </ToastProvider>
               </SyncSessionProvider>
             </AuthSessionProvider>
-          </SQLiteProvider>
+          </BoutiqueSQLiteProvider>
         </Suspense>
       </SafeAreaProvider>
     </AppErrorBoundary>

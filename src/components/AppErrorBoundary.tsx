@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { isOpfsLockError } from '../db/webSqliteLock';
 import { FONT_TITLE } from '../theme/typography';
 
 type Props = { children: ReactNode };
@@ -7,6 +8,7 @@ type State = { error: Error | null };
 
 /**
  * Évite l’écran blanc si SQLite/wasm ou un autre module plante au démarrage (web).
+ * Ne propose JAMAIS de supprimer la base locale (ventes a_envoyer possibles).
  */
 export class AppErrorBoundary extends Component<Props, State> {
   state: State = { error: null };
@@ -29,12 +31,15 @@ export class AppErrorBoundary extends Component<Props, State> {
   render() {
     if (!this.state.error) return this.props.children;
 
+    const opfs = isOpfsLockError(this.state.error);
+
     return (
       <View style={styles.box} accessibilityRole="alert">
-        <Text style={styles.title}>Une erreur est survenue</Text>
+        <Text style={styles.title}>{opfs ? 'Déjà ouverte ailleurs' : 'Une erreur est survenue'}</Text>
         <Text style={styles.body}>
-          L’application n’a pas pu démarrer. Rechargez la page. Si le problème continue, videz le
-          cache du site ou réinstallez depuis Safari (Sur l’écran d’accueil).
+          {opfs
+            ? 'L’application est déjà ouverte dans un autre onglet. Fermez l’autre onglet, puis appuyez sur Recharger. Vos ventes enregistrées sur cet appareil ne sont pas effacées.'
+            : 'L’application n’a pas pu démarrer. Rechargez la page. Si le problème continue, réessayez plus tard — ne videz pas le stockage du site (vos ventes en attente d’envoi sont dessus).'}
         </Text>
         <Pressable
           onPress={this.recharger}

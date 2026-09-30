@@ -4,7 +4,9 @@ module.exports = {
   globPatterns: ['**/*'],
   globIgnores: ['**/*.map', 'sw.js', 'workbox-*.js'],
   swDest: 'dist/sw.js',
-  skipWaiting: true,
+  // Ne pas activer le nouveau SW tant que des onglets tiennent encore OPFS
+  // (sinon NoModificationAllowedError au démarrage après déploiement).
+  skipWaiting: false,
   clientsClaim: true,
   cleanupOutdatedCaches: true,
   maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
