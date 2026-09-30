@@ -246,15 +246,20 @@ export function rapprocherArticle(
     if (distTokens[0] && commun.includes(distTokens[0])) {
       score = Math.min(1, score + 0.05);
     }
-    if (tailleQ && tailleA === tailleQ) score = Math.min(1, score + 0.08);
-    scored.push({ id: a.id, nom: a.nom, score });
+    if (tailleQ && tailleA === tailleQ) score = Math.min(1, score + 0.18);
+    if (tailleQ && !tailleA) score -= 0.12;
+    scored.push({ id: a.id, nom: a.nom, score, tailleA });
   }
-  scored.sort((a, b) => b.score - a.score);
-  const top = scored.filter((s) => s.score >= 0.7).slice(0, 3);
+  let pool = scored;
+  if (tailleQ && scored.some((s) => (s as { tailleA?: string }).tailleA === tailleQ)) {
+    pool = scored.filter((s) => (s as { tailleA?: string }).tailleA === tailleQ);
+  }
+  pool.sort((a, b) => b.score - a.score);
+  const top = pool.filter((s) => s.score >= 0.7).slice(0, 3);
   if (!top.length) return { articleId: null, score: 0, nomCatalogue: null };
   const best = top[0]!;
   const second = top[1];
-  if (second && best.score - second.score < 0.08) {
+  if (second && best.score - second.score < 0.06) {
     return { articleId: null, score: best.score, nomCatalogue: null };
   }
   if (best.score < seuil) {

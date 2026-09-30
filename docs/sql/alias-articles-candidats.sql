@@ -1,4 +1,7 @@
 -- Additive : alias ambigus (plusieurs articles pour un même texte_norm)
+-- DROP policy uniquement sur alias_articles_candidats. Une transaction.
+begin;
+
 create table if not exists alias_articles_candidats (
   boutique_id uuid not null references boutiques(id) on delete cascade,
   texte_norm text not null,
@@ -15,3 +18,5 @@ alter table alias_articles_candidats enable row level security;
 drop policy if exists aac_lire on alias_articles_candidats;
 create policy aac_lire on alias_articles_candidats for select using (est_membre(boutique_id));
 -- Écriture : service role (seed) ; pas de policy insert pour authenticated.
+
+commit;

@@ -2,7 +2,7 @@
   "projet": "https://ivqbjgfxbymiizfjhygv.supabase.co",
   "boutique_id": "db88ec62-fe85-4548-8e8e-920c4f99db70",
   "mode": "rejouer",
-  "evalue_le": "2026-09-30T10:16:35.946Z",
+  "evalue_le": "2026-09-30T10:37:09.769Z",
   "version_attendue": "lire-feuille-v2-single-call",
   "feuilles": [
     {
@@ -76,35 +76,16 @@
         },
         {
           "texte_lu": "Gel Petit",
-          "article_id": null,
-          "article_propose": null,
+          "article_id": "da3feb09-2405-490d-84d2-292eab5553f5",
+          "article_propose": "Gel pétals petit",
           "quantite": 8,
           "tarif": null,
           "montant_lu": 1200,
           "prix_lu": 1200,
           "confiance": "basse",
           "chiffre_ambigu": true,
-          "variantes": [
-            {
-              "id": "da3feb09-2405-490d-84d2-292eab5553f5",
-              "nom": "Gel pétals petit",
-              "score": 1,
-              "commun": [
-                "gel"
-              ],
-              "ecartPrix": 0.2
-            },
-            {
-              "id": "1a7e2092-7116-43c1-a9ed-4a0213cb5008",
-              "nom": "Gel pétales blancs",
-              "score": 0.9933333333333334,
-              "commun": [
-                "gel"
-              ],
-              "ecartPrix": 0.2
-            }
-          ],
-          "via": "ressemblance_indetermine",
+          "variantes": null,
+          "via": "ressemblance",
           "barree": false
         },
         {
@@ -307,7 +288,8 @@
               "commun": [
                 "vernis"
               ],
-              "ecartPrix": 0.1
+              "ecartPrix": 0.1,
+              "tailleA": null
             },
             {
               "id": "26f38559-1c95-4d3a-8f89-2174ff1cab7d",
@@ -316,7 +298,8 @@
               "commun": [
                 "vernis"
               ],
-              "ecartPrix": 0.1
+              "ecartPrix": 0.1,
+              "tailleA": null
             }
           ],
           "via": "ressemblance_indetermine",
@@ -325,13 +308,13 @@
       ],
       "score": {
         "article": {
-          "justes": 11,
+          "justes": 12,
           "faux": 0,
-          "null_ok": 7,
+          "null_ok": 6,
           "total": 18,
-          "taux_justes": 61.1,
+          "taux_justes": 66.7,
           "taux_faux": 0,
-          "taux_null": 38.9
+          "taux_null": 33.3
         },
         "quantite": {
           "justes": 18,
@@ -344,9 +327,9 @@
           "taux": 100
         },
         "ligne_complete": {
-          "justes": 11,
+          "justes": 12,
           "total": 18,
-          "taux": 61.1
+          "taux": 66.7
         },
         "en_trop": [
           {
@@ -394,8 +377,8 @@
             "quantite": 8,
             "montant": 1200,
             "article_attendu": "Gel pétals petit",
-            "article_propose": null,
-            "classe_article": "null_ok"
+            "article_propose": "Gel pétals petit",
+            "classe_article": "juste"
           },
           {
             "texte_lu": "Pétal + Passion",
@@ -564,8 +547,8 @@
           {
             "i": 4,
             "j": 4,
-            "classe_article": "null_ok",
-            "artOk": false,
+            "classe_article": "juste",
+            "artOk": true,
             "qOk": true,
             "mOk": true,
             "score_appariement": 5

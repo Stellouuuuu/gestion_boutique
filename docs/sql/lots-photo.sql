@@ -1,7 +1,10 @@
 -- =============================================================================
 -- Migration ADDITIVE — lots photo (TEST d’abord, PRODUCTION après accord)
--- Idempotent. Ne droppe rien.
+-- Idempotent. Ne droppe rien de métier.
+-- DROP policy/trigger : uniquement lots_photo + policies storage feuilles-photo
+--   (pas articles, pas mouvements). Exécuter en UNE transaction.
 -- =============================================================================
+begin;
 
 -- Lots issus d’une photo de feuille manuscrite
 create table if not exists lots_photo (
@@ -96,3 +99,4 @@ create policy feuilles_photo_creer on storage.objects
   );
 
 -- Voir aussi docs/sql/alias-articles.sql (surnoms manuscrits).
+commit;

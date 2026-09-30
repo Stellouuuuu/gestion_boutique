@@ -264,7 +264,8 @@ export function rapprocherAvecAlias(texteLu, catalogue, aliases, opts = {}, alia
 
   const tailleQ = tailleIndice(texteLu);
 
-  // Mot trop court / unique → trop ambigu sans alias (Limé, gel seul…)
+  // Mot trop court / unique SANS taille → trop ambigu (Limé).
+  // « Gel Petit » a une taille → on continue (gel est distinctif).
   if (distTokens.length === 1 && distTokens[0].length <= 4 && !tailleQ) {
     return { articleId: null, score: 0, nomCatalogue: null, via: 'trop_court', variantes: [] };
   }
@@ -289,12 +290,16 @@ export function rapprocherAvecAlias(texteLu, catalogue, aliases, opts = {}, alia
     if (!prixCompatible(unit, a)) continue;
 
     const tailleA = tailleIndice(a.nom);
+    // Taille explicite contradictoire → skip
     if (tailleQ && tailleA && tailleQ !== tailleA) continue;
 
     const artCov = commun.length / artTokens.length;
     let score = 0.7 + artCov * 0.25;
     if (distTokens[0] && tokenMatch(distTokens[0], artTokens)) score = Math.min(1, score + 0.05);
-    if (tailleQ && tailleA === tailleQ) score = Math.min(1, score + 0.08);
+    // Bonus fort si la taille demandée est présente sur l’article
+    if (tailleQ && tailleA === tailleQ) score = Math.min(1, score + 0.18);
+    // Pénalité si on a demandé une taille et l’article n’en a pas
+    if (tailleQ && !tailleA) score -= 0.12;
     const prix = [a.prix_detail, a.prix_gros]
       .filter((p) => p != null && Number(p) > 0)
       .map(Number);
@@ -303,16 +308,22 @@ export function rapprocherAvecAlias(texteLu, catalogue, aliases, opts = {}, alia
       ecartPrix = Math.min(...prix.map((p) => Math.abs(p - unit) / p));
       score = Math.min(1, score + Math.max(0, 0.2 - ecartPrix * 0.2));
     }
-    scored.push({ id: a.id, nom: a.nom, score, commun, ecartPrix });
+    scored.push({ id: a.id, nom: a.nom, score, commun, ecartPrix, tailleA });
   }
-  scored.sort((a, b) => b.score - a.score || a.ecartPrix - b.ecartPrix);
-  const top = scored.filter((s) => s.score >= 0.7).slice(0, 3);
+  // Si une taille est demandée et qu’au moins un candidat la porte, ignorer les autres
+  let pool = scored;
+  if (tailleQ && scored.some((s) => s.tailleA === tailleQ)) {
+    pool = scored.filter((s) => s.tailleA === tailleQ);
+  }
+  pool.sort((a, b) => b.score - a.score || a.ecartPrix - b.ecartPrix);
+  const top = pool.filter((s) => s.score >= 0.7).slice(0, 3);
   if (!top.length) {
     return { articleId: null, score: 0, nomCatalogue: null, via: 'ressemblance', variantes: [] };
   }
   const best = top[0];
   const second = top[1];
-  if (second && best.score - second.score < 0.08 && Math.abs(best.ecartPrix - second.ecartPrix) < 0.12) {
+  // Doute seulement si scores ET prix encore très proches
+  if (second && best.score - second.score < 0.06 && Math.abs(best.ecartPrix - second.ecartPrix) < 0.08) {
     return {
       articleId: null,
       score: best.score,

@@ -1,7 +1,9 @@
 -- =============================================================================
 -- Migration ADDITIVE — alias manuscrits (TEST d’abord, PRODUCTION après accord)
--- Idempotent. Ne droppe rien.
+-- Idempotent. DROP policy/trigger uniquement sur alias_articles.
+-- Exécuter en UNE transaction.
 -- =============================================================================
+begin;
 
 create table if not exists alias_articles (
   boutique_id uuid not null references boutiques(id) on delete cascade,
@@ -34,3 +36,5 @@ create policy aa_modifier on alias_articles for update
 
 drop policy if exists aa_supprimer on alias_articles;
 create policy aa_supprimer on alias_articles for delete using (est_membre(boutique_id));
+
+commit;

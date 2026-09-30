@@ -295,7 +295,13 @@ function rapprocher(
   if (distTok.length === 1 && distTok[0]!.length <= 4 && !tailleQ) {
     return { id: null, score: 0, variantes: [] };
   }
-  const scored: Array<{ id: string; nom: string; score: number; ecartPrix: number }> = [];
+  const scored: Array<{
+    id: string;
+    nom: string;
+    score: number;
+    ecartPrix: number;
+    tailleA: 'petit' | 'grand' | 'moyen' | null;
+  }> = [];
   for (const a of catalogue) {
     const artTok = tokensDistinctifs(a.nom);
     if (!artTok.length) continue;
@@ -307,7 +313,8 @@ function rapprocher(
     const artCov = commun.length / artTok.length;
     let score = 0.7 + artCov * 0.25;
     if (distTok[0] && tokenMatch(distTok[0], artTok)) score = Math.min(1, score + 0.05);
-    if (tailleQ && tailleA === tailleQ) score = Math.min(1, score + 0.08);
+    if (tailleQ && tailleA === tailleQ) score = Math.min(1, score + 0.18);
+    if (tailleQ && !tailleA) score -= 0.12;
     const prix = [a.prix_detail, a.prix_gros]
       .filter((p) => p != null && Number(p) > 0)
       .map(Number);
@@ -316,17 +323,21 @@ function rapprocher(
       ecartPrix = Math.min(...prix.map((p) => Math.abs(p - unit) / p));
       score = Math.min(1, score + Math.max(0, 0.2 - ecartPrix * 0.2));
     }
-    scored.push({ id: a.id, nom: a.nom, score, ecartPrix });
+    scored.push({ id: a.id, nom: a.nom, score, ecartPrix, tailleA });
   }
-  scored.sort((a, b) => b.score - a.score || a.ecartPrix - b.ecartPrix);
-  const top = scored.filter((s) => s.score >= 0.7).slice(0, 3);
+  let pool = scored;
+  if (tailleQ && scored.some((s) => s.tailleA === tailleQ)) {
+    pool = scored.filter((s) => s.tailleA === tailleQ);
+  }
+  pool.sort((a, b) => b.score - a.score || a.ecartPrix - b.ecartPrix);
+  const top = pool.filter((s) => s.score >= 0.7).slice(0, 3);
   if (!top.length) {
     return { id: null, score: 0, variantes: [] };
   }
   if (
     top[1] &&
-    top[0].score - top[1].score < 0.08 &&
-    Math.abs(top[0].ecartPrix - top[1].ecartPrix) < 0.12
+    top[0].score - top[1].score < 0.06 &&
+    Math.abs(top[0].ecartPrix - top[1].ecartPrix) < 0.08
   ) {
     return { id: null, score: top[0].score, variantes: top };
   }
