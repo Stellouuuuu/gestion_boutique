@@ -195,12 +195,12 @@ function distanceLevenshtein(a: string, b: string): number {
 function tokenMatch(t: string, artTokens: string[]): boolean {
   if (artTokens.includes(t)) return true;
   if (t.length < 3) return false;
-  return artTokens.some(
-    (at) =>
-      at.length >= 3 &&
-      Math.abs(at.length - t.length) <= 1 &&
-      distanceLevenshtein(t, at) === 1
-  );
+  const maxDist = t.length >= 5 ? 2 : 1;
+  return artTokens.some((at) => {
+    if (at.length < 3) return false;
+    if (Math.abs(at.length - t.length) > maxDist) return false;
+    return distanceLevenshtein(t, at) <= maxDist;
+  });
 }
 
 function prixCompatible(
@@ -241,9 +241,38 @@ function rapprocher(
     const ids = aliasMulti.get(cle) || aliasMulti.get(cleC);
     if (ids?.length) {
       const cands = ids.map((id) => byId[id]).filter(Boolean) as Article[];
+      const estPetal = /^(petal|petals)$/.test(cle) || /^(petal|petals)$/.test(cleC);
+      if (estPetal && unit != null && unit >= 300) {
+        const grand = cands.find((a) => /petal one/.test(normaliserNom(a.nom)));
+        if (grand) {
+          return {
+            id: grand.id,
+            score: 0.96,
+            variantes: [{ id: grand.id, nom: grand.nom, score: 0.96 }],
+          };
+        }
+      }
       const ok = unit != null ? cands.filter((a) => prixCompatible(unit, a)) : [];
       if (ok.length === 1) {
         return { id: ok[0].id, score: 0.95, variantes: [{ id: ok[0].id, nom: ok[0].nom, score: 0.95 }] };
+      }
+      if (ok.length > 1 && unit != null) {
+        const ranked = ok
+          .map((a) => {
+            const prix = [a.prix_detail, a.prix_gros]
+              .filter((p) => p != null && Number(p) > 0)
+              .map(Number);
+            const ecart = Math.min(...prix.map((p) => Math.abs(p - unit) / p));
+            return { a, ecart };
+          })
+          .sort((x, y) => x.ecart - y.ecart);
+        if (ranked.length >= 2 && ranked[1].ecart - ranked[0].ecart >= 0.15) {
+          return {
+            id: ranked[0].a.id,
+            score: 0.94,
+            variantes: [{ id: ranked[0].a.id, nom: ranked[0].a.nom, score: 0.94 }],
+          };
+        }
       }
       return {
         id: null,
@@ -263,7 +292,10 @@ function rapprocher(
   }
 
   const tailleQ = tailleIndice(texte);
-  const scored: Array<{ id: string; nom: string; score: number }> = [];
+  if (distTok.length === 1 && distTok[0]!.length <= 4 && !tailleQ) {
+    return { id: null, score: 0, variantes: [] };
+  }
+  const scored: Array<{ id: string; nom: string; score: number; ecartPrix: number }> = [];
   for (const a of catalogue) {
     const artTok = tokensDistinctifs(a.nom);
     if (!artTok.length) continue;
@@ -279,18 +311,23 @@ function rapprocher(
     const prix = [a.prix_detail, a.prix_gros]
       .filter((p) => p != null && Number(p) > 0)
       .map(Number);
+    let ecartPrix = 1;
     if (prix.length) {
-      const bestP = Math.min(...prix.map((p) => Math.abs(p - unit) / p));
-      score = Math.min(1, score + Math.max(0, 0.1 - bestP * 0.1));
+      ecartPrix = Math.min(...prix.map((p) => Math.abs(p - unit) / p));
+      score = Math.min(1, score + Math.max(0, 0.2 - ecartPrix * 0.2));
     }
-    scored.push({ id: a.id, nom: a.nom, score });
+    scored.push({ id: a.id, nom: a.nom, score, ecartPrix });
   }
-  scored.sort((a, b) => b.score - a.score);
+  scored.sort((a, b) => b.score - a.score || a.ecartPrix - b.ecartPrix);
   const top = scored.filter((s) => s.score >= 0.7).slice(0, 3);
   if (!top.length) {
     return { id: null, score: 0, variantes: [] };
   }
-  if (top[1] && top[0].score - top[1].score < 0.08) {
+  if (
+    top[1] &&
+    top[0].score - top[1].score < 0.08 &&
+    Math.abs(top[0].ecartPrix - top[1].ecartPrix) < 0.12
+  ) {
     return { id: null, score: top[0].score, variantes: top };
   }
   return { id: top[0].id, score: top[0].score, variantes: [top[0]] };
@@ -682,6 +719,7 @@ Deno.serve(async (req) => {
           montant != null && q > 0 ? montant / q : montant != null ? montant : null;
         const cleA = normaliserAlias(texte);
         const aliasId = aliases.get(cleA) || aliases.get(cleA.replace(/\s+/g, ''));
+        // Alias unique = source de vérité pour le nom ; prix vérifié si montant connu
         if (aliasId && byId[aliasId]) {
           const artA = byId[aliasId];
           if (unit == null || prixCompatible(unit, artA)) {

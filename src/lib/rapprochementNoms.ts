@@ -229,12 +229,12 @@ export function rapprocherArticle(
     const commun = distTokens.filter((t) => {
       if (artTokens.includes(t)) return true;
       if (t.length < 3) return false;
-      return artTokens.some(
-        (at) =>
-          at.length >= 3 &&
-          Math.abs(at.length - t.length) <= 1 &&
-          distanceLevenshtein(t, at) === 1
-      );
+      const maxDist = t.length >= 5 ? 2 : 1;
+      return artTokens.some((at) => {
+        if (at.length < 3) return false;
+        if (Math.abs(at.length - t.length) > maxDist) return false;
+        return distanceLevenshtein(t, at) <= maxDist;
+      });
     });
     if (commun.length !== distTokens.length) continue;
     if (!prixCompatible(unit, a)) continue;

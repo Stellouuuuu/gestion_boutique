@@ -8,24 +8,24 @@
       "total_ecrit": 12100,
       "ecart_total_attendu": true,
       "lignes": [
-        { "texte_lu": "Méga", "article": null, "quantite": 3, "montant": 1500 },
+        { "texte_lu": "Méga", "article": "Méga détail", "quantite": 3, "montant": 1500 },
         { "texte_lu": "Limé", "article": null, "quantite": 2, "montant": 200 },
-        { "texte_lu": "chouchou Perle", "article": "Chouchou perle petit", "quantite": 3, "montant": 250 },
-        { "texte_lu": "Méga", "article": null, "quantite": 1, "montant": 500 },
+        { "texte_lu": "chauchou perle", "article": "Chouchou perle petit", "quantite": 3, "montant": 250 },
+        { "texte_lu": "Méga", "article": "Méga détail", "quantite": 1, "montant": 500 },
         { "texte_lu": "Gel Petit", "article": "Gel pétals petit", "quantite": 8, "montant": 1200 },
         { "texte_lu": "Pétal + Passion", "article": null, "quantite": 3, "montant": 1000 },
         { "texte_lu": "Super Glue", "article": null, "quantite": 1, "montant": 1000, "chiffre_ambigu": true },
-        { "texte_lu": "Pied de biche", "article": null, "quantite": 6, "montant": 500 },
+        { "texte_lu": "Pied de biche", "article": "Taille ongle", "quantite": 6, "montant": 500 },
         { "texte_lu": "Soleil Pt", "article": "Soleil petit", "quantite": 1, "montant": 300 },
         { "texte_lu": "super Glue", "article": "Super glue", "quantite": 1, "montant": 100 },
         { "texte_lu": "boule ceris", "article": null, "quantite": 1, "montant": 200 },
         { "texte_lu": "ABC", "article": "Produit ABC petit", "quantite": 3, "montant": 1250 },
         { "texte_lu": "Cyndie", "article": "Pommade cyndie", "quantite": 1, "montant": 500 },
         { "texte_lu": "super blanc", "article": null, "quantite": 1, "montant": 200 },
-        { "texte_lu": "tam - tam", "article": "Tam-tam got 26", "quantite": 1, "montant": 600 },
-        { "texte_lu": "tam - tam", "article": "Tam-tam got 26", "quantite": 1, "montant": 600 },
-        { "texte_lu": "super glu.", "article": "Super glue", "quantite": 1, "montant": 100 },
-        { "texte_lu": "Vernis", "article": "Vernis couleur", "quantite": 1, "montant": 2200 }
+        { "texte_lu": "tam-tam", "article": "Tam-tam got 26", "quantite": 1, "montant": 600 },
+        { "texte_lu": "tam-tam", "article": "Tam-tam got 26", "quantite": 1, "montant": 600 },
+        { "texte_lu": "super glu", "article": "Super glue", "quantite": 1, "montant": 100 },
+        { "texte_lu": "Vernis (12-100)", "article": "Vernis couleur", "quantite": 1, "montant": 2200 }
       ]
     },
     {

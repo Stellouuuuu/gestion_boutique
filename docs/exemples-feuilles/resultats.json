@@ -2,7 +2,7 @@
   "projet": "https://ivqbjgfxbymiizfjhygv.supabase.co",
   "boutique_id": "db88ec62-fe85-4548-8e8e-920c4f99db70",
   "mode": "rejouer",
-  "evalue_le": "2026-09-30T06:48:23.925Z",
+  "evalue_le": "2026-09-30T10:16:35.946Z",
   "version_attendue": "lire-feuille-v2-single-call",
   "feuilles": [
     {
@@ -42,58 +42,22 @@
           "prix_lu": 200,
           "confiance": "basse",
           "chiffre_ambigu": false,
-          "variantes": [
-            {
-              "id": "3c05e275-8d02-41ef-a4d2-3d5398ff14f7",
-              "nom": "Lime chiffon",
-              "score": 0.9356060606060606,
-              "commun": [
-                "lime"
-              ]
-            },
-            {
-              "id": "7fd9d91b-2298-49d2-9eb1-e776dce3c1ff",
-              "nom": "Lime en bois blanc",
-              "score": 0.915686274509804,
-              "commun": [
-                "lime"
-              ]
-            }
-          ],
-          "via": "ressemblance_indetermine",
+          "variantes": null,
+          "via": "trop_court",
           "barree": false
         },
         {
           "texte_lu": "chauchou perle",
-          "article_id": null,
-          "article_propose": null,
+          "article_id": "29aef415-92b6-44a7-870f-a9af5a25a9cd",
+          "article_propose": "Chouchou perle petit",
           "quantite": 3,
           "tarif": null,
           "montant_lu": 250,
           "prix_lu": 250,
           "confiance": "basse",
           "chiffre_ambigu": true,
-          "variantes": [
-            {
-              "id": "0f416bdb-3c9a-4911-9f5a-d44aa1ad1007",
-              "nom": "Chouchou perle nœud",
-              "score": 1,
-              "commun": [
-                "chauchou",
-                "perle"
-              ]
-            },
-            {
-              "id": "29aef415-92b6-44a7-870f-a9af5a25a9cd",
-              "nom": "Chouchou perle petit",
-              "score": 1,
-              "commun": [
-                "chauchou",
-                "perle"
-              ]
-            }
-          ],
-          "via": "ressemblance_indetermine",
+          "variantes": null,
+          "via": "ressemblance",
           "barree": false
         },
         {
@@ -112,16 +76,35 @@
         },
         {
           "texte_lu": "Gel Petit",
-          "article_id": "da3feb09-2405-490d-84d2-292eab5553f5",
-          "article_propose": "Gel pétals petit",
+          "article_id": null,
+          "article_propose": null,
           "quantite": 8,
           "tarif": null,
           "montant_lu": 1200,
           "prix_lu": 1200,
           "confiance": "basse",
           "chiffre_ambigu": true,
-          "variantes": null,
-          "via": "ressemblance",
+          "variantes": [
+            {
+              "id": "da3feb09-2405-490d-84d2-292eab5553f5",
+              "nom": "Gel pétals petit",
+              "score": 1,
+              "commun": [
+                "gel"
+              ],
+              "ecartPrix": 0.2
+            },
+            {
+              "id": "1a7e2092-7116-43c1-a9ed-4a0213cb5008",
+              "nom": "Gel pétales blancs",
+              "score": 0.9933333333333334,
+              "commun": [
+                "gel"
+              ],
+              "ecartPrix": 0.2
+            }
+          ],
+          "via": "ressemblance_indetermine",
           "barree": false
         },
         {
@@ -154,8 +137,8 @@
         },
         {
           "texte_lu": "Pied de biche",
-          "article_id": null,
-          "article_propose": null,
+          "article_id": "6193be3c-57ef-455d-bde4-22b931d61b8e",
+          "article_propose": "Taille ongle",
           "quantite": 6,
           "tarif": null,
           "montant_lu": 500,
@@ -163,7 +146,7 @@
           "confiance": "basse",
           "chiffre_ambigu": true,
           "variantes": null,
-          "via": "ressemblance",
+          "via": "alias",
           "barree": false
         },
         {
@@ -320,18 +303,20 @@
             {
               "id": "0ff27296-e7c6-4c74-81f7-8e5d17220947",
               "nom": "Vernis couleur",
-              "score": 0.965,
+              "score": 1,
               "commun": [
                 "vernis"
-              ]
+              ],
+              "ecartPrix": 0.1
             },
             {
               "id": "26f38559-1c95-4d3a-8f89-2174ff1cab7d",
               "nom": "Vernis neutre",
-              "score": 0.965,
+              "score": 1,
               "commun": [
                 "vernis"
-              ]
+              ],
+              "ecartPrix": 0.1
             }
           ],
           "via": "ressemblance_indetermine",
@@ -340,13 +325,13 @@
       ],
       "score": {
         "article": {
-          "justes": 8,
-          "faux": 2,
-          "null_ok": 8,
+          "justes": 11,
+          "faux": 0,
+          "null_ok": 7,
           "total": 18,
-          "taux_justes": 44.4,
-          "taux_faux": 11.1,
-          "taux_null": 44.4
+          "taux_justes": 61.1,
+          "taux_faux": 0,
+          "taux_null": 38.9
         },
         "quantite": {
           "justes": 18,
@@ -359,9 +344,9 @@
           "taux": 100
         },
         "ligne_complete": {
-          "justes": 8,
+          "justes": 11,
           "total": 18,
-          "taux": 44.4
+          "taux": 61.1
         },
         "en_trop": [
           {
@@ -376,9 +361,9 @@
             "texte_lu": "Méga",
             "quantite": 3,
             "montant": 1500,
-            "article_attendu": null,
+            "article_attendu": "Méga détail",
             "article_propose": "Méga détail",
-            "classe_article": "faux"
+            "classe_article": "juste"
           },
           {
             "texte_lu": "Limé",
@@ -389,20 +374,28 @@
             "classe_article": "null_ok"
           },
           {
+            "texte_lu": "chauchou perle",
+            "quantite": 3,
+            "montant": 250,
+            "article_attendu": "Chouchou perle petit",
+            "article_propose": "Chouchou perle petit",
+            "classe_article": "juste"
+          },
+          {
             "texte_lu": "Méga",
             "quantite": 1,
             "montant": 500,
-            "article_attendu": null,
+            "article_attendu": "Méga détail",
             "article_propose": "Méga détail",
-            "classe_article": "faux"
+            "classe_article": "juste"
           },
           {
             "texte_lu": "Gel Petit",
             "quantite": 8,
             "montant": 1200,
             "article_attendu": "Gel pétals petit",
-            "article_propose": "Gel pétals petit",
-            "classe_article": "juste"
+            "article_propose": null,
+            "classe_article": "null_ok"
           },
           {
             "texte_lu": "Pétal + Passion",
@@ -424,9 +417,9 @@
             "texte_lu": "Pied de biche",
             "quantite": 6,
             "montant": 500,
-            "article_attendu": null,
-            "article_propose": null,
-            "classe_article": "null_ok"
+            "article_attendu": "Taille ongle",
+            "article_propose": "Taille ongle",
+            "classe_article": "juste"
           },
           {
             "texte_lu": "Soleil Pt",
@@ -501,14 +494,6 @@
             "classe_article": "juste"
           },
           {
-            "texte_lu": "chauchou perle",
-            "quantite": 3,
-            "montant": 250,
-            "article_attendu": "Chouchou perle petit",
-            "article_propose": null,
-            "classe_article": "null_ok"
-          },
-          {
             "texte_lu": "Vernis (12-100)",
             "quantite": 1,
             "montant": 2200,
@@ -518,46 +503,6 @@
           }
         ],
         "fausses": [
-          {
-            "i": 0,
-            "j": 0,
-            "classe_article": "faux",
-            "texte_lu": "Méga",
-            "artOk": false,
-            "qOk": true,
-            "mOk": true,
-            "lu": {
-              "article": "Méga détail",
-              "quantite": 3,
-              "montant": 1500
-            },
-            "attendu": {
-              "article": null,
-              "texte_lu": "Méga",
-              "quantite": 3,
-              "montant": 1500
-            }
-          },
-          {
-            "i": 3,
-            "j": 3,
-            "classe_article": "faux",
-            "texte_lu": "Méga",
-            "artOk": false,
-            "qOk": true,
-            "mOk": true,
-            "lu": {
-              "article": "Méga détail",
-              "quantite": 1,
-              "montant": 500
-            },
-            "attendu": {
-              "article": null,
-              "texte_lu": "Méga",
-              "quantite": 1,
-              "montant": 500
-            }
-          },
           {
             "i": 15,
             "raison": "ligne en trop côté IA",
@@ -583,8 +528,8 @@
           {
             "i": 0,
             "j": 0,
-            "classe_article": "faux",
-            "artOk": false,
+            "classe_article": "juste",
+            "artOk": true,
             "qOk": true,
             "mOk": true,
             "score_appariement": 5
@@ -599,10 +544,19 @@
             "score_appariement": 5
           },
           {
+            "i": 2,
+            "j": 2,
+            "classe_article": "juste",
+            "artOk": true,
+            "qOk": true,
+            "mOk": true,
+            "score_appariement": 5
+          },
+          {
             "i": 3,
             "j": 3,
-            "classe_article": "faux",
-            "artOk": false,
+            "classe_article": "juste",
+            "artOk": true,
             "qOk": true,
             "mOk": true,
             "score_appariement": 5
@@ -610,8 +564,8 @@
           {
             "i": 4,
             "j": 4,
-            "classe_article": "juste",
-            "artOk": true,
+            "classe_article": "null_ok",
+            "artOk": false,
             "qOk": true,
             "mOk": true,
             "score_appariement": 5
@@ -637,8 +591,8 @@
           {
             "i": 7,
             "j": 7,
-            "classe_article": "null_ok",
-            "artOk": false,
+            "classe_article": "juste",
+            "artOk": true,
             "qOk": true,
             "mOk": true,
             "score_appariement": 5
@@ -725,22 +679,13 @@
             "score_appariement": 5
           },
           {
-            "i": 2,
-            "j": 2,
-            "classe_article": "null_ok",
-            "artOk": false,
-            "qOk": true,
-            "mOk": true,
-            "score_appariement": 3.5
-          },
-          {
             "i": 18,
             "j": 17,
             "classe_article": "null_ok",
             "artOk": false,
             "qOk": true,
             "mOk": true,
-            "score_appariement": 3
+            "score_appariement": 5
           },
           {
             "i": 15,
