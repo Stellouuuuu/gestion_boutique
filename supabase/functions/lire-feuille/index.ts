@@ -127,34 +127,107 @@ function normaliserAlias(s: string): string {
     .join(' ');
 }
 
-function dist(a: string, b: string): number {
+const MOTS_COURANTS = new Set([
+  'petit',
+  'pt',
+  'petite',
+  'grand',
+  'gr',
+  'grd',
+  'grande',
+  'moyen',
+  'moyenne',
+  'de',
+  'du',
+  'le',
+  'la',
+  'les',
+  'et',
+  'un',
+  'une',
+  'des',
+  'en',
+  'a',
+  'au',
+  'aux',
+]);
+
+function tokensDistinctifs(s: string): string[] {
+  return normaliserNom(s)
+    .split(' ')
+    .filter(Boolean)
+    .filter((w) => !MOTS_COURANTS.has(w))
+    .filter((w) => w.length >= 3 || /^\d/.test(w));
+}
+
+function tailleIndice(s: string): 'petit' | 'grand' | 'moyen' | null {
+  const n = normaliserNom(s).split(' ').filter(Boolean);
+  if (n.some((w) => w === 'petit' || w === 'pt' || w === 'petite')) return 'petit';
+  if (n.some((w) => w === 'grand' || w === 'gr' || w === 'grd' || w === 'grande')) return 'grand';
+  if (n.some((w) => w === 'moyen' || w === 'moyenne')) return 'moyen';
+  return null;
+}
+
+function texteSansPack(s: string): string {
+  return String(s ?? '')
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function distanceLevenshtein(a: string, b: string): number {
   if (a === b) return 0;
-  const m = a.length,
-    n = b.length;
-  const prev = Array.from({ length: n + 1 }, (_, j) => j);
-  const cur = new Array(n + 1);
-  for (let i = 1; i <= m; i++) {
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  const prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  const cur = new Array<number>(b.length + 1);
+  for (let i = 1; i <= a.length; i++) {
     cur[0] = i;
-    for (let j = 1; j <= n; j++) {
+    for (let j = 1; j <= b.length; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      cur[j] = Math.min(cur[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+      cur[j] = Math.min(cur[j - 1]! + 1, prev[j]! + 1, prev[j - 1]! + cost);
     }
-    for (let j = 0; j <= n; j++) prev[j] = cur[j];
+    for (let j = 0; j <= b.length; j++) prev[j] = cur[j]!;
   }
-  return prev[n];
+  return prev[b.length]!;
+}
+
+function tokenMatch(t: string, artTokens: string[]): boolean {
+  if (artTokens.includes(t)) return true;
+  if (t.length < 3) return false;
+  return artTokens.some(
+    (at) =>
+      at.length >= 3 &&
+      Math.abs(at.length - t.length) <= 1 &&
+      distanceLevenshtein(t, at) === 1
+  );
+}
+
+function prixCompatible(
+  unit: number,
+  a: Article,
+  tol = 0.4
+): boolean {
+  const prix = [a.prix_detail, a.prix_gros].filter((p) => p != null && Number(p) > 0);
+  if (!prix.length) return false;
+  for (const p of prix) {
+    const ratio = unit / Number(p);
+    if (ratio >= 1 - tol && ratio <= 1 + tol) return true;
+  }
+  return false;
 }
 
 function rapprocher(
   texte: string,
   catalogue: Article[],
-  opts?: { montant?: number | null; quantite?: number }
+  opts?: { montant?: number | null; quantite?: number },
+  aliasMulti?: Map<string, string[]>
 ): {
   id: string | null;
   score: number;
   variantes: Array<{ id: string; nom: string; score: number }>;
 } {
-  const q = normaliserNom(texte);
-  if (!q) return { id: null, score: 0, variantes: [] };
+  const byId = Object.fromEntries(catalogue.map((a) => [a.id, a]));
   const unit =
     opts?.montant != null && opts?.quantite && opts.quantite > 0
       ? opts.montant / opts.quantite
@@ -162,40 +235,65 @@ function rapprocher(
         ? opts.montant
         : null;
 
+  const cle = normaliserAlias(texte);
+  const cleC = cle.replace(/\s+/g, '');
+  if (aliasMulti) {
+    const ids = aliasMulti.get(cle) || aliasMulti.get(cleC);
+    if (ids?.length) {
+      const cands = ids.map((id) => byId[id]).filter(Boolean) as Article[];
+      const ok = unit != null ? cands.filter((a) => prixCompatible(unit, a)) : [];
+      if (ok.length === 1) {
+        return { id: ok[0].id, score: 0.95, variantes: [{ id: ok[0].id, nom: ok[0].nom, score: 0.95 }] };
+      }
+      return {
+        id: null,
+        score: 0,
+        variantes: (ok.length ? ok : cands).slice(0, 3).map((a) => ({
+          id: a.id,
+          nom: a.nom,
+          score: 0.5,
+        })),
+      };
+    }
+  }
+
+  const distTok = tokensDistinctifs(texteSansPack(texte));
+  if (!distTok.length || unit == null) {
+    return { id: null, score: 0, variantes: [] };
+  }
+
+  const tailleQ = tailleIndice(texte);
   const scored: Array<{ id: string; nom: string; score: number }> = [];
   for (const a of catalogue) {
-    const n = normaliserNom(a.nom);
-    let score = 0;
-    if (n === q) score = 1;
-    else if (n.includes(q) || q.includes(n)) {
-      score = Math.min(n.length, q.length) / Math.max(n.length, q.length) + 0.15;
-    } else {
-      const d = dist(q, n);
-      score = 1 - d / Math.max(q.length, n.length, 1);
+    const artTok = tokensDistinctifs(a.nom);
+    if (!artTok.length) continue;
+    const commun = distTok.filter((t) => tokenMatch(t, artTok));
+    if (commun.length !== distTok.length) continue;
+    if (!prixCompatible(unit, a)) continue;
+    const tailleA = tailleIndice(a.nom);
+    if (tailleQ && tailleA && tailleQ !== tailleA) continue;
+    const artCov = commun.length / artTok.length;
+    let score = 0.7 + artCov * 0.25;
+    if (distTok[0] && tokenMatch(distTok[0], artTok)) score = Math.min(1, score + 0.05);
+    if (tailleQ && tailleA === tailleQ) score = Math.min(1, score + 0.08);
+    const prix = [a.prix_detail, a.prix_gros]
+      .filter((p) => p != null && Number(p) > 0)
+      .map(Number);
+    if (prix.length) {
+      const bestP = Math.min(...prix.map((p) => Math.abs(p - unit) / p));
+      score = Math.min(1, score + Math.max(0, 0.1 - bestP * 0.1));
     }
-    // Départage par prix unitaire attendu
-    if (unit != null && a.prix_detail != null && a.prix_detail > 0) {
-      const ecart = Math.abs(a.prix_detail - unit) / Math.max(unit, a.prix_detail);
-      if (ecart <= 0.15) score = Math.min(1, score + 0.25);
-      else if (ecart <= 0.3) score = Math.min(1, score + 0.08);
-      else if (score < 0.9) score *= 0.85;
-    }
-    scored.push({ id: a.id, nom: a.nom, score: Math.min(1, score) });
+    scored.push({ id: a.id, nom: a.nom, score });
   }
   scored.sort((a, b) => b.score - a.score);
-  const top = scored.slice(0, 3).filter((s) => s.score >= 0.55);
-  const best = scored[0];
-  if (!best || best.score < 0.72) {
-    return { id: null, score: best?.score ?? 0, variantes: top };
+  const top = scored.filter((s) => s.score >= 0.7).slice(0, 3);
+  if (!top.length) {
+    return { id: null, score: 0, variantes: [] };
   }
-  // Incertain si 2e proche
-  const second = scored[1];
-  const incertain =
-    second && second.score >= 0.72 && best.score - second.score < 0.08;
-  if (incertain) {
-    return { id: best.id, score: best.score, variantes: top };
+  if (top[1] && top[0].score - top[1].score < 0.08) {
+    return { id: null, score: top[0].score, variantes: top };
   }
-  return { id: best.id, score: best.score, variantes: top.slice(0, 1) };
+  return { id: top[0].id, score: top[0].score, variantes: [top[0]] };
 }
 
 function confiance(
@@ -512,6 +610,16 @@ Deno.serve(async (req) => {
     for (const r of aliasRows || []) {
       aliases.set(String(r.texte_norm), String(r.article_id));
     }
+    const aliasMulti = new Map<string, string[]>();
+    const { data: candRows } = await supabase
+      .from('alias_articles_candidats')
+      .select('texte_norm, article_id')
+      .eq('boutique_id', boutiqueId);
+    for (const r of candRows || []) {
+      const k = String(r.texte_norm);
+      if (!aliasMulti.has(k)) aliasMulti.set(k, []);
+      aliasMulti.get(k)!.push(String(r.article_id));
+    }
 
     let parsed: ParsedIa;
     let modeleUtilise: string;
@@ -570,12 +678,19 @@ Deno.serve(async (req) => {
         let score = 0;
         let variantes: Array<{ id: string; nom: string }> = [];
         let confForceBasse = false;
-        const aliasId = aliases.get(normaliserAlias(texte));
+        const unit =
+          montant != null && q > 0 ? montant / q : montant != null ? montant : null;
+        const cleA = normaliserAlias(texte);
+        const aliasId = aliases.get(cleA) || aliases.get(cleA.replace(/\s+/g, ''));
         if (aliasId && byId[aliasId]) {
-          articleId = aliasId;
-          score = 0.99;
-        } else {
-          const m = rapprocher(texte, catalogue, { montant, quantite: q });
+          const artA = byId[aliasId];
+          if (unit == null || prixCompatible(unit, artA)) {
+            articleId = aliasId;
+            score = 0.99;
+          }
+        }
+        if (!articleId) {
+          const m = rapprocher(texte, catalogue, { montant, quantite: q }, aliasMulti);
           articleId = m.id;
           score = m.score;
           variantes = m.variantes.map((v) => ({ id: v.id, nom: v.nom }));

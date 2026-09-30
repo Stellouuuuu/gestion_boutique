@@ -1,5 +1,5 @@
 /**
- * Score feuille : appariement par proximité (texte + qté + montant), pas par position.
+ * Score feuille : appariement par proximité + ventilation articles justes / faux / null.
  */
 import { normaliserNom, similariteTexte } from './rapprochementFeuille.mjs';
 
@@ -14,16 +14,12 @@ function scorePaire(lu, att) {
   return s;
 }
 
-/**
- * Apparie chaque ligne lue à au plus une attendue (greedy sur score).
- * @returns {{ paires, enTrop, manquantes }}
- */
 export function apparierLignes(lues, attendues) {
   const candidats = [];
   for (let i = 0; i < lues.length; i++) {
     for (let j = 0; j < attendues.length; j++) {
       const s = scorePaire(lues[i], attendues[j]);
-      if (s >= 1.2) candidats.push({ i, j, s }); // au moins un peu de texte commun
+      if (s >= 1.2) candidats.push({ i, j, s });
     }
   }
   candidats.sort((a, b) => b.s - a.s);
@@ -41,77 +37,99 @@ export function apparierLignes(lues, attendues) {
   return { paires, enTrop, manquantes };
 }
 
-function artOk(lu, att) {
-  const orange =
-    lu.confiance === 'basse' ||
-    !lu.article_propose ||
-    !!lu.chiffre_ambigu ||
-    (Array.isArray(lu.variantes) && lu.variantes.length > 1);
-  const artAtt = att.article == null ? null : normaliserNom(att.article);
-  const artLu = lu.article_propose ? normaliserNom(lu.article_propose) : null;
-  let ok =
-    artAtt == null
-      ? artLu == null
-      : artLu != null && (artLu === artAtt || artLu.includes(artAtt) || artAtt.includes(artLu));
-  if (att.chiffre_ambigu && orange) ok = true;
-  return { ok, orange };
+function articlesMatch(artLu, artAtt) {
+  if (artAtt == null) return artLu == null;
+  if (artLu == null) return false;
+  const a = normaliserNom(artAtt);
+  const b = normaliserNom(artLu);
+  return a === b || a.includes(b) || b.includes(a);
 }
 
 /**
- * Score après appariement.
+ * Classification article pour une paire :
+ * - juste : proposition correcte (ou les deux null)
+ * - faux : proposition non nulle et incorrecte
+ * - null_ok : pas de proposition (Maman choisira) alors qu’un article était attendu, OU les deux null comptés dans null_ok aussi ?
+ *
+ * Règle demandée :
+ *   justes | FAUX (proposition erronée) | null (acceptables)
+ * Les deux null → null (acceptable), pas « juste » au sens proposition.
+ * att X + lu null → null
+ * att X + lu X → juste
+ * att X + lu Y → faux
+ * att null + lu null → null
+ * att null + lu Y → faux
  */
+function classerArticle(lu, att) {
+  const artAtt = att.article == null ? null : att.article;
+  const artLu = lu.article_propose || null;
+  if (artLu == null) return 'null_ok';
+  if (articlesMatch(artLu, artAtt)) return 'juste';
+  return 'faux';
+}
+
 export function scoreLignesAppariees(luesIn, attendues) {
-  // Ignorer lignes barrées côté lu
   const lues = (luesIn || []).filter((l) => !l.barree);
   const { paires, enTrop, manquantes } = apparierLignes(lues, attendues);
 
   let artJ = 0,
+    artFaux = 0,
+    artNull = 0,
     qJ = 0,
     mJ = 0,
     lignesCompletes = 0;
   const fausses = [];
   const details = [];
+  const tableau = [];
 
   for (const { i, j, s } of paires) {
     const lu = lues[i];
     const att = attendues[j];
-    const { ok: aOk, orange } = artOk(lu, att);
+    const classe = classerArticle(lu, att);
+    if (classe === 'juste') artJ++;
+    else if (classe === 'faux') artFaux++;
+    else artNull++;
 
     const qAtt = att.quantite;
     const qLu = lu.quantite;
-    let qOk =
-      qAtt == null || qAtt === ''
-        ? orange || att.chiffre_ambigu
-        : Number(qLu) === Number(qAtt);
-    if (att.chiffre_ambigu && orange) qOk = true;
+    const qOk =
+      qAtt == null || qAtt === '' ? true : Number(qLu) === Number(qAtt);
 
     const mAtt = att.montant;
     const mLu = lu.montant_lu ?? lu.prix_lu;
-    let mOk =
+    const mOk =
       mAtt == null || mAtt === ''
         ? true
         : mLu != null && Math.abs(Number(mLu) - Number(mAtt)) <= 1;
 
-    if (aOk) artJ++;
     if (qOk) qJ++;
     if (mOk) mJ++;
-    const ok = aOk && qOk && mOk;
+    const artOk = classe === 'juste';
+    // ligne complète : qté+montant OK et article juste (null n’est pas « complet »)
+    const ok = artOk && qOk && mOk;
     if (ok) lignesCompletes++;
-    else {
+    if (classe === 'faux' || !qOk || !mOk) {
       fausses.push({
         i,
         j,
-        score_appariement: Math.round(s * 100) / 100,
+        classe_article: classe,
         texte_lu: lu.texte_lu,
-        artOk: aOk,
+        artOk,
         qOk,
         mOk,
-        orange,
-        lu: { article: lu.article_propose, quantite: qLu, montant: mLu, confiance: lu.confiance },
+        lu: { article: lu.article_propose, quantite: qLu, montant: mLu },
         attendu: { article: att.article, texte_lu: att.texte_lu, quantite: qAtt, montant: mAtt },
       });
     }
-    details.push({ i, j, ok, artOk: aOk, qOk, mOk, orange, score_appariement: s });
+    details.push({ i, j, classe_article: classe, artOk, qOk, mOk, score_appariement: s });
+    tableau.push({
+      texte_lu: lu.texte_lu,
+      quantite: qLu,
+      montant: mLu,
+      article_attendu: att.article,
+      article_propose: lu.article_propose,
+      classe_article: classe,
+    });
   }
 
   for (const { i, l } of enTrop) {
@@ -133,11 +151,21 @@ export function scoreLignesAppariees(luesIn, attendues) {
       attendu: a,
     });
     details.push({ j, ok: false, raison: 'manquante' });
+    // manquante = pas de proposition → plutôt null côté article pour cette attendue
+    artNull++;
   }
 
   const den = attendues.length || 1;
   return {
-    article: { justes: artJ, total: attendues.length, taux: Math.round((1000 * artJ) / den) / 10 },
+    article: {
+      justes: artJ,
+      faux: artFaux,
+      null_ok: artNull,
+      total: attendues.length,
+      taux_justes: Math.round((1000 * artJ) / den) / 10,
+      taux_faux: Math.round((1000 * artFaux) / den) / 10,
+      taux_null: Math.round((1000 * artNull) / den) / 10,
+    },
     quantite: { justes: qJ, total: attendues.length, taux: Math.round((1000 * qJ) / den) / 10 },
     montant: { justes: mJ, total: attendues.length, taux: Math.round((1000 * mJ) / den) / 10 },
     ligne_complete: {
@@ -156,6 +184,7 @@ export function scoreLignesAppariees(luesIn, attendues) {
       quantite: x.a.quantite,
       montant: x.a.montant,
     })),
+    tableau,
     fausses,
     details,
   };

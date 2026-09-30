@@ -1,11 +1,13 @@
 /**
  * Rapprochement de noms manuscrits ↔ catalogue boutique.
- * Accents, fautes, abréviations (grd/pt, etc.).
+ * Prudent : mots courants ignorés, mot distinctif requis, prix ±40 %.
+ * Une proposition fausse est pire qu’un null.
  */
 
 const ABBREV: Record<string, string> = {
   grd: 'grand',
   gd: 'grand',
+  gr: 'grand',
   gde: 'grande',
   pt: 'petit',
   pte: 'petite',
@@ -31,12 +33,41 @@ const ABBREV: Record<string, string> = {
   'a/s': 'apres shampooing',
 };
 
+/** Mots trop courants — ignorés pour la ressemblance. */
+export const MOTS_COURANTS = new Set([
+  'petit',
+  'pt',
+  'petite',
+  'grand',
+  'gr',
+  'grd',
+  'grande',
+  'moyen',
+  'moyenne',
+  'de',
+  'du',
+  'le',
+  'la',
+  'les',
+  'et',
+  'un',
+  'une',
+  'des',
+  'en',
+  'a',
+  'au',
+  'aux',
+]);
+
+/** Tolérance prix unitaire vs détail/gros (−40 % … +40 %). */
+export const TOLERANCE_PRIX = 0.4;
+
 export function normaliserNom(s: string): string {
   let t = String(s ?? '')
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/['’`]/g, ' ')
+    .replace(/[''`]/g, ' ')
     .replace(/[-_/]+/g, ' ')
     .replace(/[^a-z0-9\s/+.]/g, ' ')
     .replace(/\s+/g, ' ')
@@ -53,7 +84,7 @@ export function normaliserTexteAlias(s: string): string {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/½/g, ' 1/2 ')
-    .replace(/['’`]/g, ' ')
+    .replace(/[''`]/g, ' ')
     .replace(/(\w)-(\w)/g, '$1$2')
     .replace(/[_/]+/g, ' ')
     .replace(/[^a-z0-9\s/]/g, ' ')
@@ -71,6 +102,31 @@ export function normaliserTexteAlias(s: string): string {
     .filter(Boolean)
     .map((w) => ABBREV[w] ?? w)
     .join(' ');
+}
+
+export function tokensDistinctifs(s: string): string[] {
+  return normaliserNom(s)
+    .split(' ')
+    .filter(Boolean)
+    .filter((w) => !MOTS_COURANTS.has(w))
+    .filter((w) => w.length >= 3 || /^\d/.test(w));
+}
+
+export function tailleIndice(s: string): 'petit' | 'grand' | 'moyen' | null {
+  const n = normaliserNom(s).split(' ').filter(Boolean);
+  if (n.some((w) => w === 'petit' || w === 'pt' || w === 'petite')) return 'petit';
+  if (n.some((w) => w === 'grand' || w === 'gr' || w === 'grd' || w === 'grande')) {
+    return 'grand';
+  }
+  if (n.some((w) => w === 'moyen' || w === 'moyenne')) return 'moyen';
+  return null;
+}
+
+function texteSansPack(s: string): string {
+  return String(s ?? '')
+    .replace(/\([^)]*\)/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /** Distance de Levenshtein bornée (pour scores rapides). */
@@ -98,6 +154,7 @@ export interface ArticleRef {
   id: string;
   nom: string;
   prix_detail?: number | null;
+  prix_gros?: number | null;
 }
 
 export interface MatchResultat {
@@ -106,15 +163,32 @@ export interface MatchResultat {
   nomCatalogue: string | null;
 }
 
+export function prixCompatible(
+  unit: number,
+  article: ArticleRef,
+  tol = TOLERANCE_PRIX
+): boolean {
+  if (!Number.isFinite(unit) || unit <= 0) return false;
+  const prix = [article.prix_detail, article.prix_gros].filter(
+    (p) => p != null && Number(p) > 0
+  );
+  if (!prix.length) return false;
+  for (const p of prix) {
+    const ratio = unit / Number(p);
+    if (ratio >= 1 - tol && ratio <= 1 + tol) return true;
+  }
+  return false;
+}
+
 /**
  * Choisit le meilleur article du catalogue pour un texte lu.
- * score ≥ 0.72 → proposition ; sinon null (à vérifier).
- * opts.montant / quantite : départage par prix unitaire.
+ * opts.montant / quantite : prix unitaire pour filtrer (±40 %).
+ * Sans prix : uniquement match exact (normalisé).
  */
 export function rapprocherArticle(
   texteLu: string,
   catalogue: ArticleRef[],
-  seuil = 0.72,
+  seuil = 0.62,
   opts?: { montant?: number | null; quantite?: number }
 ): MatchResultat {
   const q = normaliserNom(texteLu);
@@ -129,45 +203,64 @@ export function rapprocherArticle(
         ? opts.montant
         : null;
 
-  let best: MatchResultat = { articleId: null, score: 0, nomCatalogue: null };
-
+  // Match exact (normalisé) — accepté même sans prix
   for (const a of catalogue) {
     const n = normaliserNom(a.nom);
-    if (!n) continue;
-
-    let score = 0;
-    if (n === q) score = 1;
-    else if (n.includes(q) || q.includes(n)) {
-      score = Math.min(n.length, q.length) / Math.max(n.length, q.length) + 0.15;
-      score = Math.min(1, score);
-    } else {
-      const tq = new Set(q.split(' '));
-      const tn = new Set(n.split(' '));
-      let inter = 0;
-      for (const t of tq) if (tn.has(t)) inter++;
-      const union = new Set([...tq, ...tn]).size;
-      const jaccard = union ? inter / union : 0;
-      const dist = distanceLevenshtein(q, n);
-      const lev = 1 - dist / Math.max(q.length, n.length, 1);
-      score = Math.max(jaccard * 0.85 + lev * 0.15, lev * 0.9);
-    }
-
-    if (unit != null && a.prix_detail != null && a.prix_detail > 0) {
-      const ecart = Math.abs(a.prix_detail - unit) / Math.max(unit, a.prix_detail);
-      if (ecart <= 0.15) score = Math.min(1, score + 0.25);
-      else if (ecart <= 0.3) score = Math.min(1, score + 0.08);
-      else if (score < 0.9) score *= 0.85;
-    }
-
-    if (score > best.score) {
-      best = { articleId: a.id, score, nomCatalogue: a.nom };
+    if (n && n === q) {
+      if (unit != null && !prixCompatible(unit, a)) continue;
+      return { articleId: a.id, score: 1, nomCatalogue: a.nom };
     }
   }
 
+  const distTokens = tokensDistinctifs(texteSansPack(texteLu));
+  if (!distTokens.length) {
+    return { articleId: null, score: 0, nomCatalogue: null };
+  }
+  // Sans prix : trop risqué pour une proposition floue
+  if (unit == null) {
+    return { articleId: null, score: 0, nomCatalogue: null };
+  }
+
+  const tailleQ = tailleIndice(texteLu);
+  const scored: Array<{ id: string; nom: string; score: number }> = [];
+  for (const a of catalogue) {
+    const artTokens = tokensDistinctifs(a.nom);
+    if (!artTokens.length) continue;
+    const commun = distTokens.filter((t) => {
+      if (artTokens.includes(t)) return true;
+      if (t.length < 3) return false;
+      return artTokens.some(
+        (at) =>
+          at.length >= 3 &&
+          Math.abs(at.length - t.length) <= 1 &&
+          distanceLevenshtein(t, at) === 1
+      );
+    });
+    if (commun.length !== distTokens.length) continue;
+    if (!prixCompatible(unit, a)) continue;
+    const tailleA = tailleIndice(a.nom);
+    if (tailleQ && tailleA && tailleQ !== tailleA) continue;
+
+    const artCov = commun.length / artTokens.length;
+    let score = 0.7 + artCov * 0.25;
+    if (distTokens[0] && commun.includes(distTokens[0])) {
+      score = Math.min(1, score + 0.05);
+    }
+    if (tailleQ && tailleA === tailleQ) score = Math.min(1, score + 0.08);
+    scored.push({ id: a.id, nom: a.nom, score });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  const top = scored.filter((s) => s.score >= 0.7).slice(0, 3);
+  if (!top.length) return { articleId: null, score: 0, nomCatalogue: null };
+  const best = top[0]!;
+  const second = top[1];
+  if (second && best.score - second.score < 0.08) {
+    return { articleId: null, score: best.score, nomCatalogue: null };
+  }
   if (best.score < seuil) {
-    return { articleId: null, score: best.score, nomCatalogue: best.nomCatalogue };
+    return { articleId: null, score: best.score, nomCatalogue: best.nom };
   }
-  return best;
+  return { articleId: best.id, score: best.score, nomCatalogue: best.nom };
 }
 
 export function confianceDepuisScore(

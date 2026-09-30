@@ -1,6 +1,7 @@
 /**
  * Rapprochement texte manuscrit → article (hors Gemini).
- * Ordre : alias exact → ressemblance nom → départage par prix unitaire.
+ * Ordre : alias unique → alias multi (prix) → ressemblance prudente + prix.
+ * Une proposition fausse est pire qu’un null.
  */
 
 const ABBREV = {
@@ -20,7 +21,35 @@ const ABBREV = {
   mec: 'meche',
 };
 
-/** Minuscules, sans accents, abréviations, sans quantités type 1P / 02 / ½. */
+/** Mots trop courants — ignorés pour la ressemblance. */
+export const MOTS_COURANTS = new Set([
+  'petit',
+  'pt',
+  'petite',
+  'grand',
+  'gr',
+  'grd',
+  'grande',
+  'moyen',
+  'moyenne',
+  'de',
+  'du',
+  'le',
+  'la',
+  'les',
+  'et',
+  'un',
+  'une',
+  'des',
+  'en',
+  'a',
+  'au',
+  'aux',
+]);
+
+/** Tolérance prix unitaire vs détail/gros (−40 % … +40 %). */
+export const TOLERANCE_PRIX = 0.4;
+
 export function normaliserTexteAlias(s) {
   let t = String(s ?? '')
     .toLowerCase()
@@ -28,14 +57,12 @@ export function normaliserTexteAlias(s) {
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/½/g, ' 1/2 ')
     .replace(/[''`]/g, ' ')
-    // "tam-tam" → "tamtam"
     .replace(/(\w)-(\w)/g, '$1$2')
     .replace(/[_/]+/g, ' ')
     .replace(/[^a-z0-9\s/]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
   if (!t) return '';
-  // Quantités collées / tokens
   t = t
     .replace(/\b\d+p\b/g, ' ')
     .replace(/\b1\/2\b/g, ' ')
@@ -66,6 +93,43 @@ export function normaliserNom(s) {
     .join(' ');
 }
 
+/** Tokens distinctifs (sans mots courants, longueur ≥ 3 ou chiffre). */
+export function tokensDistinctifs(s) {
+  return normaliserNom(s)
+    .split(' ')
+    .filter(Boolean)
+    .filter((w) => !MOTS_COURANTS.has(w))
+    .filter((w) => w.length >= 3 || /^\d/.test(w));
+}
+
+/** Indice de taille présent dans le texte (petit/grand/moyen), ou null. */
+export function tailleIndice(s) {
+  const n = normaliserNom(s).split(' ').filter(Boolean);
+  if (n.some((w) => w === 'petit' || w === 'pt' || w === 'petite')) return 'petit';
+  if (n.some((w) => w === 'grand' || w === 'gr' || w === 'grd' || w === 'grande')) return 'grand';
+  if (n.some((w) => w === 'moyen' || w === 'moyenne')) return 'moyen';
+  return null;
+}
+
+/** Retire les parenthèses type « (12-100) » (prix de lot, pas le nom). */
+export function texteSansPack(s) {
+  return String(s ?? '').replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+export function similariteTexte(a, b) {
+  const q = normaliserNom(a);
+  const n = normaliserNom(b);
+  if (!q || !n) return 0;
+  if (q === n) return 1;
+  const td = tokensDistinctifs(a);
+  const tn = tokensDistinctifs(b);
+  if (!td.length || !tn.length) return 0;
+  let inter = 0;
+  for (const t of td) if (tn.includes(t)) inter++;
+  if (!inter) return 0;
+  return inter / Math.max(td.length, tn.length);
+}
+
 export function distanceLevenshtein(a, b) {
   if (a === b) return 0;
   if (!a.length) return b.length;
@@ -84,90 +148,153 @@ export function distanceLevenshtein(a, b) {
   return prev[n];
 }
 
-export function similariteTexte(a, b) {
-  const q = normaliserNom(a);
-  const n = normaliserNom(b);
-  if (!q || !n) return 0;
-  if (q === n) return 1;
-  if (n.includes(q) || q.includes(n)) {
-    return Math.min(1, Math.min(n.length, q.length) / Math.max(n.length, q.length) + 0.15);
+export function prixCompatible(unit, article, tol = TOLERANCE_PRIX) {
+  if (unit == null || !Number.isFinite(unit) || unit <= 0) return false;
+  const prix = [article.prix_detail, article.prix_gros].filter(
+    (p) => p != null && Number(p) > 0
+  );
+  if (!prix.length) return false;
+  for (const p of prix) {
+    const ratio = unit / Number(p);
+    if (ratio >= 1 - tol && ratio <= 1 + tol) return true;
   }
-  const tq = new Set(q.split(' '));
-  const tn = new Set(n.split(' '));
-  let inter = 0;
-  for (const t of tq) if (tn.has(t)) inter++;
-  const union = new Set([...tq, ...tn]).size;
-  const jaccard = union ? inter / union : 0;
-  const dist = distanceLevenshtein(q, n);
-  const lev = 1 - dist / Math.max(q.length, n.length, 1);
-  return Math.max(jaccard * 0.85 + lev * 0.15, lev * 0.9);
+  return false;
+}
+
+function unitPrice(opts) {
+  if (opts.montant == null) return null;
+  if (opts.quantite > 0) return opts.montant / opts.quantite;
+  return opts.montant;
 }
 
 /**
- * @param {string} texteLu
- * @param {{ id: string, nom: string, prix_detail?: number|null }[]} catalogue
- * @param {Map<string, string>} aliases texte_norm → article_id
- * @param {{ montant?: number|null, quantite?: number }} opts
+ * @param {Map<string, string>} aliases texte → article_id (unique)
+ * @param {Map<string, string[]>} aliasMulti texte → article_ids (ambigus)
  */
-export function rapprocherAvecAlias(texteLu, catalogue, aliases, opts = {}) {
+export function rapprocherAvecAlias(texteLu, catalogue, aliases, opts = {}, aliasMulti = new Map()) {
   const byId = Object.fromEntries(catalogue.map((a) => [a.id, a]));
   const cle = normaliserTexteAlias(texteLu);
   const cleCompact = cle.replace(/\s+/g, '');
+  const unit = unitPrice(opts);
+
+  // 1) Alias unique
   const aliasId =
     (cle && aliases.get(cle)) || (cleCompact && aliases.get(cleCompact)) || null;
   if (aliasId && byId[aliasId]) {
+    const art = byId[aliasId];
+    // Si on a un prix lu, vérifier compatibilité ; sinon accepter l’alias unique
+    if (unit == null || prixCompatible(unit, art)) {
+      return {
+        articleId: aliasId,
+        score: 0.99,
+        nomCatalogue: art.nom,
+        via: 'alias',
+        variantes: [],
+      };
+    }
+    // Prix incompatible → ne pas forcer l’alias unique
+  }
+
+  // 2) Alias multi → départage prix
+  const multiIds =
+    (cle && aliasMulti.get(cle)) || (cleCompact && aliasMulti.get(cleCompact)) || null;
+  if (multiIds?.length) {
+    const cands = multiIds.map((id) => byId[id]).filter(Boolean);
+    const okPrix = unit != null ? cands.filter((a) => prixCompatible(unit, a)) : [];
+    if (okPrix.length === 1) {
+      return {
+        articleId: okPrix[0].id,
+        score: 0.95,
+        nomCatalogue: okPrix[0].nom,
+        via: 'alias_multi',
+        variantes: okPrix,
+      };
+    }
+    // 0 ou ≥2 → null
     return {
-      articleId: aliasId,
-      score: 0.99,
-      nomCatalogue: byId[aliasId].nom,
-      via: 'alias',
-      variantes: [],
+      articleId: null,
+      score: 0,
+      nomCatalogue: null,
+      via: 'alias_multi_indetermine',
+      variantes: okPrix.length ? okPrix : cands.slice(0, 3),
     };
   }
 
-  const q = normaliserNom(texteLu);
-  if (!q || !catalogue.length) {
+  // 3) Ressemblance prudente
+  const texteClean = texteSansPack(texteLu);
+  const distTokens = tokensDistinctifs(texteClean);
+  if (!distTokens.length || !catalogue.length) {
     return { articleId: null, score: 0, nomCatalogue: null, via: 'aucun', variantes: [] };
   }
+  if (unit == null) {
+    // Sans prix : trop risqué pour proposer
+    return { articleId: null, score: 0, nomCatalogue: null, via: 'sans_prix', variantes: [] };
+  }
 
-  const unit =
-    opts.montant != null && opts.quantite > 0
-      ? opts.montant / opts.quantite
-      : opts.montant != null
-        ? opts.montant
-        : null;
+  const tailleQ = tailleIndice(texteLu);
+
+  function tokenMatch(t, artTokens) {
+    if (artTokens.includes(t)) return true;
+    // Petite faute (1 lettre) sur un mot assez long (≥ 3)
+    if (t.length < 3) return false;
+    return artTokens.some(
+      (at) =>
+        at.length >= 3 &&
+        Math.abs(at.length - t.length) <= 1 &&
+        distanceLevenshtein(t, at) === 1
+    );
+  }
 
   const scored = [];
   for (const a of catalogue) {
-    let score = similariteTexte(texteLu, a.nom);
-    if (unit != null && a.prix_detail != null && a.prix_detail > 0) {
-      const ecart = Math.abs(a.prix_detail - unit) / Math.max(unit, a.prix_detail);
-      if (ecart <= 0.15) score = Math.min(1, score + 0.25);
-      else if (ecart <= 0.3) score = Math.min(1, score + 0.08);
-      else if (score < 0.9) score *= 0.85;
+    const artTokens = tokensDistinctifs(a.nom);
+    if (!artTokens.length) continue;
+    // Tous les mots distinctifs du texte lu doivent coller (exacts ou faute 1 lettre)
+    const commun = distTokens.filter((t) => tokenMatch(t, artTokens));
+    if (commun.length !== distTokens.length) continue;
+    if (!prixCompatible(unit, a)) continue;
+
+    const tailleA = tailleIndice(a.nom);
+    // Taille explicite contradictoire → skip (Peigne Petit ≠ Peigne grand)
+    if (tailleQ && tailleA && tailleQ !== tailleA) continue;
+
+    const artCov = commun.length / artTokens.length;
+    let score = 0.7 + artCov * 0.25;
+    if (distTokens[0] && tokenMatch(distTokens[0], artTokens)) score = Math.min(1, score + 0.05);
+    if (tailleQ && tailleA === tailleQ) score = Math.min(1, score + 0.08);
+    // Préférer le prix le plus proche
+    const prix = [a.prix_detail, a.prix_gros]
+      .filter((p) => p != null && Number(p) > 0)
+      .map(Number);
+    if (prix.length) {
+      const bestP = Math.min(...prix.map((p) => Math.abs(p - unit) / p));
+      score = Math.min(1, score + Math.max(0, 0.1 - bestP * 0.1));
     }
-    scored.push({ id: a.id, nom: a.nom, score: Math.min(1, score) });
+    scored.push({ id: a.id, nom: a.nom, score, commun });
   }
   scored.sort((a, b) => b.score - a.score);
-  const top = scored.slice(0, 3).filter((s) => s.score >= 0.55);
-  const best = scored[0];
-  if (!best || best.score < 0.72) {
+  const top = scored.filter((s) => s.score >= 0.7).slice(0, 3);
+  if (!top.length) {
+    return { articleId: null, score: 0, nomCatalogue: null, via: 'ressemblance', variantes: [] };
+  }
+  const best = top[0];
+  const second = top[1];
+  // Doute si 2e très proche
+  if (second && best.score - second.score < 0.08) {
     return {
       articleId: null,
-      score: best?.score ?? 0,
-      nomCatalogue: best?.nom ?? null,
-      via: 'ressemblance',
+      score: best.score,
+      nomCatalogue: null,
+      via: 'ressemblance_indetermine',
       variantes: top,
     };
   }
-  const second = scored[1];
-  const incertain = second && second.score >= 0.72 && best.score - second.score < 0.08;
   return {
     articleId: best.id,
     score: best.score,
     nomCatalogue: best.nom,
     via: 'ressemblance',
-    variantes: incertain ? top : top.slice(0, 1),
+    variantes: [best],
   };
 }
 

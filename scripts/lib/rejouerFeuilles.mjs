@@ -40,7 +40,24 @@ export async function runRejouer({ dir, out, attenduPath, reponsesIa, filtreUneP
   if (alErr) stop('Alias : ' + alErr.message);
   const aliases = new Map();
   for (const r of aliasRows || []) aliases.set(String(r.texte_norm), String(r.article_id));
-  console.log(`Catalogue ${catalogue.length} articles · ${aliases.size} alias`);
+
+  const aliasMulti = new Map();
+  const { data: candRows, error: cErr } = await admin
+    .from('alias_articles_candidats')
+    .select('texte_norm, article_id')
+    .eq('boutique_id', BOUTIQUE_TEST_ID);
+  if (cErr) {
+    console.log('⚠ candidats multi absents :', cErr.message);
+  } else {
+    for (const r of candRows || []) {
+      const k = String(r.texte_norm);
+      if (!aliasMulti.has(k)) aliasMulti.set(k, []);
+      aliasMulti.get(k).push(String(r.article_id));
+    }
+  }
+  console.log(
+    `Catalogue ${catalogue.length} articles · ${aliases.size} alias · ${aliasMulti.size} multi`
+  );
 
   let fichiers = existsSync(reponsesIa)
     ? readdirSync(reponsesIa).filter((f) => f.endsWith('.json')).sort()
@@ -72,7 +89,7 @@ export async function runRejouer({ dir, out, attenduPath, reponsesIa, filtreUneP
         const texte = String(l.texte_lu || '').trim();
         const montant = l.montant_lu != null ? Number(l.montant_lu) : null;
         const q = Number(l.quantite) > 0 ? Math.round(Number(l.quantite)) : 1;
-        const m = rapprocherAvecAlias(texte, catalogue, aliases, { montant, quantite: q });
+        const m = rapprocherAvecAlias(texte, catalogue, aliases, { montant, quantite: q }, aliasMulti);
         const multi = (m.variantes || []).length > 1;
         return {
           texte_lu: texte,
@@ -118,14 +135,7 @@ export async function runRejouer({ dir, out, attenduPath, reponsesIa, filtreUneP
   if (attenduDoc) {
     const byFile = Object.fromEntries((attenduDoc.feuilles || []).map((x) => [x.fichier, x]));
     console.log('\n' + '─'.repeat(60));
-    console.log('Score vs attendu.json (appariement par proximité) :\n');
-    const glob = {
-      article: { j: 0, t: 0 },
-      quantite: { j: 0, t: 0 },
-      montant: { j: 0, t: 0 },
-      ligne: { j: 0, t: 0 },
-      total_section: { j: 0, t: 0 },
-    };
+    console.log('Score vs attendu.json :\n');
     for (const fr of resultats.feuilles) {
       const att = byFile[fr.fichier];
       if (!att) {
@@ -138,16 +148,6 @@ export async function runRejouer({ dir, out, attenduPath, reponsesIa, filtreUneP
           ? true
           : fr.total_ecrit != null && Math.abs(fr.total_ecrit - att.total_ecrit) <= 1;
       const dateOk = !att.date_iso || fr.date_suggeree === att.date_iso;
-      if (att.total_ecrit != null) {
-        glob.total_section.t++;
-        if (totOk) glob.total_section.j++;
-      }
-      for (const k of ['article', 'quantite', 'montant']) {
-        glob[k].j += sc[k].justes;
-        glob[k].t += sc[k].total;
-      }
-      glob.ligne.j += sc.ligne_complete.justes;
-      glob.ligne.t += sc.ligne_complete.total;
       fr.score = {
         ...sc,
         total_section: { ok: totOk, lu: fr.total_ecrit, attendu: att.total_ecrit },
@@ -156,50 +156,35 @@ export async function runRejouer({ dir, out, attenduPath, reponsesIa, filtreUneP
       };
       console.log(`  ${fr.fichier}`);
       console.log(
-        `    article ${sc.article.justes}/${sc.article.total} (${sc.article.taux} %) · qté ${sc.quantite.justes}/${sc.quantite.total} (${sc.quantite.taux} %) · montant ${sc.montant.justes}/${sc.montant.total} (${sc.montant.taux} %)`
+        `    articles justes ${sc.article.justes}/${sc.article.total} · FAUX ${sc.article.faux} · null ${sc.article.null_ok}`
       );
       console.log(
-        `    ligne complète ${sc.ligne_complete.justes}/${sc.ligne_complete.total} (${sc.ligne_complete.taux} %) · en trop ${sc.en_trop.length} · manquantes ${sc.manquantes.length} · total ${totOk ? 'OK' : '≠'} · date ${dateOk ? 'OK' : '≠'}`
+        `    qté ${sc.quantite.justes}/${sc.quantite.total} · montant ${sc.montant.justes}/${sc.montant.total} · en trop ${sc.en_trop.length} · manquantes ${sc.manquantes.length}`
       );
       if (sc.en_trop.length) {
-        console.log('    en trop :');
         for (const e of sc.en_trop) {
-          console.log(`      + « ${e.texte_lu} » q=${e.quantite} m=${e.montant}`);
+          console.log(`      + en trop « ${e.texte_lu} » q=${e.quantite} m=${e.montant}`);
         }
       }
-      if (sc.manquantes.length) {
-        console.log('    manquantes :');
-        for (const e of sc.manquantes) {
+      const fauxArts = (sc.fausses || []).filter((x) => x.classe_article === 'faux');
+      if (fauxArts.length) {
+        console.log(`    propositions FAUSSES (${fauxArts.length}) :`);
+        for (const x of fauxArts) {
           console.log(
-            `      − « ${e.texte_lu} » → ${e.article ?? 'null'} q=${e.quantite} m=${e.montant}`
+            `      « ${x.texte_lu} » → ${JSON.stringify(x.lu?.article)} (attendu ${JSON.stringify(x.attendu?.article)})`
           );
         }
       }
-      const faussesPaires = sc.fausses.filter((x) => !x.raison);
-      if (faussesPaires.length) {
-        console.log(`    paires incorrectes (${faussesPaires.length}) :`);
-        for (const x of faussesPaires) {
+      if (sc.tableau?.length) {
+        console.log('\n    Tableau (texte | qté | montant | attendu | proposé) :');
+        for (const row of sc.tableau) {
           console.log(
-            `      « ${x.texte_lu} » art=${x.artOk} q=${x.qOk} m=${x.mOk} → lu ${JSON.stringify(x.lu?.article)}/${x.lu?.quantite}/${x.lu?.montant} attendu ${JSON.stringify(x.attendu?.article)}/${x.attendu?.quantite}/${x.attendu?.montant}`
+            `      ${row.texte_lu} | ${row.quantite} | ${row.montant} | ${row.article_attendu ?? 'null'} | ${row.article_propose ?? 'null'}  [${row.classe_article}]`
           );
         }
       }
       console.log('');
     }
-    resultats.score_global = {
-      article: { ...glob.article, taux: pct(glob.article.j, glob.article.t) },
-      quantite: { ...glob.quantite, taux: pct(glob.quantite.j, glob.quantite.t) },
-      montant: { ...glob.montant, taux: pct(glob.montant.j, glob.montant.t) },
-      ligne_complete: { ...glob.ligne, taux: pct(glob.ligne.j, glob.ligne.t) },
-      total_section: {
-        ...glob.total_section,
-        taux: pct(glob.total_section.j, glob.total_section.t),
-      },
-    };
-    console.log('  GLOBAL');
-    console.log(
-      `    article ${resultats.score_global.article.j}/${resultats.score_global.article.t} (${resultats.score_global.article.taux} %) · montant ${resultats.score_global.montant.j}/${resultats.score_global.montant.t} (${resultats.score_global.montant.taux} %) · ligne ${resultats.score_global.ligne_complete.taux} %`
-    );
   }
 
   writeFileSync(out, JSON.stringify(resultats, null, 2));

@@ -10,6 +10,10 @@
       "article": "Xpression curly"
     },
     {
+      "texte_norm": "meva",
+      "article": "Produit Méva"
+    },
+    {
       "texte_norm": "durable",
       "article": "Durable"
     },
@@ -42,10 +46,6 @@
       "article": "Multi"
     },
     {
-      "texte_norm": "schaly",
-      "article": "Shary"
-    },
-    {
       "texte_norm": "4 flowers",
       "article": "4 flowers"
     },
@@ -66,8 +66,8 @@
       "article": "Dissolvant petit"
     },
     {
-      "texte_norm": "sprait",
-      "article": "Like à sec G"
+      "texte_norm": "filet ss",
+      "article": "Filet de 500f"
     },
     {
       "texte_norm": "faux cil",
@@ -80,10 +80,6 @@
     {
       "texte_norm": "like",
       "article": "Like à mousse petit"
-    },
-    {
-      "texte_norm": "pommade",
-      "article": "Dallas petit"
     },
     {
       "texte_norm": "avocado",
@@ -126,8 +122,8 @@
       "article": "Boîte de produit"
     },
     {
-      "texte_norm": "sprite",
-      "article": "Like à sec G"
+      "texte_norm": "filet frontal closure",
+      "article": "Filet de 500f"
     },
     {
       "texte_norm": "barrette grand",
@@ -214,12 +210,20 @@
       "article": "Vernis neutre"
     },
     {
+      "texte_norm": "filet fin",
+      "article": "Filet de 100f"
+    },
+    {
       "texte_norm": "ongle de 100",
       "article": "Ongle blanc 3/250"
     },
     {
       "texte_norm": "tamtam couleur",
       "article": "Tam tam couleur"
+    },
+    {
+      "texte_norm": "beva",
+      "article": "Produit Méva"
     },
     {
       "texte_norm": "bo16",
@@ -258,20 +262,8 @@
       "article": "Taille ongle"
     },
     {
-      "texte_norm": "sabam",
-      "article": "Teinte subaru 400/3000"
-    },
-    {
       "texte_norm": "mayonnaise mega",
       "article": "Mayonnaise petit"
-    },
-    {
-      "texte_norm": "koko",
-      "article": "Boucle en fer"
-    },
-    {
-      "texte_norm": "perle cheveux",
-      "article": "Boucle en fer"
     },
     {
       "texte_norm": "lac a mousse et huile",
@@ -284,10 +276,6 @@
     {
       "texte_norm": "lac et mousse petit",
       "article": "Like à mousse petit"
-    },
-    {
-      "texte_norm": "bassam petit",
-      "article": "Champoing tokpa petit"
     },
     {
       "texte_norm": "champoing grand",
@@ -318,6 +306,10 @@
       "article": "Chouchou de 500"
     },
     {
+      "texte_norm": "chouchou de 200",
+      "article": "Chouchou de 200"
+    },
+    {
       "texte_norm": "gel petals petit",
       "article": "Gel pétals petit"
     },
@@ -330,20 +322,12 @@
       "article": "Brosse grand"
     },
     {
-      "texte_norm": "colle ikt",
-      "article": "Gomme"
-    },
-    {
-      "texte_norm": "l oodais",
-      "article": "Huile Luôdaïs carton"
+      "texte_norm": "filet fin et perruque",
+      "article": "Filet de 100f"
     },
     {
       "texte_norm": "petal",
       "article": "Pétal one grand"
-    },
-    {
-      "texte_norm": "koko ou perle cheveux",
-      "article": "Boucle en fer"
     },
     {
       "texte_norm": "neutre",
@@ -354,16 +338,8 @@
       "article": "Ciseau de 250"
     },
     {
-      "texte_norm": "pied de biche",
-      "article": "Taille ongle"
-    },
-    {
       "texte_norm": "cruset",
       "article": "Teinte cruset 3/1200"
-    },
-    {
-      "texte_norm": "damado",
-      "article": "Dermatol"
     },
     {
       "texte_norm": "secret",
@@ -380,22 +356,82 @@
   ],
   "ambigus": [
     {
+      "texte_norm": "conde",
+      "articles": [
+        {
+          "id": "b380c377-de1b-4a4c-8e50-3530cf02974c",
+          "nom": "Corde noir (paquet de 12)",
+          "exemple_ecrit": "conde 1P"
+        },
+        {
+          "id": "f1de877b-984f-474e-928d-db0dcdef95c1",
+          "nom": "Corde noir (pièce)",
+          "exemple_ecrit": "conde 02"
+        }
+      ]
+    },
+    {
+      "texte_norm": "conde noir",
+      "articles": [
+        {
+          "id": "b380c377-de1b-4a4c-8e50-3530cf02974c",
+          "nom": "Corde noir (paquet de 12)",
+          "exemple_ecrit": "Conde noir 1P"
+        },
+        {
+          "id": "f1de877b-984f-474e-928d-db0dcdef95c1",
+          "nom": "Corde noir (pièce)",
+          "exemple_ecrit": "Conde noir 4"
+        }
+      ]
+    },
+    {
+      "texte_norm": "conde noir 1",
+      "articles": [
+        {
+          "id": "b380c377-de1b-4a4c-8e50-3530cf02974c",
+          "nom": "Corde noir (paquet de 12)",
+          "exemple_ecrit": "Conde noir 1P½"
+        },
+        {
+          "id": "f1de877b-984f-474e-928d-db0dcdef95c1",
+          "nom": "Corde noir (pièce)",
+          "exemple_ecrit": "Conde noir ½"
+        }
+      ]
+    },
+    {
       "texte_norm": "ongle",
       "articles": [
         {
-          "id": "a185dce3-2e36-4268-b595-8fa8ed0ef18f",
+          "id": "cbbc03e8-769e-41c8-9749-4eb236ead3b8",
           "nom": "Ongle couleur 150",
           "exemple_ecrit": "ongle"
         },
         {
-          "id": "ef131130-b5d7-47a3-a1e6-d4cc528c2922",
+          "id": "aadbeea1-aa19-4521-9f20-6bd5bc4d28ca",
           "nom": "Ongle de 250",
           "exemple_ecrit": "ongle"
         },
         {
-          "id": "3341d916-74c2-49cd-a590-f4ccb769d232",
+          "id": "73c7c5b4-e77e-4192-885e-93442412700d",
           "nom": "Ongle blanc 3/250",
           "exemple_ecrit": "ongle"
+        }
+      ]
+    },
+    {
+      "texte_norm": "elastique",
+      "articles": [
+        {
+          "id": "ab09bd12-c357-4874-b221-8e67cae3eafc",
+          "nom": "Elastique (pièce)",
+          "exemple_ecrit": "élastique"
+        },
+        {
+          "id": "39692d1e-99ed-4c70-9d4e-a0294500e1a9",
+          "nom": "Elastique (paquet de 12)",
+          "exemple_ecrit": "élastique"
         }
       ]
     },
@@ -403,14 +439,29 @@
       "texte_norm": "mega",
       "articles": [
         {
-          "id": "f734f673-3a67-42d4-9b7e-370bc5554145",
+          "id": "7d35a9eb-356a-4a8a-b601-bf29ffcaa987",
           "nom": "Méga détail",
-          "exemple_ecrit": "Méga"
+          "exemple_ecrit": "mega"
         },
         {
-          "id": "55a542cc-e6f6-4371-8346-4d6e1500adc4",
+          "id": "4de01b7c-7e6c-486b-8754-dc59ed4eac68",
           "nom": "Méga en carton de 12",
-          "exemple_ecrit": "Méga"
+          "exemple_ecrit": "mega"
+        }
+      ]
+    },
+    {
+      "texte_norm": "filet perruque",
+      "articles": [
+        {
+          "id": "7473604e-3f9c-4039-bf1a-df3582637f88",
+          "nom": "Filet de 500f",
+          "exemple_ecrit": "Filet perruque"
+        },
+        {
+          "id": "f882b868-3113-419f-94cb-9c59c6650fc3",
+          "nom": "Filet de 100f",
+          "exemple_ecrit": "Filet perruque"
         }
       ]
     },
@@ -418,179 +469,81 @@
       "texte_norm": "petals",
       "articles": [
         {
-          "id": "81585dd2-223e-4495-8e9f-12c599b8ed1c",
+          "id": "da3feb09-2405-490d-84d2-292eab5553f5",
           "nom": "Gel pétals petit",
-          "exemple_ecrit": "Petals"
+          "exemple_ecrit": "petals"
         },
         {
-          "id": "2ab331d4-f179-41df-836b-8ffdba6da44e",
+          "id": "a38b323d-d29b-4c72-a9ff-02ddff07ace9",
           "nom": "Pétal one grand",
-          "exemple_ecrit": "Petals"
+          "exemple_ecrit": "petals"
         }
       ]
     }
   ],
-  "skips_article_introuvable": [
+  "skips_article_introuvable": [],
+  "skips_sans_mot_commun": [
     {
-      "ecrit": "conde 1P",
-      "articleNom": "Corde noir (paquet de 12)"
+      "ecrit": "Schaly",
+      "articleNom": "Shary"
     },
     {
-      "ecrit": "conde 02",
-      "articleNom": "Corde noir (pièce)"
+      "ecrit": "Sprait",
+      "articleNom": "Like à sec G"
     },
     {
-      "ecrit": "Conde noir 1P",
-      "articleNom": "Corde noir (paquet de 12)"
+      "ecrit": "Pommade",
+      "articleNom": "Dallas petit"
     },
     {
-      "ecrit": "Mèva",
-      "articleNom": "Produit Méva"
+      "ecrit": "Pommade",
+      "articleNom": "Dallas petit"
     },
     {
-      "ecrit": "Conde noir 1P½",
-      "articleNom": "Corde noir (paquet de 12)"
+      "ecrit": "Sprite",
+      "articleNom": "Like à sec G"
     },
     {
-      "ecrit": "Conde noir 1P½",
-      "articleNom": "Corde noir (pièce)"
+      "ecrit": "Sabam",
+      "articleNom": "Teinte subaru 400/3000"
     },
     {
-      "ecrit": "Conde noir 1P",
-      "articleNom": "Corde noir (paquet de 12)"
+      "ecrit": "Koko",
+      "articleNom": "Boucle en fer"
     },
     {
-      "ecrit": "Conde noir 2P",
-      "articleNom": "Corde noir (paquet de 12)"
+      "ecrit": "Perle cheveux",
+      "articleNom": "Boucle en fer"
     },
     {
-      "ecrit": "Conde noir 4P",
-      "articleNom": "Corde noir (paquet de 12)"
+      "ecrit": "Bassam petit",
+      "articleNom": "Champoing tokpa petit"
     },
     {
-      "ecrit": "Conde noir ½",
-      "articleNom": "Corde noir (pièce)"
+      "ecrit": "Perle cheveux",
+      "articleNom": "Boucle en fer"
     },
     {
-      "ecrit": "Conde noir 1P",
-      "articleNom": "Corde noir (paquet de 12)"
+      "ecrit": "Colle IKT",
+      "articleNom": "Gomme"
     },
     {
-      "ecrit": "Conde noir 1P",
-      "articleNom": "Corde noir (paquet de 12)"
+      "ecrit": "L'oodais",
+      "articleNom": "Huile Luôdaïs carton"
     },
     {
-      "ecrit": "Conde noir 1",
-      "articleNom": "Corde noir (pièce)"
+      "ecrit": "Koko ou perle cheveux",
+      "articleNom": "Boucle en fer"
     },
     {
-      "ecrit": "Conde noir ½",
-      "articleNom": "Corde noir (pièce)"
+      "ecrit": "Pied de biche",
+      "articleNom": "Taille ongle"
     },
     {
-      "ecrit": "Conde noir 2P",
-      "articleNom": "Corde noir (paquet de 12)"
-    },
-    {
-      "ecrit": "Conde noir ½",
-      "articleNom": "Corde noir (pièce)"
-    },
-    {
-      "ecrit": "Conde noir 1P",
-      "articleNom": "Corde noir (paquet de 12)"
-    },
-    {
-      "ecrit": "Conde noir 1P",
-      "articleNom": "Corde noir (paquet de 12)"
-    },
-    {
-      "ecrit": "Conde noir ½",
-      "articleNom": "Corde noir (pièce)"
-    },
-    {
-      "ecrit": "Conde noir 1P",
-      "articleNom": "Corde noir (paquet de 12)"
-    },
-    {
-      "ecrit": "Conde noir 2",
-      "articleNom": "Corde noir (pièce)"
-    },
-    {
-      "ecrit": "Conde noir 1P",
-      "articleNom": "Corde noir (paquet de 12)"
-    },
-    {
-      "ecrit": "Conde noir 4",
-      "articleNom": "Corde noir (pièce)"
-    },
-    {
-      "ecrit": "Filet SS",
-      "articleNom": "Filet de 500f"
-    },
-    {
-      "ecrit": "élastique",
-      "articleNom": "Elastique (pièce)"
-    },
-    {
-      "ecrit": "élastique",
-      "articleNom": "Elastique (pièce)"
-    },
-    {
-      "ecrit": "Filet frontal closure",
-      "articleNom": "Filet de 500f"
-    },
-    {
-      "ecrit": "élastique",
-      "articleNom": "Elastique (paquet de 12)"
-    },
-    {
-      "ecrit": "élastique",
-      "articleNom": "Elastique (pièce)"
-    },
-    {
-      "ecrit": "Filet fin",
-      "articleNom": "Filet de 100f"
-    },
-    {
-      "ecrit": "Filet perruque",
-      "articleNom": "Filet de 500f"
-    },
-    {
-      "ecrit": "Beva",
-      "articleNom": "Produit Méva"
-    },
-    {
-      "ecrit": "élastique",
-      "articleNom": "Elastique (paquet de 12)"
-    },
-    {
-      "ecrit": "élastique",
-      "articleNom": "Elastique (pièce)"
-    },
-    {
-      "ecrit": "élastique",
-      "articleNom": "Elastique (paquet de 12)"
-    },
-    {
-      "ecrit": "Filet perruque",
-      "articleNom": "Filet de 100f"
-    },
-    {
-      "ecrit": "Filet fin",
-      "articleNom": "Filet de 100f"
-    },
-    {
-      "ecrit": "Beva",
-      "articleNom": "Produit Méva"
-    },
-    {
-      "ecrit": "Chouchou de 200",
-      "articleNom": "Chouchou de 200"
-    },
-    {
-      "ecrit": "élastique",
-      "articleNom": "Elastique (pièce)"
+      "ecrit": "Damado",
+      "articleNom": "Dermatol"
     }
   ],
-  "nb_upsert": 94
+  "nb_upsert": 88,
+  "nb_candidats": 17
 }
