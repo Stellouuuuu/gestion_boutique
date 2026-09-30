@@ -23,9 +23,25 @@ export class AppErrorBoundary extends Component<Props, State> {
 
   private recharger = () => {
     this.setState({ error: null });
-    if (typeof globalThis.location !== 'undefined') {
-      globalThis.location.reload();
-    }
+    void (async () => {
+      try {
+        // Débloque un vieux service worker / precache sans toucher OPFS ni IndexedDB
+        // (les ventes locales a_envoyer restent intactes).
+        if (typeof navigator !== 'undefined' && navigator.serviceWorker?.getRegistrations) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map((r) => r.unregister()));
+        }
+        if (typeof caches !== 'undefined') {
+          const keys = await caches.keys();
+          await Promise.all(keys.map((k) => caches.delete(k)));
+        }
+      } catch {
+        /* ignore */
+      }
+      if (typeof globalThis.location !== 'undefined') {
+        globalThis.location.reload();
+      }
+    })();
   };
 
   render() {

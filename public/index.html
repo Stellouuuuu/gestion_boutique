@@ -34,8 +34,37 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {
-          navigator.serviceWorker.register('/sw.js').catch(function () {
-            /* En local sans build Workbox, sw.js peut manquer : ce n'est pas bloquant. */
+          navigator.serviceWorker
+            .register('/sw.js')
+            .then(function (reg) {
+              // Forcer l’activation d’un SW déjà en attente (ancienne config skipWaiting:false).
+              function activerEnAttente(worker) {
+                if (!worker) return;
+                worker.postMessage({ type: 'SKIP_WAITING' });
+              }
+              if (reg.waiting) activerEnAttente(reg.waiting);
+              reg.addEventListener('updatefound', function () {
+                var nw = reg.installing;
+                if (!nw) return;
+                nw.addEventListener('statechange', function () {
+                  if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                    activerEnAttente(nw);
+                  }
+                });
+              });
+              // Chercher une mise à jour tout de suite (évite de rester bloqué sur un vieux precache).
+              reg.update().catch(function () {});
+            })
+            .catch(function () {
+              /* En local sans build Workbox, sw.js peut manquer : ce n’est pas bloquant. */
+            });
+
+          // Un seul reload quand le nouveau SW prend le contrôle.
+          var rechargementSw = false;
+          navigator.serviceWorker.addEventListener('controllerchange', function () {
+            if (rechargementSw) return;
+            rechargementSw = true;
+            window.location.reload();
           });
         });
       }
