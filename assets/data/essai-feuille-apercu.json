@@ -1,5 +1,5 @@
 {
-  "_note": "Rejeu hors Gemini : textes du xlsx 25/09 + matching TEST. Réponse brute téléphone non persistée. Score vs « Article dans l’app » du xlsx : 23 justes / 1 FAUX (Taille ongle → original) / 0 null. Total 13 750.",
+  "_note": "Rejeu hors Gemini : alias/nom exact avant prix. Score vs xlsx 25/09 : 24/24, 0 FAUX. Total 13 750.",
   "fichier": "essai-telephone-25-09-produits",
   "date_iso": "2026-09-25",
   "total_ecrit": 13750,
@@ -103,8 +103,8 @@
         },
         {
           "texte_lu": "Taille ongle",
-          "article_id": "4417f0d4-3e45-4786-bb77-eed6190896b7",
-          "article_nom": "Taille ongle original",
+          "article_id": "6193be3c-57ef-455d-bde4-22b931d61b8e",
+          "article_nom": "Taille ongle",
           "quantite": 1,
           "montant_lu": 100,
           "prix_lu": 100,
@@ -256,12 +256,12 @@
   ],
   "score": {
     "article": {
-      "justes": 23,
-      "faux": 1,
+      "justes": 24,
+      "faux": 0,
       "null_ok": 0,
       "total": 24,
-      "taux_justes": 95.8,
-      "taux_faux": 4.2,
+      "taux_justes": 100,
+      "taux_faux": 0,
       "taux_null": 0
     },
     "quantite": {
@@ -275,9 +275,9 @@
       "taux": 100
     },
     "ligne_complete": {
-      "justes": 23,
+      "justes": 24,
       "total": 24,
-      "taux": 95.8
+      "taux": 100
     },
     "en_trop": [],
     "manquantes": [],

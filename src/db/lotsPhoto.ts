@@ -25,6 +25,8 @@ export interface LotPhoto {
   total: number;
   photo_path: string | null;
   lecture_ia: string | null;
+  /** Réponse brute IA (JSON) pour rejeu sans Gemini. */
+  reponse_ia: string | null;
   resultat_valide: string | null;
   cree_par: string | null;
   cree_le: string;
@@ -78,6 +80,8 @@ export async function enregistrerLotPhoto(
     dateFeuille: string;
     lignes: LigneValidee[];
     lectureIa: unknown;
+    /** Réponse brute de lire-feuille (rejeu sans Gemini). */
+    reponseIa?: unknown;
     photoPath: string | null;
     creePar: string | null;
     /** Heure ISO pour cree_le des ventes (midi local de la date feuille). */
@@ -96,9 +100,9 @@ export async function enregistrerLotPhoto(
   await db.withTransactionAsync(async () => {
     await db.runAsync(
       `INSERT INTO lots_photo
-         (id, boutique_id, date_feuille, nb_lignes, total, photo_path, lecture_ia, resultat_valide,
+         (id, boutique_id, date_feuille, nb_lignes, total, photo_path, lecture_ia, reponse_ia, resultat_valide,
           cree_par, cree_le, modifie_le, annule, a_envoyer)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1)`,
       [
         lotId,
         boutiqueId,
@@ -107,6 +111,7 @@ export async function enregistrerLotPhoto(
         total,
         opts.photoPath,
         JSON.stringify(opts.lectureIa),
+        opts.reponseIa != null ? JSON.stringify(opts.reponseIa) : null,
         JSON.stringify(opts.lignes),
         opts.creePar,
         now,

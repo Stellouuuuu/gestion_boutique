@@ -140,7 +140,7 @@ async function pushTable(
     );
     const skipped = foreign?.n ?? 0;
     const rows = await db.getAllAsync<Record<string, unknown>>(
-      `SELECT id, boutique_id, date_feuille, nb_lignes, total, photo_path, lecture_ia, resultat_valide,
+      `SELECT id, boutique_id, date_feuille, nb_lignes, total, photo_path, lecture_ia, reponse_ia, resultat_valide,
               cree_par, cree_le, modifie_le, annule
        FROM lots_photo WHERE a_envoyer = 1 AND boutique_id = ?`,
       [boutiqueId]
@@ -155,6 +155,7 @@ async function pushTable(
         total: r.total,
         photo_path: r.photo_path,
         lecture_ia: r.lecture_ia ? JSON.parse(String(r.lecture_ia)) : null,
+        reponse_ia: r.reponse_ia ? JSON.parse(String(r.reponse_ia)) : null,
         resultat_valide: r.resultat_valide ? JSON.parse(String(r.resultat_valide)) : null,
         cree_par: r.cree_par,
         cree_le: r.cree_le,
@@ -478,7 +479,7 @@ async function pullLotsPhoto(
   const { data, error } = await supabase
     .from('lots_photo')
     .select(
-      'id, boutique_id, date_feuille, nb_lignes, total, photo_path, lecture_ia, resultat_valide, cree_par, cree_le, modifie_le, annule'
+      'id, boutique_id, date_feuille, nb_lignes, total, photo_path, lecture_ia, reponse_ia, resultat_valide, cree_par, cree_le, modifie_le, annule'
     )
     .eq('boutique_id', boutiqueId)
     .gt('modifie_le', since);
@@ -495,15 +496,16 @@ async function pullLotsPhoto(
     if (local && local.boutique_id !== l.boutique_id) continue;
     await db.runAsync(
       `INSERT INTO lots_photo
-         (id, boutique_id, date_feuille, nb_lignes, total, photo_path, lecture_ia, resultat_valide,
+         (id, boutique_id, date_feuille, nb_lignes, total, photo_path, lecture_ia, reponse_ia, resultat_valide,
           cree_par, cree_le, modifie_le, annule, a_envoyer)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
        ON CONFLICT(id) DO UPDATE SET
          date_feuille = excluded.date_feuille,
          nb_lignes = excluded.nb_lignes,
          total = excluded.total,
          photo_path = excluded.photo_path,
          lecture_ia = excluded.lecture_ia,
+         reponse_ia = excluded.reponse_ia,
          resultat_valide = excluded.resultat_valide,
          annule = excluded.annule,
          modifie_le = excluded.modifie_le,
@@ -516,6 +518,7 @@ async function pullLotsPhoto(
         l.total,
         l.photo_path,
         l.lecture_ia ? JSON.stringify(l.lecture_ia) : null,
+        l.reponse_ia ? JSON.stringify(l.reponse_ia) : null,
         l.resultat_valide ? JSON.stringify(l.resultat_valide) : null,
         l.cree_par,
         l.cree_le,

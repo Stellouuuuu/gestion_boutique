@@ -203,11 +203,10 @@ export function rapprocherArticle(
         ? opts.montant
         : null;
 
-  // Match exact (normalisé) — accepté même sans prix
+  // Match exact (normalisé) — avant toute comparaison de prix
   for (const a of catalogue) {
     const n = normaliserNom(a.nom);
     if (n && n === q) {
-      if (unit != null && !prixCompatible(unit, a)) continue;
       return { articleId: a.id, score: 1, nomCatalogue: a.nom };
     }
   }

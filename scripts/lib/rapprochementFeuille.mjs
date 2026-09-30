@@ -1,6 +1,7 @@
 /**
  * Rapprochement texte manuscrit → article (hors Gemini).
- * Ordre : alias unique → alias multi (prix) → ressemblance prudente + prix.
+ * Ordre : alias unique → nom exact → alias multi (prix) → ressemblance + prix.
+ * Alias / nom exact : avant toute comparaison de prix (sauf chiffre_ambigu + prix incompatible).
  * Une proposition fausse est pire qu’un null.
  */
 
@@ -176,21 +177,40 @@ export function rapprocherAvecAlias(texteLu, catalogue, aliases, opts = {}, alia
   const cle = normaliserTexteAlias(texteLu);
   const cleCompact = cle.replace(/\s+/g, '');
   const unit = unitPrice(opts);
+  const ambiguChiffre = !!opts.chiffre_ambigu;
 
-  // 1) Alias unique = source de vérité pour le nom (pas de filtre mot distinctif).
-  //    Prix : toujours vérifié si on a un montant (évite Super glue à 1000 F).
+  function accepterExact(art, via) {
+    // Montant douteux et hors prix catalogue → null (ex. Super Glue à 1000 F).
+    if (ambiguChiffre && unit != null && !prixCompatible(unit, art)) {
+      return {
+        articleId: null,
+        score: 0,
+        nomCatalogue: null,
+        via: via + '_prix_ambigu',
+        variantes: [],
+      };
+    }
+    return {
+      articleId: art.id,
+      score: via === 'exact' ? 1 : 0.99,
+      nomCatalogue: art.nom,
+      via,
+      variantes: [],
+    };
+  }
+
+  // 0) Alias unique = correction de Maman — avant nom catalogue et avant prix
   const aliasId =
     (cle && aliases.get(cle)) || (cleCompact && aliases.get(cleCompact)) || null;
   if (aliasId && byId[aliasId]) {
-    const art = byId[aliasId];
-    if (unit == null || prixCompatible(unit, art)) {
-      return {
-        articleId: aliasId,
-        score: 0.99,
-        nomCatalogue: art.nom,
-        via: 'alias',
-        variantes: [],
-      };
+    return accepterExact(byId[aliasId], 'alias');
+  }
+
+  // 1) Nom catalogue exact (normalisé) — avant toute comparaison de prix
+  const qNom = normaliserNom(texteLu);
+  if (qNom) {
+    for (const a of catalogue) {
+      if (normaliserNom(a.nom) === qNom) return accepterExact(a, 'exact');
     }
   }
 

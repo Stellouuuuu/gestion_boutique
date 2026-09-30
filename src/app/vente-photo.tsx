@@ -62,6 +62,8 @@ export default function VentePhotoScreen() {
           dateSuggeree: res.date_suggeree ?? '',
           totalEcrit: res.total_ecrit != null ? String(res.total_ecrit) : '',
           photoUri: uri,
+          // Réponse brute pour lots_photo.reponse_ia (rejeu sans Gemini)
+          reponseIa: JSON.stringify(res),
         },
       });
     } catch {

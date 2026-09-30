@@ -89,7 +89,13 @@ export async function runRejouer({ dir, out, attenduPath, reponsesIa, filtreUneP
         const texte = String(l.texte_lu || '').trim();
         const montant = l.montant_lu != null ? Number(l.montant_lu) : null;
         const q = Number(l.quantite) > 0 ? Math.round(Number(l.quantite)) : 1;
-        const m = rapprocherAvecAlias(texte, catalogue, aliases, { montant, quantite: q }, aliasMulti);
+        const m = rapprocherAvecAlias(
+          texte,
+          catalogue,
+          aliases,
+          { montant, quantite: q, chiffre_ambigu: !!l.chiffre_ambigu },
+          aliasMulti
+        );
         const multi = (m.variantes || []).length > 1;
         return {
           texte_lu: texte,

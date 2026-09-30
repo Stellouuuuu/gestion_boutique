@@ -95,6 +95,7 @@ export default function VerifierFeuilleScreen() {
     dateSuggeree?: string;
     totalEcrit?: string;
     photoUri?: string;
+    reponseIa?: string;
     articlePick?: string;
     ligneKey?: string;
   }>();
@@ -104,7 +105,30 @@ export default function VerifierFeuilleScreen() {
   const { session, membre } = useAuth();
   const insets = useSafeAreaInsets();
 
-  const sectionsInit = useMemo(() => parseSections(params), [params]);
+  const sectionsParam = typeof params.sections === 'string' ? params.sections : '';
+  const lignesParam = typeof params.lignes === 'string' ? params.lignes : '';
+  const dateSuggereeParam =
+    typeof params.dateSuggeree === 'string' ? params.dateSuggeree : '';
+  const totalEcritParam = typeof params.totalEcrit === 'string' ? params.totalEcrit : '';
+  const reponseIaParam =
+    typeof params.reponseIa === 'string' ? params.reponseIa : '';
+  const photoUriParam = typeof params.photoUri === 'string' ? params.photoUri : '';
+  const articlePickParam =
+    typeof params.articlePick === 'string' ? params.articlePick : '';
+  const ligneKeyParam = typeof params.ligneKey === 'string' ? params.ligneKey : '';
+
+  // Dépendances en strings stables : l’objet `params` change d’identité à chaque rendu
+  // (cause historique du toast « Maximum update depth exceeded »).
+  const sectionsInit = useMemo(
+    () =>
+      parseSections({
+        sections: sectionsParam,
+        lignes: lignesParam,
+        dateSuggeree: dateSuggereeParam,
+        totalEcrit: totalEcritParam,
+      }),
+    [sectionsParam, lignesParam, dateSuggereeParam, totalEcritParam]
+  );
   const multi = sectionsInit.length > 1;
   const [sectionIdx, setSectionIdx] = useState(0);
   const section = sectionsInit[Math.min(sectionIdx, sectionsInit.length - 1)];
@@ -150,8 +174,9 @@ export default function VerifierFeuilleScreen() {
   const [creerPrixGros, setCreerPrixGros] = useState('');
   const [creerStock, setCreerStock] = useState('');
 
+  // Un seul effet pour réinitialiser + enrichir les lignes quand la section change.
   useEffect(() => {
-    setLignes(initial);
+    let active = true;
     setDateFeuille(
       section?.date_iso && /^\d{4}-\d{2}-\d{2}$/.test(section.date_iso)
         ? section.date_iso
@@ -161,49 +186,10 @@ export default function VerifierFeuilleScreen() {
     setTotalEcrit(section?.total_ecrit ?? null);
     setTotalForceOk(false);
     setEditKey(null);
-  }, [initial, section]);
+    setLignes(initial);
 
-  useEffect(() => {
-    void listArticlesActifs(db).then(setCatalogue);
-  }, [db]);
-
-  useEffect(() => {
-    const id = params.articlePick;
-    const key = params.ligneKey;
-    if (!id || !key) return;
     void (async () => {
-      const a = await getArticle(db, String(id));
-      if (!a) return;
-      const ligne = lignes.find((l) => l.key === key);
-      const montant = ligne?.montant_lu ?? ligne?.montant ?? 0;
-      const pu = a.prix_detail ?? 0;
-      const ecart =
-        pu > 0 && montant > 0
-          ? Math.abs((ligne?.quantite ?? 1) * pu - montant) / montant > 0.2
-          : false;
-      setLignes((prev) =>
-        prev.map((l) =>
-          l.key === key
-            ? {
-                ...l,
-                article_id: a.id,
-                article_nom: a.nom,
-                confiance: 'haute' as const,
-                ecartMontant: ecart,
-              }
-            : l
-        )
-      );
-      if (ligne?.texte_lu) await enregistrerAlias(db, ligne.texte_lu, a.id);
-      router.setParams({ articlePick: undefined, ligneKey: undefined });
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.articlePick, params.ligneKey, db]);
-
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      const next = [...initial];
+      const next = initial.map((l) => ({ ...l }));
       for (let i = 0; i < next.length; i++) {
         const l = next[i]!;
         if (l.article_id) {
@@ -223,15 +209,64 @@ export default function VerifierFeuilleScreen() {
             };
           }
         } else {
-          next[i] = { ...l, article_nom: null, montant: l.montant_lu ?? 0, ecartMontant: false };
+          next[i] = {
+            ...l,
+            article_nom: null,
+            montant: l.montant_lu ?? 0,
+            ecartMontant: false,
+          };
         }
       }
       if (active) setLignes(next);
     })();
+
     return () => {
       active = false;
     };
-  }, [db, initial]);
+    // initial est mémorisé sur sectionsParam… + sectionIdx (stables)
+  }, [db, initial, section]);
+
+  useEffect(() => {
+    void listArticlesActifs(db).then(setCatalogue);
+  }, [db]);
+
+  useEffect(() => {
+    const id = articlePickParam;
+    const key = ligneKeyParam;
+    if (!id || !key) return;
+    let cancelled = false;
+    void (async () => {
+      const a = await getArticle(db, String(id));
+      if (!a || cancelled) return;
+      let texteLu: string | null = null;
+      setLignes((prev) => {
+        const ligne = prev.find((l) => l.key === key);
+        texteLu = ligne?.texte_lu ?? null;
+        const montant = ligne?.montant_lu ?? ligne?.montant ?? 0;
+        const pu = a.prix_detail ?? 0;
+        const ecart =
+          pu > 0 && montant > 0
+            ? Math.abs((ligne?.quantite ?? 1) * pu - montant) / montant > 0.2
+            : false;
+        return prev.map((l) =>
+          l.key === key
+            ? {
+                ...l,
+                article_id: a.id,
+                article_nom: a.nom,
+                confiance: 'haute' as const,
+                ecartMontant: ecart,
+              }
+            : l
+        );
+      });
+      if (texteLu) await enregistrerAlias(db, texteLu, a.id);
+      if (!cancelled) router.setParams({ articlePick: '', ligneKey: '' });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [articlePickParam, ligneKeyParam, db]);
 
   const orange = useCallback(
     (l: LigneEdit) =>
@@ -414,11 +449,20 @@ export default function VerifierFeuilleScreen() {
       for (const l of lignes) {
         if (l.article_id && l.texte_lu) await enregistrerAlias(db, l.texte_lu, l.article_id);
       }
+      let reponseIa: unknown = { section, lignes: initial };
+      if (reponseIaParam) {
+        try {
+          reponseIa = JSON.parse(reponseIaParam);
+        } catch {
+          reponseIa = { brut: reponseIaParam, section, lignes: initial };
+        }
+      }
       const lot = await enregistrerLotPhoto(db, {
         dateFeuille,
         lignes: valides,
         lectureIa: { section, lignes: initial },
-        photoPath: params.photoUri ? String(params.photoUri) : null,
+        reponseIa,
+        photoPath: photoUriParam || null,
         creePar: session?.user?.id ?? null,
         creeLeVentes: midiIso(dateFeuille),
       });

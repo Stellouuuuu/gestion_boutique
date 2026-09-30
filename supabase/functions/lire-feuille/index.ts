@@ -220,7 +220,7 @@ function prixCompatible(
 function rapprocher(
   texte: string,
   catalogue: Article[],
-  opts?: { montant?: number | null; quantite?: number },
+  opts?: { montant?: number | null; quantite?: number; chiffre_ambigu?: boolean },
   aliasMulti?: Map<string, string[]>
 ): {
   id: string | null;
@@ -234,6 +234,20 @@ function rapprocher(
       : opts?.montant != null
         ? opts.montant
         : null;
+  const ambiguChiffre = !!opts?.chiffre_ambigu;
+
+  // Nom catalogue exact — avant toute comparaison de prix
+  const qNom = normaliserNom(texte);
+  if (qNom) {
+    for (const a of catalogue) {
+      if (normaliserNom(a.nom) === qNom) {
+        if (ambiguChiffre && unit != null && !prixCompatible(unit, a)) {
+          return { id: null, score: 0, variantes: [] };
+        }
+        return { id: a.id, score: 1, variantes: [{ id: a.id, nom: a.nom, score: 1 }] };
+      }
+    }
+  }
 
   const cle = normaliserAlias(texte);
   const cleC = cle.replace(/\s+/g, '');
@@ -254,7 +268,7 @@ function rapprocher(
       }
       const ok = unit != null ? cands.filter((a) => prixCompatible(unit, a)) : [];
       if (ok.length === 1) {
-        return { id: ok[0].id, score: 0.95, variantes: [{ id: ok[0].id, nom: ok[0].nom, score: 0.95 }] };
+        return { id: ok[0]!.id, score: 0.95, variantes: [{ id: ok[0]!.id, nom: ok[0]!.nom, score: 0.95 }] };
       }
       if (ok.length > 1 && unit != null) {
         const ranked = ok
@@ -266,11 +280,11 @@ function rapprocher(
             return { a, ecart };
           })
           .sort((x, y) => x.ecart - y.ecart);
-        if (ranked.length >= 2 && ranked[1].ecart - ranked[0].ecart >= 0.15) {
+        if (ranked.length >= 2 && ranked[1]!.ecart - ranked[0]!.ecart >= 0.15) {
           return {
-            id: ranked[0].a.id,
+            id: ranked[0]!.a.id,
             score: 0.94,
-            variantes: [{ id: ranked[0].a.id, nom: ranked[0].a.nom, score: 0.94 }],
+            variantes: [{ id: ranked[0]!.a.id, nom: ranked[0]!.a.nom, score: 0.94 }],
           };
         }
       }
@@ -730,16 +744,23 @@ Deno.serve(async (req) => {
           montant != null && q > 0 ? montant / q : montant != null ? montant : null;
         const cleA = normaliserAlias(texte);
         const aliasId = aliases.get(cleA) || aliases.get(cleA.replace(/\s+/g, ''));
-        // Alias unique = source de vérité pour le nom ; prix vérifié si montant connu
+        // Alias unique = avant comparaison de prix (sauf chiffre ambigu + prix incompatible)
         if (aliasId && byId[aliasId]) {
           const artA = byId[aliasId];
-          if (unit == null || prixCompatible(unit, artA)) {
+          if (ambigu && unit != null && !prixCompatible(unit, artA)) {
+            // laisser null
+          } else {
             articleId = aliasId;
             score = 0.99;
           }
         }
         if (!articleId) {
-          const m = rapprocher(texte, catalogue, { montant, quantite: q }, aliasMulti);
+          const m = rapprocher(
+            texte,
+            catalogue,
+            { montant, quantite: q, chiffre_ambigu: ambigu },
+            aliasMulti
+          );
           articleId = m.id;
           score = m.score;
           variantes = m.variantes.map((v) => ({ id: v.id, nom: v.nom }));

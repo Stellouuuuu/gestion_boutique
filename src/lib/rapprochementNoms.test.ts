@@ -110,4 +110,15 @@ describe('rapprocherArticle', () => {
     });
     assert.equal(r.articleId, null);
   });
+
+  it('match exact ignore le prix (Taille ongle à 100 F)', () => {
+    const cat = [
+      ...CATALOGUE,
+      { id: 'to', nom: 'Taille ongle', prix_detail: 500, prix_gros: 500 },
+      { id: 'too', nom: 'Taille ongle original', prix_detail: 100, prix_gros: 100 },
+    ];
+    const r = rapprocherArticle('Taille ongle', cat, 0.62, { montant: 100, quantite: 1 });
+    assert.equal(r.articleId, 'to');
+    assert.equal(r.nomCatalogue, 'Taille ongle');
+  });
 });

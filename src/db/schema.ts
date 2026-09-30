@@ -1,5 +1,5 @@
-/** Schéma local v4 : lots photo + alias manuscrits. */
-export const SCHEMA_VERSION = 4;
+/** Schéma local v5 : lots photo + alias + reponse_ia brute. */
+export const SCHEMA_VERSION = 5;
 
 export const SCHEMA_SQL = `
 PRAGMA journal_mode = WAL;
@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS lots_photo (
   total INTEGER NOT NULL DEFAULT 0,
   photo_path TEXT,
   lecture_ia TEXT,
+  reponse_ia TEXT,
   resultat_valide TEXT,
   cree_par TEXT,
   cree_le TEXT NOT NULL,

@@ -38,6 +38,10 @@ export async function migrateDatabase(db: SQLiteDatabase): Promise<void> {
     await ensureColumnIfTableExists(db, 'mouvements', 'lot_id', 'TEXT');
   }
 
+  if (version < 5) {
+    await ensureColumnIfTableExists(db, 'lots_photo', 'reponse_ia', 'TEXT');
+  }
+
   // 2) CREATE IF NOT EXISTS (tables + index sans lot_id)
   await db.execAsync(SCHEMA_SQL);
 
@@ -55,6 +59,11 @@ export async function migrateDatabase(db: SQLiteDatabase): Promise<void> {
   }
 
   // v4 : table alias_articles créée via SCHEMA_SQL (IF NOT EXISTS)
+
+  // v5 : réponse brute IA pour rejeu sans Gemini
+  if (version < 5) {
+    await ensureColumn(db, 'lots_photo', 'reponse_ia', 'TEXT');
+  }
 
   if (version !== SCHEMA_VERSION) {
     await db.runAsync(
